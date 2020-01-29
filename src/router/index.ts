@@ -1,28 +1,48 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/",
-    name: "home",
-    component: Home
+    name: "rootPath",
+    redirect: "/learn"
   },
   {
-    path: "/about",
-    name: "about",
+    path: "/learn",
+    name: "learn",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
+      import(/* webpackChunkName: "about" */ "../views/Learn/Learn.vue")
+  },
+  {
+    path: "/competition",
+    name: "competition",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(
+        /* webpackChunkName: "about" */ "../views/Competition/Competition.vue"
+      )
+  },
+  {
+    path: "/404",
+    name: "404",
+    component: () => import("../views/error_page/404.vue")
+  },
+  {
+    path: "*",
+    redirect: "/404"
   }
 ];
 
 const router = new VueRouter({
-  mode: "history",
+  // mode: "history",
+  mode: "hash",
   base: process.env.BASE_URL,
   routes
 });

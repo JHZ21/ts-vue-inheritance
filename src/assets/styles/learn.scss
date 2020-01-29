@@ -1,0 +1,9 @@
+@mixin layout-width() {
+  //   width: 1386px;
+  width: 1440px;
+  @media screen and (max-width: 1640px) {
+    & {
+      width: 1200px;
+    }
+  }
+}
