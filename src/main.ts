@@ -3,7 +3,7 @@ import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
-import { injectLink } from "./utils";
+import { injectLink } from "./utils/func";
 import { Pagination } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import "@/mock/index";

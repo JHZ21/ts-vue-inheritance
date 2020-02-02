@@ -1,7 +1,8 @@
 import Mock from "mockjs";
 import axios from "axios";
-import { CardData } from "@/utils/index";
+import { CardData } from "@/utils/interface";
 import { partial, pipe } from "@/utils/func";
+import { oContentUrlType } from "@/store/modules/learn.ts";
 
 const nav_data = [
   {
@@ -54,9 +55,9 @@ function makeCard() {
     ],
     title: "@csentence",
     "readVolume|1-9999": 1,
-    href: "",
+    "id|1": [1111, 2222, 3333],
     uploader: "@cname",
-    "date|1420041600000-1580290879259": 1420041600000
+    "timeStamp|1420041600000-1580290879259": 1420041600000
   });
 }
 function funcOfRepeatFunc(n: number, m: number, func: any): any {
@@ -90,3 +91,25 @@ Mock.mock("learn/card", "get", function() {
   };
   return ret_val;
 });
+
+Mock.mock("learn/getocententurl", "post", function() {
+  const OContentUrl: oContentUrlType = {
+    "3333": "https://www.baidu.com/",
+    "1111": "https://www.tslang.cn/docs/handbook/interfaces.html",
+    "2222": "http://www.typescriptlang.org/docs/handbook/basic-types.html"
+  };
+  return OContentUrl;
+});
+
+// axios({
+//   method: "POST",
+//   url: "learn/getocententurl"
+// }).then(res => {
+//   console.log(res.data);
+// });
+// fetch("learn/getocententurl", {
+//   method: "post"
+// }).then(res => {
+//   console.log(res);
+//   console.log(res.json());
+// })

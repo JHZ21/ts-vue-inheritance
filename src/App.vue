@@ -1,9 +1,5 @@
 <template>
   <div id="app">
-    <!-- <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div> -->
     <my-header></my-header>
     <router-view />
   </div>
@@ -35,6 +31,7 @@ body {
   min-width: 1200px;
   background-color: #f8fafc;
   overflow-y: scroll;
+  overflow-x: hidden;
 }
 .clearfix {
   *zoom: 1;

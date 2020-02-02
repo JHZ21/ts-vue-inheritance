@@ -7,3 +7,12 @@
     }
   }
 }
+
+@mixin  ellipsisN($n) {
+  overflow: hidden;
+  word-break: break-word;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $n;
+  -webkit-box-orient: vertical;
+}

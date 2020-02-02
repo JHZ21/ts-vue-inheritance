@@ -12,9 +12,11 @@
               class="search_input"
               type="text"
               placeholder="快速查找文章"
+              v-model="search_input_val"
+              @keyup.enter.exact="search_article()"
             />
             <div class="search_icon_wrapper">
-              <i class="iconfont icon-icon-test"></i>
+              <i class="iconfont icon-icon-test" @click="search_article()"></i>
             </div>
           </div>
         </div>
@@ -64,10 +66,10 @@
 
 <script lang="ts">
 import axios from "axios";
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Watch } from "vue-property-decorator";
 import ArticleCard from "@/components/ArticleCard.vue";
-import { CardData, NavRow } from "@/utils/index";
-import { cardList, nav_data } from "@/utils/data";
+import { CardData, NavRow } from "@/utils/interface.ts";
+import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts";
 
 @Component({
   name: "Learn",
@@ -80,18 +82,26 @@ export default class extends Vue {
 
   nav_data: NavRow[] = []; // 导航选择栏数据
   selected_erea: number[] = [0, 0, 0]; // 用户选择的方向、分类、级别 信息
+  search_input_val: string = "";
 
   pageCardSize: number = 30; //一页展示card容量
   currentPage: number = 1; // 当前显示的页码 与分页组件同步 sync
   allCardList: CardData[][][][] = []; // 所有的card数据
-  // 随selected_erea自响应card数据内容
-  get selected_eara_cardList(): CardData[] {
-    if (this.allCardList.length < 1) return [];
-    return this.allCardList[this.selected_erea[0]][this.selected_erea[1]][
-      this.selected_erea[2]
-    ];
+  selected_eara_cardList: CardData[] = []; // 当前细类的card数据
+
+  set_selected_eara_cardList(selected_erea: number[]) {
+    if (this.allCardList.length < 1) return "";
+    this.selected_eara_cardList = this.allCardList[selected_erea[0]][
+      selected_erea[1]
+    ][selected_erea[2]];
+  }
+  // 随selected_erea自响应selected_eara_cardList数据内容
+  @Watch("selected_erea", { immediate: true, deep: true })
+  auto_set_selected_eara_cardList(selected_erea: number[]) {
+    this.set_selected_eara_cardList(selected_erea);
   }
   //随页码自响应更新当前页的card数据
+  //TODO: 体验bug, 换页时，页面视野区应该上移， 显示页面第一行card
   get currntPageCard(): CardData[] {
     const index = this.currentPage - 1;
     return this.selected_eara_cardList.slice(
@@ -102,6 +112,30 @@ export default class extends Vue {
   // 随rotation_img_index自响应改变轮播图片
   get rotation_img_url() {
     return `url(${require(`../../assets/learn/rotation/rotation_0${this.rotation_img_index}.jpg`)})`;
+  }
+  traverseAllCardList(func: Function) {
+    // 方向 类别 级别 cardData[]
+    this.allCardList.forEach(direction => {
+      direction.forEach(category => {
+        category.forEach(aCardData => {
+          aCardData.forEach(cardData => {
+            func(cardData);
+          });
+        });
+      });
+    });
+  }
+  matchArticleRule(cardData: CardData) {
+    return new RegExp(this.search_input_val).test(cardData.title);
+  }
+  search_article() {
+    if (!this.search_input_val) return;
+    console.log(this.search_input_val);
+    const findCardDatas: CardData[] = [];
+    this.traverseAllCardList((cardData: CardData) => {
+      this.matchArticleRule(cardData) && findCardDatas.push(cardData);
+    });
+    this.selected_eara_cardList = findCardDatas;
   }
   select_item(row_key: number, item_key: number): void {
     Vue.set(this.selected_erea, row_key, item_key);
@@ -115,6 +149,8 @@ export default class extends Vue {
     }).then(res => {
       learnVueObj.nav_data = res.data.nav_data;
       learnVueObj.allCardList = res.data.allCardList;
+      // 初始设置当前选中部分cardData[]
+      learnVueObj.set_selected_eara_cardList(learnVueObj.selected_erea);
     });
   }
   mounted() {

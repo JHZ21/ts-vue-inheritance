@@ -1,11 +1,15 @@
 <template>
   <div class="header">
-    <div class="header_container">
+    <div class="header_container" v-if="showHeaderContent()">
       <ul class="nav">
         <li v-for="(link, key) in links" :key="key">
           <router-link :to="link.to">{{ link.text }}</router-link>
         </li>
+        {{
+          showHeaderContent()
+        }}
       </ul>
+
       <div class="header_right">
         <div class="user_area">
           <div class="header_avator"></div>
@@ -39,14 +43,19 @@ export default class Header extends Vue {
       ]
     };
   }
+  showHeaderContent(): boolean {
+    return !new RegExp(/^\/learn\/content\//).test(this.$route.fullPath);
+  }
 }
 </script>
 <style lang="scss" scoped>
 .header {
   background-color: #07111b;
+  height: 40px;
   // background-color: #575a8a;
   .header_container {
     @include layout-width();
+    display: flex;
     height: 40px;
     font-size: 14px;
     margin: 0 auto;
@@ -98,8 +107,8 @@ export default class Header extends Vue {
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        // background-image: url("~@/assets/images/header_avator.gif");
-        background-image: url("../assets/images/header_avator.gif");
+        background-image: url("~@/assets/images/header_avator.gif");
+        // background-image: url("../assets/images/header_avator.gif");
         background-size: 100% 100%;
       }
     }

@@ -1,3 +1,13 @@
+import { LinkElement } from "./interface";
+
+// return fromat: yyyy/mm/dd
+export function timeStampToTargetFormat(timeStamp: number): string {
+  const dateObj = new Date(timeStamp);
+  const return_str: string = `${dateObj.getFullYear()}/${dateObj.getMonth() +
+    1}/${dateObj.getDate()}`;
+  return return_str;
+}
+
 export function partial(...args: any) {
   if (args.length > 1) {
     const new_args: any[] = [].slice.call(args, 1);
@@ -17,22 +27,11 @@ export function pipe(...args: Array<any>) {
   };
 }
 
-// test
-// interface Count {
-//   (a: number, b: number): number;
-// }
-
-// const add: Count = function(a, b) {
-//   return a + b;
-// };
-// const mult: Count = function(a, b) {
-//   return a * b;
-// };
-// const res_1add2: any = partial(add, 1, 2);
-// const res_1add: any = partial(add, 1);
-// const res_2mult: any = partial(mult, 2);
-// const res_com: any = pipe(res_2mult, res_2mult, res_1add, res_1add);
-
-// console.log(res_1add2());
-// console.log(res_1add(3));
-// console.log(res_com(2));
+export function injectLink(href: string): void {
+  // <link rel="stylesheet" href="http://at.alicdn.com/t/font_1610918_9qmk8rct8ts.css">
+  const new_link: LinkElement = document.createElement("link");
+  new_link.rel = "stylesheet";
+  new_link.href = href;
+  const first_link: { parentNode: any } = document.querySelectorAll("link")[0];
+  first_link.parentNode.insertBefore(new_link, first_link);
+}

@@ -1,5 +1,8 @@
 # ts-vue-inheritance
 
+## Technology stack
+> style-resources-loader 全局导入 global.scss
+
 ## Project setup
 ```
 npm install

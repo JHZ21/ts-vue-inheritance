@@ -1,5 +1,10 @@
 <template>
-  <div class="article_card">
+  <!-- <div class="article_card" @click="openContentTab(cardData.id)"> -->
+  <div
+    class="article_card"
+    @mousedown="cardMousedown()"
+    @mouseup="cardMouseup()"
+  >
     <div
       class="article_card_img"
       :style="{ backgroundImage: cardData.img_url }"
@@ -22,19 +27,33 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { CardData } from "@/utils/index";
+import { CardData } from "@/utils/interface.ts";
+import { timeStampToTargetFormat } from "@/utils/func";
 
 @Component({
   name: "ArticleCard"
 })
 export default class extends Vue {
   @Prop() cardData!: CardData;
-
+  cardClickedTime: number = 0;
   get goodDate(): string {
-    const dateObj = new Date(this.cardData.date);
-    const return_str: string = `${dateObj.getFullYear()}/${dateObj.getMonth() +
-      1}/${dateObj.getDay()}`;
-    return return_str;
+    return timeStampToTargetFormat(this.cardData.timeStamp);
+  }
+  cardMousedown() {
+    this.cardClickedTime = new Date().getTime();
+  }
+  cardMouseup() {
+    if (this.cardClickedTime + 300 > new Date().getTime()) {
+      this.openContentTab();
+    }
+    // console.log("mouseup", new Date().getTime());
+  }
+  openContentTab() {
+    //Bug: 鼠标点下与抬起时间过长仍会触发，只是想复制title而已
+    window.open(
+      "http://localhost:8080/#/learn/content/" + this.cardData.id,
+      "_blank"
+    );
   }
 }
 </script>
