@@ -1,6 +1,6 @@
 import Mock from "mockjs";
 import axios from "axios";
-import { CardData } from "@/utils/interface";
+import { CardData, NestedCardList, ProjectDataType } from "@/utils/interface";
 import { partial, pipe } from "@/utils/func";
 import { oContentUrlType } from "@/store/modules/learn.ts";
 
@@ -75,14 +75,16 @@ function funcOfRepeatFunc(n: number, m: number, func: any): any {
 }
 
 const catalog = [6, 20, 4];
+const reapeatNToM: Function = (n: number, m?: number) =>
+  partial(funcOfRepeatFunc, n, m);
+const makeArrayRepeatFunc: Function | any[] = pipe(
+  reapeatNToM(6),
+  reapeatNToM(20),
+  reapeatNToM(4),
+  reapeatNToM(1, 70)
+);
 
-const repeat4: any = partial(funcOfRepeatFunc, 4, undefined);
-const repeat20: any = partial(funcOfRepeatFunc, 20, undefined);
-const repeat6: any = partial(funcOfRepeatFunc, 6, undefined);
-const repeat1_70: any = partial(funcOfRepeatFunc, 1, 70);
-const makeArrayRepeatFunc: any = pipe(repeat6, repeat20, repeat4, repeat1_70);
-
-const allCardList: CardData[][][][] = makeArrayRepeatFunc(makeCard)();
+const allCardList: NestedCardList = (<Function>makeArrayRepeatFunc)(makeCard)();
 
 Mock.mock("learn/card", "get", function() {
   const ret_val = {
@@ -101,9 +103,41 @@ Mock.mock("learn/getocententurl", "post", function() {
   return OContentUrl;
 });
 
+function createProject() {
+  return Mock.mock({
+    PName: "@csentence",
+    PSummary: "@cparagraph",
+    TName: "@csentence",
+    "TMembers|1-7": ["@cname"],
+    id: "@integer(10000, 99999)"
+  });
+}
+
+const createProjectsFunc: Function = (<Function>(
+  pipe(reapeatNToM(10), reapeatNToM(20), reapeatNToM(1, 20))
+))(createProject);
+
+Mock.mock("/competition/getProjects", createProjectsFunc);
+// {
+//   PName: "大佛案件adfa",
+//   PSummary:
+//     "撒打发的时刻嗲家佛教的就开打覅oak的罚款打翻了的技法违反劳动的卡拉佛地Joe为哦姐姐",
+//   TName: "打机欧文i的买哦发i哦对",
+//   TMembers: ["士大夫", "dsafjoiewj", "大幅Joe我", "dsaf的撒法"],
+//   id: 1
+// },
+// {
+//   PName: "大佛案件adfa",
+//   PSummary:
+//     "撒打发的时刻嗲家佛教的就开打覅oak的罚款打翻了的技法违反劳动的卡拉佛地Joe为哦姐姐",
+//   TName: "打机欧文i的买哦发i哦对",
+//   TMembers: ["士大夫", "dsafjoiewj", "大幅Joe我", "dsaf的撒法"],
+//   id: 1
+// }
+
 // axios({
-//   method: "POST",
-//   url: "learn/getocententurl"
+//   method: "GET",
+//   url: "/competition/getProjects"
 // }).then(res => {
 //   console.log(res.data);
 // });

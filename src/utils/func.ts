@@ -1,5 +1,19 @@
 import { LinkElement } from "./interface";
 
+// set fontSize of html
+export function setHtmlFontSize() {
+  document.addEventListener("DOMContentLoaded", () => {
+    // 获取html元素
+    const html: HTMLHtmlElement | null = document.querySelector("html");
+    // 根据屏幕宽度动态计算fontSize
+    let fontSize: number = window.innerWidth / 10;
+    // 当fontSize大于50时，设置最大值为50
+    fontSize = fontSize > 50 ? 50 : fontSize;
+    // 设置html的fontSize属性，使rem生效，1rem = fontSize + 'px'
+    html && (html.style.fontSize = fontSize + "px");
+  });
+}
+
 // return fromat: yyyy/mm/dd
 export function timeStampToTargetFormat(timeStamp: number): string {
   const dateObj = new Date(timeStamp);

@@ -1,0 +1,50 @@
+/* */
+@mixin top-panel() {
+  background-color: #fff;
+  padding-bottom: 12px;
+  box-shadow: 0 4px 8px 0 rgba(50, 56, 60, 0.1);
+}
+
+@mixin right-pagination() {
+  position: fixed;
+  right: 0;
+  bottom: 33.33%;
+  display: flex;
+  flex-direction: column;
+  opacity: 0.8;
+  // 对子组件样式修改ddep/
+  & /deep/ .el-pager {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@mixin bg-img-centered() {
+  background-size: cover;
+  background-position: center center;
+}
+
+@mixin childs-centered() {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin layout-width() {
+  //   width: 1386px;
+  width: 1440px;
+  @media screen and (max-width: 1640px) {
+    & {
+      width: 1200px;
+    }
+  }
+}
+
+@mixin ellipsisN($n) {
+  overflow: hidden;
+  word-break: break-word;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $n;
+  -webkit-box-orient: vertical;
+}

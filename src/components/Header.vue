@@ -5,11 +5,7 @@
         <li v-for="(link, key) in links" :key="key">
           <router-link :to="link.to">{{ link.text }}</router-link>
         </li>
-        {{
-          showHeaderContent()
-        }}
       </ul>
-
       <div class="header_right">
         <div class="user_area">
           <div class="header_avator"></div>
@@ -51,7 +47,8 @@ export default class Header extends Vue {
 <style lang="scss" scoped>
 .header {
   background-color: #07111b;
-  height: 40px;
+  height: $header-height;
+  // height: 40px;
   // background-color: #575a8a;
   .header_container {
     @include layout-width();

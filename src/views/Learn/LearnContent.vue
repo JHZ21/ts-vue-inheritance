@@ -41,11 +41,11 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LearnModule, oContentUrlType } from "@/store/modules/learn.ts";
 import { CommentInfoType } from "@/utils/interface";
 import CommentBox from "@/components/CommentBox.vue";
+import { getOCententUrl } from "@/api/learn";
 
 @Component({
   name: "LearnContent",
@@ -109,10 +109,7 @@ export default class extends Vue {
   }
 
   created() {
-    axios({
-      method: "POST",
-      url: "learn/getocententurl"
-    }).then(res => {
+    getOCententUrl().then(res => {
       LearnModule.SetOContentUrl(res.data);
       const oContentUrl: oContentUrlType = LearnModule.oContentUrl;
       this.contentUrl = oContentUrl[this.$route.params.id];

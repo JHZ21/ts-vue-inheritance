@@ -1,0 +1,28 @@
+@mixin flex-piece($px:auto) {
+  flex: 1 1 $px;
+}
+@mixin table-layout() {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding-left: 20px;
+    & > div {
+      margin-right: 20px;
+    }
+    .team-photo {
+      flex: 0 1 50px;
+    }
+    .project-name {
+      @include flex-piece(100px);
+    }
+    .project-summary {
+      @include flex-piece(200px);
+    }
+    .team-name {
+      @include flex-piece(100px);
+    }
+    .team-members {
+      @include flex-piece(150px);
+    }
+}

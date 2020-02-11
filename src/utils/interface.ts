@@ -1,4 +1,16 @@
 /* */
+
+export interface ProjectDataType {
+  PName: string;
+  PSummary: string;
+  TName: string;
+  TMembers: string[];
+  id: number;
+  url?: string;
+}
+
+export type NestedCardList = CardData[][][][];
+
 export interface CommentInfoType {
   portraitUrl: string;
   username: string;
