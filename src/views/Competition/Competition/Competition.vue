@@ -5,6 +5,7 @@
         <div class="search_box">
           <search-input
             mode="big"
+            placeholder="搜索词 空格隔开/enter"
             @set_search_val="set_search_val"
           ></search-input>
         </div>
@@ -60,6 +61,7 @@ import SearchInput from "@/components/SearchInput.vue";
 import ProjectCard from "@/components/ProjectCard/ProjectCard.vue";
 import { ProjectDataType } from "@/utils/interface";
 import { getProjects } from "@/api/competition";
+import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue";
 
 @Component({
   name: "Competition",
@@ -167,11 +169,14 @@ export default class extends Vue {
     let projects!: ProjectDataType[];
     const index: number = this.currentPage - 1;
     const pageCardSize: number = this.pageCardSize;
-    this.search_val;
+    const search_val = this.search_val;
     projects = this.currRangeProjects.slice(
       index * pageCardSize,
       (index + 1) * pageCardSize
     );
+    if (search_val) {
+      projects = this.filter_sort_by_search_val(projects, search_val);
+    }
     return projects;
   }
   // 监听aSelected, 设置当前选择范围的数据
@@ -179,6 +184,43 @@ export default class extends Vue {
   update_currRangeProjects(aSelected: number[]) {
     if (!this.allProjects[0]) return;
     this.currRangeProjects = this.allProjects[aSelected[0]][aSelected[1]];
+  }
+  private _search_count(
+    project: ProjectDataType,
+    aStr: string[],
+    count: symbol
+  ) {
+    aStr.forEach(str => {
+      const aInfo: string[] = [
+        project.PName,
+        project.PSummary,
+        project.TName,
+        ...project.TMembers
+      ];
+      if (aInfo.some(text => text.includes(str))) {
+        let obj: any = project;
+        obj[count] || (obj[count] = 0);
+        obj[count]++;
+      }
+    });
+  }
+
+  filter_sort_by_search_val(
+    projects: ProjectDataType[],
+    search_val: string
+  ): ProjectDataType[] {
+    const count: symbol = Symbol("count");
+    const aStr: string[] = search_val.split(" ");
+    const self = this;
+    // 添加标记、计数
+    projects.forEach(project => self._search_count(project, aStr, count));
+    // 过滤
+    projects = projects.filter((project: any) => project[count]);
+    //排序: 降序
+    projects.sort((aPro: any, bPro: any): number => bPro[count] - aPro[count]);
+    // 清楚标记 count
+    projects.forEach((project: any) => delete project[count]);
+    return projects;
   }
   update_selected_erea(aSelected: number[]) {
     this.aSelected = aSelected.slice(0, 2);

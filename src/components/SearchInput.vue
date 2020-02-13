@@ -4,7 +4,7 @@
       class="search_input"
       type="text"
       :placeholder="placeholder"
-      v-model="search_input_val"
+      v-model.trim="search_input_val"
       @keyup.enter.exact="emit_search_val"
     />
     <div class="search_icon_wrapper">
@@ -24,7 +24,6 @@ export default class extends Vue {
   @Prop({ required: false, default: "normal" }) mode!: "normal" | "big";
   search_input_val: string = "";
   emit_search_val() {
-    console.log("emit", this.search_input_val);
     this.$emit("set_search_val", this.search_input_val);
   }
 }
