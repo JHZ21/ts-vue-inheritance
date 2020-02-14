@@ -22,31 +22,31 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { CommentInfoType } from "@/utils/interface";
-import { timeStampToTargetFormat } from "@/utils/func";
+import { Vue, Component, Prop } from "vue-property-decorator"
+import { CommentInfoType } from "@/utils/interface"
+import { timeStampToTargetFormat } from "@/utils/func"
 
 @Component({
   name: "CommentBox"
 })
 export default class extends Vue {
-  @Prop({ required: true }) commentInfo!: CommentInfoType;
+  @Prop({ required: true }) commentInfo!: CommentInfoType
 
   goodDate(timeStamp: number): string {
-    let result_str: string = "";
-    if (!timeStamp) return result_str;
-    const DateTarget: Date = new Date(timeStamp);
-    const DateNow: Date = new Date();
+    let result_str: string = ""
+    if (!timeStamp) return result_str
+    const DateTarget: Date = new Date(timeStamp)
+    const DateNow: Date = new Date()
     if (
       DateTarget.getFullYear() !== DateNow.getFullYear() ||
       DateTarget.getMonth() !== DateNow.getMonth()
     ) {
-      result_str = timeStampToTargetFormat(timeStamp);
+      result_str = timeStampToTargetFormat(timeStamp)
     } else {
-      const diff_day = DateNow.getDay() - DateTarget.getDay();
-      result_str = diff_day === 0 ? "今天" : `${diff_day}天前`;
+      const diff_day = DateNow.getDay() - DateTarget.getDay()
+      result_str = diff_day === 0 ? "今天" : `${diff_day}天前`
     }
-    return result_str;
+    return result_str
   }
 }
 </script>

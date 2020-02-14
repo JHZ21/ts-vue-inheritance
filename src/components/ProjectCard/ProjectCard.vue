@@ -17,14 +17,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { ProjectDataType } from "@/utils/interface";
+import { Vue, Component, Prop } from "vue-property-decorator"
+import { ProjectDataType } from "@/utils/interface"
 
 @Component({
   name: "ProjectCard"
 })
 export default class extends Vue {
-  @Prop({ required: true, default: {} }) project_data!: ProjectDataType;
+  @Prop({ required: true, default: {} }) project_data!: ProjectDataType
 }
 </script>
 

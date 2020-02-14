@@ -14,17 +14,17 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator"
 
 @Component({
   name: ""
 })
 export default class extends Vue {
-  @Prop({ required: false, default: "enter" }) placeholder!: string;
-  @Prop({ required: false, default: "normal" }) mode!: "normal" | "big";
-  search_input_val: string = "";
+  @Prop({ required: false, default: "enter" }) placeholder!: string
+  @Prop({ required: false, default: "normal" }) mode!: "normal" | "big"
+  search_input_val: string = ""
   emit_search_val() {
-    this.$emit("set_search_val", this.search_input_val);
+    this.$emit("set_search_val", this.search_input_val)
   }
 }
 </script>

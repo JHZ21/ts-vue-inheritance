@@ -4,6 +4,10 @@
   @include table-layout();
   height: 100px;
   padding-left: 20px;
+  @include hover-shadow();
+  &:hover {
+    color: #4877ed;
+  }
   & > div {
     margin-right: 20px;
   }

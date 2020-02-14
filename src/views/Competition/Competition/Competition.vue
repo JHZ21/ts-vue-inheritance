@@ -35,11 +35,13 @@
             成员
           </div>
         </div>
-        <project-card
+        <open-new-tab
           v-for="(project, index) in currPageProjects"
-          :project_data="project"
           :key="index"
-        ></project-card>
+          :url="new_tab_url(project.id)"
+        >
+          <project-card :project_data="project"></project-card>
+        </open-new-tab>
       </div>
       <el-pagination
         class="pagination"
@@ -55,28 +57,30 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
-import NavMenu from "@/components/NavMenu.vue";
-import SearchInput from "@/components/SearchInput.vue";
-import ProjectCard from "@/components/ProjectCard/ProjectCard.vue";
-import { ProjectDataType } from "@/utils/interface";
-import { getProjects } from "@/api/competition";
-import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue";
+import { Vue, Component, Watch } from "vue-property-decorator"
+import NavMenu from "@/components/NavMenu.vue"
+import SearchInput from "@/components/SearchInput.vue"
+import ProjectCard from "@/components/ProjectCard/ProjectCard.vue"
+import { ProjectDataType } from "@/utils/interface"
+import { getProjects } from "@/api/competition"
+import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue"
+import OpenNewTab from "../../../components/OpenNewTab.vue"
 
 @Component({
   name: "Competition",
   components: {
     NavMenu,
     SearchInput,
-    ProjectCard
+    ProjectCard,
+    OpenNewTab
   }
 })
 export default class extends Vue {
   //TODO: 此页面与Learn页面结构相似，可是尝试是否可以抽象出, 可能用到solt
-  search_val: string = "";
-  aSelected: number[] = [0, 0];
-  pageCardSize: number = 10;
-  currentPage: number = 1;
+  search_val: string = ""
+  aSelected: number[] = [0, 0]
+  pageCardSize: number = 10
+  currentPage: number = 1
   nav_data = [
     {
       label: "比赛:",
@@ -160,30 +164,33 @@ export default class extends Vue {
         ]
       ]
     }
-  ];
-  allProjects: ProjectDataType[][][] = [];
-  currRangeProjects: ProjectDataType[] = [];
+  ]
+  allProjects: ProjectDataType[][][] = []
+  currRangeProjects: ProjectDataType[] = []
 
   // 根据aSelected、currentPage 与 search_val 生成 当前页数据
   get currPageProjects(): ProjectDataType[] {
-    let projects!: ProjectDataType[];
-    const index: number = this.currentPage - 1;
-    const pageCardSize: number = this.pageCardSize;
-    const search_val = this.search_val;
+    let projects!: ProjectDataType[]
+    const index: number = this.currentPage - 1
+    const pageCardSize: number = this.pageCardSize
+    const search_val = this.search_val
     projects = this.currRangeProjects.slice(
       index * pageCardSize,
       (index + 1) * pageCardSize
-    );
+    )
     if (search_val) {
-      projects = this.filter_sort_by_search_val(projects, search_val);
+      projects = this.filter_sort_by_search_val(projects, search_val)
     }
-    return projects;
+    return projects
   }
   // 监听aSelected, 设置当前选择范围的数据
   @Watch("aSelected", { immediate: false, deep: true })
   update_currRangeProjects(aSelected: number[]) {
-    if (!this.allProjects[0]) return;
-    this.currRangeProjects = this.allProjects[aSelected[0]][aSelected[1]];
+    if (!this.allProjects[0]) return
+    this.currRangeProjects = this.allProjects[aSelected[0]][aSelected[1]]
+  }
+  new_tab_url(id: number) {
+    return `http://localhost:8080/#/competition/content/${id}`
   }
   private _search_count(
     project: ProjectDataType,
@@ -196,45 +203,45 @@ export default class extends Vue {
         project.PSummary,
         project.TName,
         ...project.TMembers
-      ];
+      ]
       if (aInfo.some(text => text.includes(str))) {
-        let obj: any = project;
-        obj[count] || (obj[count] = 0);
-        obj[count]++;
+        let obj: any = project
+        obj[count] || (obj[count] = 0)
+        obj[count]++
       }
-    });
+    })
   }
 
   filter_sort_by_search_val(
     projects: ProjectDataType[],
     search_val: string
   ): ProjectDataType[] {
-    const count: symbol = Symbol("count");
-    const aStr: string[] = search_val.split(" ");
-    const self = this;
+    const count: symbol = Symbol("count")
+    const aStr: string[] = search_val.split(" ")
+    const self = this
     // 添加标记、计数
-    projects.forEach(project => self._search_count(project, aStr, count));
+    projects.forEach(project => self._search_count(project, aStr, count))
     // 过滤
-    projects = projects.filter((project: any) => project[count]);
+    projects = projects.filter((project: any) => project[count])
     //排序: 降序
-    projects.sort((aPro: any, bPro: any): number => bPro[count] - aPro[count]);
+    projects.sort((aPro: any, bPro: any): number => bPro[count] - aPro[count])
     // 清楚标记 count
-    projects.forEach((project: any) => delete project[count]);
-    return projects;
+    projects.forEach((project: any) => delete project[count])
+    return projects
   }
   update_selected_erea(aSelected: number[]) {
-    this.aSelected = aSelected.slice(0, 2);
+    this.aSelected = aSelected.slice(0, 2)
   }
 
   set_search_val(search_val: string) {
-    this.search_val = search_val;
+    this.search_val = search_val
   }
   created() {
-    const CompetitionVue = this;
+    const CompetitionVue = this
     getProjects().then(res => {
-      CompetitionVue.allProjects = res.data;
-      CompetitionVue.aSelected = [0, 0]; // 刷新aSelected
-    });
+      CompetitionVue.allProjects = res.data
+      CompetitionVue.aSelected = [0, 0] // 刷新aSelected
+    })
   }
 }
 </script>

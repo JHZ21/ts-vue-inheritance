@@ -1,7 +1,7 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import Vue from "vue"
+import VueRouter from "vue-router"
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
 const routes = [
   {
@@ -31,6 +31,12 @@ const routes = [
     component: () => import("@/views/Competition/Competition/Competition.vue")
   },
   {
+    path: "/competition/content/:id",
+    name: "competition-content",
+    component: () =>
+      import("@/views/Competition/CompetitionContent/CompetitionContent.vue")
+  },
+  {
     path: "/404",
     name: "404",
     component: () => import("@/views/error_page/404.vue")
@@ -39,13 +45,13 @@ const routes = [
     path: "*",
     redirect: "/404"
   }
-];
+]
 
 const router = new VueRouter({
   // mode: "history",
   mode: "hash",
   base: process.env.BASE_URL,
   routes
-});
+})
 
-export default router;
+export default router

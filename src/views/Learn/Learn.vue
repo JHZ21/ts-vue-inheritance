@@ -20,12 +20,14 @@
       </div>
     </div>
     <div class="container">
-      <article-card
-        class="article_card"
+      <open-new-tab
         v-for="(cardData, key) in currntPageCard"
-        :cardData="cardData"
         :key="key"
-      ></article-card>
+        :url="new_tab_url(cardData.id)"
+      >
+        <article-card class="article_card" :cardData="cardData"></article-card>
+      </open-new-tab>
+
       <el-pagination
         class="pagination"
         background
@@ -40,105 +42,109 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from "vue-property-decorator";
-import ArticleCard from "@/components/ArticleCard.vue";
-import { CardData, NavRow, NestedCardList } from "@/utils/interface.ts";
-import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts";
-import { getLearnCard } from "@/api/learn";
-import NavMenu from "@/components/NavMenu.vue";
-import SearchInput from "@/components/SearchInput.vue";
+import { Vue, Component, Watch } from "vue-property-decorator"
+import ArticleCard from "@/components/ArticleCard.vue"
+import { CardData, NavRow, NestedCardList } from "@/utils/interface.ts"
+import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
+import { getLearnCard } from "@/api/learn"
+import NavMenu from "@/components/NavMenu.vue"
+import SearchInput from "@/components/SearchInput.vue"
+import OpenNewTab from "../../components/OpenNewTab.vue"
 
 @Component({
   name: "Learn",
   components: {
     ArticleCard,
     NavMenu,
-    SearchInput
+    SearchInput,
+    OpenNewTab
   }
 })
 export default class extends Vue {
-  rotation_img_index: number = 1; // 轮播图当前图片
-  img_url: string[] = []; // 实际图片路径
-  nav_data: NavRow[] = []; // 导航选择栏数据
-  selected_erea: number[] = [0, 0, 0]; // 用户选择的方向、分类、级别 信息
-  search_input_val: string = "";
-  to_search_val: string = "";
-  pageCardSize: number = 30; //一页展示card容量
-  currentPage: number = 1; // 当前显示的页码 与分页组件同步 sync
-  allCardList: NestedCardList = []; // 所有的card数据
+  rotation_img_index: number = 1 // 轮播图当前图片
+  img_url: string[] = [] // 实际图片路径
+  nav_data: NavRow[] = [] // 导航选择栏数据
+  selected_erea: number[] = [0, 0, 0] // 用户选择的方向、分类、级别 信息
+  search_input_val: string = ""
+  to_search_val: string = ""
+  pageCardSize: number = 30 //一页展示card容量
+  currentPage: number = 1 // 当前显示的页码 与分页组件同步 sync
+  allCardList: NestedCardList = [] // 所有的card数据
 
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
-    if (!this.allCardList[0]) return [];
-    let curr_cardList: CardData[] = [];
-    const selected_erea = this.selected_erea;
+    if (!this.allCardList[0]) return []
+    let curr_cardList: CardData[] = []
+    const selected_erea = this.selected_erea
     curr_cardList = this.allCardList[selected_erea[0]][selected_erea[1]][
       selected_erea[2]
-    ];
+    ]
     if (this.to_search_val) {
-      curr_cardList = this.filter_by_match_article_rule(curr_cardList);
+      curr_cardList = this.filter_by_match_article_rule(curr_cardList)
     }
-    return curr_cardList;
+    return curr_cardList
   }
 
   //随页码自响应更新当前页的card数据
   //TODO: 体验bug, 换页时，页面视野区应该上移， 显示页面第一行card
   get currntPageCard(): CardData[] {
-    const index = this.currentPage - 1;
+    const index = this.currentPage - 1
     return this.selected_eara_cardList.slice(
       index * this.pageCardSize,
       (index + 1) * this.pageCardSize
-    );
+    )
   }
   // 随rotation_img_index自响应改变轮播图片
   get rotation_img_url(): string {
-    const index = this.rotation_img_index;
-    const img_url: string[] = this.img_url;
+    const index = this.rotation_img_index
+    const img_url: string[] = this.img_url
     img_url[index] ||
       (img_url[
         index
-      ] = require(`@/assets/learn/rotation/rotation_0${index}.jpg`));
-    return img_url[index];
+      ] = require(`@/assets/learn/rotation/rotation_0${index}.jpg`))
+    return img_url[index]
   }
-
+  new_tab_url(id: number) {
+    return `http://localhost:8080/#/learn/content/${id}`
+  }
   set_search_val(search_val: string) {
-    this.to_search_val = search_val;
-    console.log("update", search_val, this.to_search_val);
+    this.to_search_val = search_val
+    console.log("update", search_val, this.to_search_val)
   }
 
   update_selected_erea(selected_erea: number[]) {
-    this.selected_erea = selected_erea;
+    this.selected_erea = selected_erea
   }
 
   match_article_rule(cardData: CardData): boolean {
-    return new RegExp(this.to_search_val).test(cardData.title);
+    return new RegExp(this.to_search_val).test(cardData.title)
   }
 
   filter_by_match_article_rule(cardList: CardData[]): CardData[] {
     return cardList.filter((cardData: CardData) =>
       this.match_article_rule(cardData)
-    );
+    )
   }
 
   select_item(row_key: number, item_key: number): void {
-    Vue.set(this.selected_erea, row_key, item_key);
+    Vue.set(this.selected_erea, row_key, item_key)
   }
 
   created() {
     // 数据赋值
-    const learnVueObj = this;
+    const learnVueObj = this
     getLearnCard().then(res => {
-      learnVueObj.nav_data = res.data.nav_data;
-      learnVueObj.allCardList = res.data.allCardList;
-    });
+      learnVueObj.nav_data = res.data.nav_data
+      learnVueObj.allCardList = res.data.allCardList
+    })
   }
 
   mounted() {
     // 定时改变轮播图片
     setInterval(() => {
-      this.rotation_img_index++;
-      if (this.rotation_img_index > 3) this.rotation_img_index = 1;
-    }, 5000);
+      this.rotation_img_index++
+      if (this.rotation_img_index > 3) this.rotation_img_index = 1
+    }, 5000)
   }
   // traverseAllCardList(nestedCardList: NestedCardList, func: Function) {
   //   // 方向 类别 级别 cardData[]

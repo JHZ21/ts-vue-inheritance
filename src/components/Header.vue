@@ -19,11 +19,11 @@
 // export default {
 //   name: "Header"
 // };
-import { Vue, Prop, Component } from "vue-property-decorator";
+import { Vue, Prop, Component } from "vue-property-decorator"
 
 interface RouterLink {
-  to: string;
-  text: string;
+  to: string
+  text: string
 }
 
 @Component
@@ -37,10 +37,10 @@ export default class Header extends Vue {
         { to: "/partners", text: "伙伴们" },
         { to: "/analysis", text: "分析" }
       ]
-    };
+    }
   }
   showHeaderContent(): boolean {
-    return !new RegExp(/^\/learn\/content\//).test(this.$route.fullPath);
+    return !new RegExp(/^\/learn\/content\//).test(this.$route.fullPath)
   }
 }
 </script>

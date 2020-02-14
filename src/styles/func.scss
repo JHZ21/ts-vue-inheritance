@@ -1,4 +1,10 @@
 /* */
+@mixin hover-shadow() {
+  &:hover {
+    box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.2);
+  }
+}
+
 @mixin top-panel() {
   background-color: #fff;
   padding-bottom: 12px;

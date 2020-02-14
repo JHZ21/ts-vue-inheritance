@@ -1,8 +1,8 @@
-import Mock from "mockjs";
-import axios from "axios";
-import { CardData, NestedCardList, ProjectDataType } from "@/utils/interface";
-import { partial, pipe } from "@/utils/func";
-import { oContentUrlType } from "@/store/modules/learn.ts";
+import Mock from "mockjs"
+import axios from "axios"
+import { CardData, NestedCardList, ProjectDataType } from "@/utils/interface"
+import { partial, pipe } from "@/utils/func"
+import { oContentUrlType } from "@/store/modules/learn.ts"
 
 const nav_data = [
   {
@@ -44,7 +44,7 @@ const nav_data = [
     label: "级别:",
     aData: ["入门", "初级", "中级", "高级"]
   }
-];
+]
 
 function makeCard() {
   return Mock.mock({
@@ -58,50 +58,50 @@ function makeCard() {
     "id|1": [1111, 2222, 3333],
     uploader: "@cname",
     "timeStamp|1420041600000-1580290879259": 1420041600000
-  });
+  })
 }
 function funcOfRepeatFunc(n: number, m: number, func: any): any {
   if (m === undefined) {
-    m = n;
+    m = n
   }
   return function() {
-    const return_val: any[] = [];
-    let num = Math.floor(Math.random() * (m - n)) + n;
+    const return_val: any[] = []
+    let num = Math.floor(Math.random() * (m - n)) + n
     for (; num--; ) {
-      return_val.push(func());
+      return_val.push(func())
     }
-    return return_val;
-  };
+    return return_val
+  }
 }
 
-const catalog = [6, 20, 4];
+const catalog = [6, 20, 4]
 const reapeatNToM: Function = (n: number, m?: number) =>
-  partial(funcOfRepeatFunc, n, m);
+  partial(funcOfRepeatFunc, n, m)
 const makeArrayRepeatFunc: Function | any[] = pipe(
   reapeatNToM(6),
   reapeatNToM(20),
   reapeatNToM(4),
   reapeatNToM(1, 70)
-);
+)
 
-const allCardList: NestedCardList = (<Function>makeArrayRepeatFunc)(makeCard)();
+const allCardList: NestedCardList = (<Function>makeArrayRepeatFunc)(makeCard)()
 
 Mock.mock("learn/card", "get", function() {
   const ret_val = {
     nav_data,
     allCardList
-  };
-  return ret_val;
-});
+  }
+  return ret_val
+})
 
 Mock.mock("learn/getocententurl", "post", function() {
   const OContentUrl: oContentUrlType = {
     "3333": "https://www.baidu.com/",
     "1111": "https://www.tslang.cn/docs/handbook/interfaces.html",
     "2222": "http://www.typescriptlang.org/docs/handbook/basic-types.html"
-  };
-  return OContentUrl;
-});
+  }
+  return OContentUrl
+})
 
 function createProject() {
   return Mock.mock({
@@ -110,14 +110,14 @@ function createProject() {
     TName: "@csentence",
     "TMembers|1-7": ["@cname"],
     id: "@integer(10000, 99999)"
-  });
+  })
 }
 
 const createProjectsFunc: Function = (<Function>(
   pipe(reapeatNToM(10), reapeatNToM(20), reapeatNToM(1, 20))
-))(createProject);
+))(createProject)
 
-Mock.mock("/competition/getProjects", createProjectsFunc);
+Mock.mock("/competition/getProjects", createProjectsFunc)
 // {
 //   PName: "大佛案件adfa",
 //   PSummary:

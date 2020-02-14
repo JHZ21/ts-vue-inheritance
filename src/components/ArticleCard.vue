@@ -1,10 +1,6 @@
 <template>
   <!-- <div class="article_card" @click="openContentTab(cardData.id)"> -->
-  <div
-    class="article_card"
-    @mousedown="cardMousedown()"
-    @mouseup="cardMouseup()"
-  >
+  <div class="article_card">
     <div
       class="article_card_img"
       :style="{ backgroundImage: cardData.img_url }"
@@ -26,34 +22,17 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { CardData } from "@/utils/interface.ts";
-import { timeStampToTargetFormat } from "@/utils/func";
+import { Vue, Component, Prop } from "vue-property-decorator"
+import { CardData } from "@/utils/interface.ts"
+import { timeStampToTargetFormat } from "@/utils/func"
 
 @Component({
   name: "ArticleCard"
 })
 export default class extends Vue {
-  @Prop() cardData!: CardData;
-  cardClickedTime: number = 0;
+  @Prop() cardData!: CardData
   get goodDate(): string {
-    return timeStampToTargetFormat(this.cardData.timeStamp);
-  }
-  cardMousedown() {
-    this.cardClickedTime = new Date().getTime();
-  }
-  cardMouseup() {
-    if (this.cardClickedTime + 300 > new Date().getTime()) {
-      this.openContentTab();
-    }
-    // console.log("mouseup", new Date().getTime());
-  }
-  openContentTab() {
-    //Bug: 鼠标点下与抬起时间过长仍会触发，只是想复制title而已
-    window.open(
-      "http://localhost:8080/#/learn/content/" + this.cardData.id,
-      "_blank"
-    );
+    return timeStampToTargetFormat(this.cardData.timeStamp)
   }
 }
 </script>
@@ -69,9 +48,7 @@ $card_border_radius: 6px;
   border-radius: $card_border_radius;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
   background-color: #fff;
-  &:hover {
-    box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.2);
-  }
+  @include hover-shadow();
   .article_card_img {
     height: $card_width * 0.618;
     background-size: cover;
@@ -121,8 +98,8 @@ $card_border_radius: 6px;
       .card_info_uploader {
         padding-right: 10px;
       }
-      .class_info_date {
-      }
+      // .class_info_date {
+      // }
     }
   }
 }

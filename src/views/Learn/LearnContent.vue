@@ -41,11 +41,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { LearnModule, oContentUrlType } from "@/store/modules/learn.ts";
-import { CommentInfoType } from "@/utils/interface";
-import CommentBox from "@/components/CommentBox.vue";
-import { getOCententUrl } from "@/api/learn";
+import { Vue, Component, Prop } from "vue-property-decorator"
+import { LearnModule, oContentUrlType } from "@/store/modules/learn.ts"
+import { CommentInfoType } from "@/utils/interface"
+import CommentBox from "@/components/CommentBox.vue"
+import { getOCententUrl } from "@/api/learn"
 
 @Component({
   name: "LearnContent",
@@ -54,9 +54,9 @@ import { getOCententUrl } from "@/api/learn";
   }
 })
 export default class extends Vue {
-  contentUrl: string = "";
-  myCommentText: string = "";
-  showSendBtn: boolean = false;
+  contentUrl: string = ""
+  myCommentText: string = ""
+  showSendBtn: boolean = false
   aCommentInfos: CommentInfoType[] = [
     {
       portraitUrl: require("@/assets/images/header_avator.gif"),
@@ -86,34 +86,34 @@ export default class extends Vue {
         "新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~",
       timeStamp: 1500479154959
     }
-  ];
+  ]
   sendTextareaFocus() {
-    this.showSendBtn = true;
+    this.showSendBtn = true
   }
   sendTextareaBlur() {
     if (this.myCommentText === "") {
-      this.showSendBtn = false;
+      this.showSendBtn = false
     }
   }
   sendComment(keyup: boolean = false) {
-    if (!this.myCommentText) return;
+    if (!this.myCommentText) return
     const defaultCommentInfo: CommentInfoType = {
       portraitUrl: require("@/assets/images/header_avator.gif"),
       username: "aadsf",
       content: this.myCommentText,
       timeStamp: new Date().getTime()
-    };
-    this.aCommentInfos.unshift(defaultCommentInfo);
-    this.myCommentText = "";
-    keyup || (this.showSendBtn = false);
+    }
+    this.aCommentInfos.unshift(defaultCommentInfo)
+    this.myCommentText = ""
+    keyup || (this.showSendBtn = false)
   }
 
   created() {
     getOCententUrl().then(res => {
-      LearnModule.SetOContentUrl(res.data);
-      const oContentUrl: oContentUrlType = LearnModule.oContentUrl;
-      this.contentUrl = oContentUrl[this.$route.params.id];
-    });
+      LearnModule.SetOContentUrl(res.data)
+      const oContentUrl: oContentUrlType = LearnModule.oContentUrl
+      this.contentUrl = oContentUrl[this.$route.params.id]
+    })
   }
 }
 </script>

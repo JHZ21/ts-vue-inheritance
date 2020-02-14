@@ -20,23 +20,23 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { NavRow } from "@/utils/interface.ts";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { NavRow } from "@/utils/interface.ts"
 
 @Component({
   name: "NavMenu"
 })
 export default class extends Vue {
-  @Prop({ required: true }) nav_data!: NavRow[];
-  selected_erea: number[] = [0, 0, 0];
+  @Prop({ required: true }) nav_data!: NavRow[]
+  selected_erea: number[] = [0, 0, 0]
 
   @Watch("selected_erea", { deep: true })
   emit_selected_erea(selected_erea: number[]) {
-    this.$emit("update_selected_erea", selected_erea);
+    this.$emit("update_selected_erea", selected_erea)
   }
 
   select_item(row_key: number, item_key: number) {
-    Vue.set(this.selected_erea, row_key, item_key);
+    Vue.set(this.selected_erea, row_key, item_key)
   }
 }
 </script>
