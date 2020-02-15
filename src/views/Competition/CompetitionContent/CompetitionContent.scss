@@ -1,0 +1,177 @@
+/* */
+$hover-color:#0088bb;
+
+@mixin project-section {
+  display: flex;
+  justify-content: space-between;
+  align-content: flex-start;
+  flex-wrap: wrap;
+}
+
+@mixin item-box {
+  min-width: 450px;
+  max-width: 600px;
+  text-align: left;
+  color: #333;
+  margin: 0 20px;
+
+  &:hover {
+    color: $hover-color;
+  }
+}
+
+@mixin item-title() {
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: $thin-broder;
+  height: 56px;
+  line-height: 56px;
+  text-align: left;
+}
+
+@mixin item-content($x:hidden, $y: hidden, $wrap: wrap) {
+  padding: 15px 0;
+  font-size: 14px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: $wrap;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  @include webkit-scrollbar();
+
+  //滚动条，hover时才可能会显现；
+  &:hover {
+    overflow-x: $x;
+    overflow-y: $y;
+  }
+
+  &>p {
+    margin: 0 5px 8.5px;
+    word-break: break-all;
+
+  }
+}
+
+@mixin webkit-scrollbar {
+  $bar-color: rgba(132, 208, 255, 0.6);
+  $btn-color: rgba(241, 241, 241, 0.6);
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: transparent;
+    opacity: 0.5;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $bar-color;
+    ;
+  }
+
+  &::-webkit-scrollbar-button:start {
+    // background: url(./imgs/up.png) no-repeat;
+    background-color: $btn-color;
+    background-size: 12px 12px;
+  }
+
+  &::-webkit-scrollbar-button:end {
+    // background: url(./imgs/down.png) no-repeat;
+    background-color: $btn-color;
+    background-size: 12px 12px;
+  }
+}
+
+.competition-box {
+  @include body-layout();
+  padding-bottom: 40px;
+
+  .competition-content {
+    @include layout-width();
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px 40px;
+
+    .project-name {
+      font-size: 24px;
+      font-weight: bolder;
+      margin-bottom: 40px;
+    }
+
+    .project-content {
+      @include project-section();
+
+      .project-content-item {
+        @include item-box();
+
+        .item-title {
+          @include item-title();
+        }
+
+        .item-content {
+          @include item-content()
+        }
+      }
+    }
+
+    .project-team {
+      .team-name {
+        @include item-title();
+      }
+
+
+      .members-box {
+        @include project-section();
+
+        .team-member {
+          @include item-box();
+          display: flex;
+          flex-direction: column;
+
+          .member-info {
+            display: flex;
+            height: 160px;
+            border-bottom: $thin-broder;
+
+            .portrait-wrapper {
+              flex: 1 1 0;
+              @include childs-centered();
+
+              .portrait {
+                width: 80px;
+                height: 80px;
+                background-image: url("~@/assets/images/header_avator.gif");
+                @include bg-img-centered();
+              }
+            }
+
+            .introduce {
+              flex: 1 1 150px;
+              @include item-content(auto);
+
+            }
+          }
+
+          .member-contribution {
+            height: 160px;
+            @include item-content(hidden, auto, no-wrap)
+          }
+        }
+      }
+    }
+
+    .project-code {
+      .code-title {
+        @include item-title();
+      }
+
+      .code-content {
+        @include item-content();
+      }
+    }
+  }
+}

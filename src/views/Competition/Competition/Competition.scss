@@ -1,38 +1,43 @@
 @import "@/styles/Competition.scss";
 
 .about {
-  position: absolute;
-  width: 100%;
-  min-height: calc(100% - #{$header-height});
+  @include body-layout();
   display: flex;
   flex-direction: column;
-  background-color: $bg-color;
+
   .top-panel {
     flex: 0 1 auto;
     @include top-panel();
+
     .top-panel-content {
       margin: 0 auto;
       @include layout-width();
+
       .search_box {
         display: flex;
         justify-content: center;
         align-items: center;
         border-bottom: $thin-broder;
       }
+
       .nav-box {
         margin-top: 10px;
       }
     }
   }
+
   .content {
     flex: 1 0 auto;
     padding-bottom: 20px;
+
     .card-box {
       @include layout-width();
       margin: 0 auto;
-      & > div {
+
+      &>div {
         margin-top: 10px;
       }
+
       .card-header {
         height: 50px;
         color: #666;
@@ -40,6 +45,7 @@
         @include table-layout();
       }
     }
+
     .pagination {
       @include right-pagination();
     }

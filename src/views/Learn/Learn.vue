@@ -25,7 +25,10 @@
         :key="key"
         :url="new_tab_url(cardData.id)"
       >
-        <article-card class="article_card" :cardData="cardData"></article-card>
+        <article-card
+          class="article_card"
+          :cardData="cardData"
+        ></article-card>
       </open-new-tab>
 
       <el-pagination
@@ -183,8 +186,7 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .main {
-  min-height: calc(100% - #{$header-height});
-  background: $bg-color;
+  @include body-layout();
   .learn_panel_wrapper {
     @include top-panel();
     .learn_panel {

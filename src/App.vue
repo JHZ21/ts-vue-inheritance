@@ -33,8 +33,8 @@ export default class extends Vue {}
 body {
   margin: 0;
   min-width: 1200px;
-  background-color: #f8fafc;
-  overflow-y: scroll;
+  background-color: $bg-color;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 .clearfix {

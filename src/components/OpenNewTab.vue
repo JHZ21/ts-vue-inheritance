@@ -1,5 +1,8 @@
 <template>
-  <div @mousedown="divMousedown()" @mouseup="divMouseup()">
+  <div
+    @mousedown="divMousedown()"
+    @mouseup="divMouseup()"
+  >
     <slot></slot>
   </div>
 </template>
@@ -16,6 +19,7 @@ export default class extends Vue {
   divMousedown() {
     this.divClickedTime = new Date().getTime()
   }
+
   divMouseup() {
     // 防误触
     if (this.divClickedTime + 300 > new Date().getTime()) {

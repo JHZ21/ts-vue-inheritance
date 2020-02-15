@@ -1,4 +1,13 @@
 /* */
+@import "./value.scss";
+
+@mixin body-layout {
+  position: absolute;
+  width: 100%;
+  min-height: calc(100% - #{$header-height});
+  background-color: $bg-color;
+}
+
 @mixin hover-shadow() {
   &:hover {
     box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.2);
@@ -18,6 +27,7 @@
   display: flex;
   flex-direction: column;
   opacity: 0.8;
+
   // 对子组件样式修改ddep/
   & /deep/ .el-pager {
     display: flex;
@@ -39,6 +49,7 @@
 @mixin layout-width() {
   //   width: 1386px;
   width: 1440px;
+
   @media screen and (max-width: 1640px) {
     & {
       width: 1200px;
