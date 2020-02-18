@@ -1,0 +1,10 @@
+.project-steps {
+  flex-wrap: wrap;
+  .project-step {
+    white-space: pre-wrap;
+    max-width: max-content !important;
+    & /deep/ .el-step__description {
+      white-space: pre-wrap;
+    }
+  }
+}

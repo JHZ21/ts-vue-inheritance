@@ -4,14 +4,9 @@ import "./registerServiceWorker"
 import router from "./router"
 import store from "./store"
 import { injectLink } from "./utils/func"
-import { Pagination, Steps, Step } from "element-ui"
-import "element-ui/lib/theme-chalk/index.css"
+import "@/utils/element-ui"
 import "@/mock/index"
 import "@/utils/func"
-
-Vue.use(Pagination)
-Vue.use(Steps)
-Vue.use(Step)
 
 const ali_font_css = "http://at.alicdn.com/t/font_1610918_mtshjeltqck.css"
 injectLink(ali_font_css)

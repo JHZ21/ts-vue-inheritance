@@ -124,27 +124,7 @@
       <section class="project-code">
         <div class="code-title">项目</div>
         <div class="code-content">
-          <el-steps
-            :active="2"
-            align-center
-          >
-            <el-step
-              title="步骤1"
-              description="这是一段很长很长很长的描述性文字"
-            ></el-step>
-            <el-step
-              title="步骤2"
-              description="这是一段很长很长很长的描述性文字"
-            ></el-step>
-            <el-step
-              title="步骤3"
-              description="这是一段很长很长很长的描述性文字"
-            ></el-step>
-            <el-step
-              title="步骤4"
-              description="这是一段很长很长很长的描述性文字"
-            ></el-step>
-          </el-steps>
+          <project-steps></project-steps>
         </div>
       </section>
     </div>
@@ -153,9 +133,13 @@
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator"
+import ProjectSteps from "@/components/ProjectSteps/ProjectSteps.vue"
 
 @Component({
-  name: "CompetitionContent"
+  name: "CompetitionContent",
+  components: {
+    ProjectSteps
+  }
 })
 export default class extends Vue {}
 </script>

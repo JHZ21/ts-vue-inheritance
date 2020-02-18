@@ -1,5 +1,5 @@
 /* */
-$hover-color:#0088bb;
+$hover-color: #0088bb;
 
 @mixin project-section {
   display: flex;
@@ -29,7 +29,7 @@ $hover-color:#0088bb;
   text-align: left;
 }
 
-@mixin item-content($x:hidden, $y: hidden, $wrap: wrap) {
+@mixin item-content($x: hidden, $y: hidden, $wrap: wrap) {
   padding: 15px 0;
   font-size: 14px;
   text-align: left;
@@ -46,10 +46,9 @@ $hover-color:#0088bb;
     overflow-y: $y;
   }
 
-  &>p {
+  & > p {
     margin: 0 5px 8.5px;
     word-break: break-all;
-
   }
 }
 
@@ -70,7 +69,6 @@ $hover-color:#0088bb;
 
   &::-webkit-scrollbar-thumb {
     background: $bar-color;
-    ;
   }
 
   &::-webkit-scrollbar-button:start {
@@ -91,7 +89,8 @@ $hover-color:#0088bb;
   padding-bottom: 40px;
 
   .competition-content {
-    @include layout-width();
+    // @include layout-width();
+    width: 1100px;
     margin: 0 auto;
     background-color: #fff;
     padding: 20px 40px;
@@ -113,7 +112,7 @@ $hover-color:#0088bb;
         }
 
         .item-content {
-          @include item-content()
+          @include item-content();
         }
       }
     }
@@ -122,7 +121,6 @@ $hover-color:#0088bb;
       .team-name {
         @include item-title();
       }
-
 
       .members-box {
         @include project-section();
@@ -152,13 +150,12 @@ $hover-color:#0088bb;
             .introduce {
               flex: 1 1 150px;
               @include item-content(auto);
-
             }
           }
 
           .member-contribution {
             height: 160px;
-            @include item-content(hidden, auto, no-wrap)
+            @include item-content(hidden, auto, no-wrap);
           }
         }
       }

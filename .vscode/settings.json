@@ -1,0 +1,37 @@
+{
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "terminal.integrated.rendererType": "dom",
+  /* 文件格式化配置 */
+  /* 重点！ 文件格式化选择的工具，在多个工具时，记得配置为相应工具，否则将导致该工具配置失效。*/
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  /* 在保存时自动格式化：true */
+  "editor.formatOnSave": true,
+  /* eslint, 在保存时自动修复错误：true */
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  /* 分号：false */
+  "prettier.semi": false,
+  // // 单引号：false
+  "prettier.singleQuote": false,
+  /* 让函数(名)和后面的括号之间加个空格 */
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": false
+}

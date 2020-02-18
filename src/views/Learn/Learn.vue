@@ -25,10 +25,7 @@
         :key="key"
         :url="new_tab_url(cardData.id)"
       >
-        <article-card
-          class="article_card"
-          :cardData="cardData"
-        ></article-card>
+        <article-card class="article_card" :cardData="cardData"></article-card>
       </open-new-tab>
 
       <el-pagination
@@ -90,6 +87,7 @@ export default class extends Vue {
 
   //随页码自响应更新当前页的card数据
   //TODO: 体验bug, 换页时，页面视野区应该上移， 显示页面第一行card
+  //TODO: 还未应用search_val 如Competition多词搜索
   get currntPageCard(): CardData[] {
     const index = this.currentPage - 1
     return this.selected_eara_cardList.slice(
