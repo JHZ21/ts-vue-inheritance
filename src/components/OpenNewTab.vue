@@ -1,8 +1,5 @@
 <template>
-  <div
-    @mousedown="divMousedown()"
-    @mouseup="divMouseup()"
-  >
+  <div @mousedown="divMousedown()" @mouseup="divMouseup()">
     <slot></slot>
   </div>
 </template>

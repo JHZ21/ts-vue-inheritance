@@ -17,8 +17,7 @@ export function setHtmlFontSize() {
 // return fromat: yyyy/mm/dd
 export function timeStampToTargetFormat(timeStamp: number): string {
   const dateObj = new Date(timeStamp)
-  const return_str: string = `${dateObj.getFullYear()}/${dateObj.getMonth() +
-    1}/${dateObj.getDate()}`
+  const return_str: string = `${dateObj.getFullYear()}/${dateObj.getMonth() + 1}/${dateObj.getDate()}`
   return return_str
 }
 

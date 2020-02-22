@@ -1,32 +1,8 @@
 import Vue from "vue"
 import "element-ui/lib/theme-chalk/index.css"
-import {
-  Pagination,
-  Steps,
-  Step,
-  Dialog,
-  Button,
-  Form,
-  FormItem,
-  Input,
-  Select,
-  Option,
-  DatePicker
-} from "element-ui"
+import { Pagination, Steps, Step, Dialog, Button, Form, FormItem, Input, Select, Option, DatePicker } from "element-ui"
 
-const aComponets: any[] = [
-  Pagination,
-  Steps,
-  Step,
-  Dialog,
-  Button,
-  Form,
-  FormItem,
-  Input,
-  Select,
-  Option,
-  DatePicker
-]
+const aComponets: any[] = [Pagination, Steps, Step, Dialog, Button, Form, FormItem, Input, Select, Option, DatePicker]
 
 aComponets.forEach(compent => {
   Vue.use(compent)

@@ -1,10 +1,70 @@
-.project-steps {
+.project-steps-box {
+  position: relative;
+  padding: 20px 0;
+}
+.plan-name {
+  position: absolute;
+  left: 15px;
+  height: 100%;
+  writing-mode: vertical-rl;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 5px;
+  // 抵消父元素 padding
+  margin-top: -20px;
+  padding: 30px 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-steps-wrapper {
   flex-wrap: wrap;
+  justify-content: center;
+  max-height: 381px;
+  overflow-y: auto;
+  @include webkit-scrollbar;
   .project-step {
+    &:last-child {
+      max-width: none !important;
+    }
     white-space: pre-wrap;
-    max-width: max-content !important;
+    margin-bottom: 10px;
+    // max-width: max-content !important;
     & /deep/ .el-step__description {
       white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 150px;
+      overflow-y: auto;
+      @include webkit-scrollbar;
+    }
+  }
+}
+.set-project-steps {
+  .set-btns {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px 0;
+  }
+  .form-step-num {
+    padding-bottom: 15px;
+    border-bottom: $thin-broder;
+    & /deep/ .el-form-item__content {
+      display: flex;
+    }
+  }
+  .step-tables-wrapper {
+    padding-right: 20px;
+    max-height: 360px;
+    overflow-y: auto;
+    @include webkit-scrollbar;
+    .step-table-item {
+      position: relative;
+      .delete-btn {
+        position: absolute;
+        right: 0;
+        z-index: 1;
+        bottom: 0;
+      }
     }
   }
 }

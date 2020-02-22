@@ -1,10 +1,7 @@
 <template>
   <div class="comment-box">
     <div class="head-portrait-wrapper">
-      <div
-        class="head-portrait"
-        :style="{ backgroundImage: `url(${commentInfo.portraitUrl})` }"
-      ></div>
+      <div class="head-portrait" :style="{ backgroundImage: `url(${commentInfo.portraitUrl})` }"></div>
     </div>
     <div class="content-box">
       <div class="meta-box">
@@ -14,9 +11,7 @@
         {{ commentInfo.content }}
       </div>
       <div class="reply-stat">
-        <time class="time" data-time="" title="">{{
-          goodDate(commentInfo.timeStamp)
-        }}</time>
+        <time class="time" data-time="" title="">{{ goodDate(commentInfo.timeStamp) }}</time>
       </div>
     </div>
   </div>
@@ -37,10 +32,7 @@ export default class extends Vue {
     if (!timeStamp) return result_str
     const DateTarget: Date = new Date(timeStamp)
     const DateNow: Date = new Date()
-    if (
-      DateTarget.getFullYear() !== DateNow.getFullYear() ||
-      DateTarget.getMonth() !== DateNow.getMonth()
-    ) {
+    if (DateTarget.getFullYear() !== DateNow.getFullYear() || DateTarget.getMonth() !== DateNow.getMonth()) {
       result_str = timeStampToTargetFormat(timeStamp)
     } else {
       const diff_day = DateNow.getDay() - DateTarget.getDay()

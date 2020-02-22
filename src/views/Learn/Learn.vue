@@ -3,28 +3,18 @@
     <div class="learn_panel_wrapper">
       <div class="learn_panel">
         <div class="panel_top clearfix">
-          <div
-            class="rotation_img"
-            :style="{ backgroundImage: `url(${rotation_img_url})` }"
-          ></div>
+          <div class="rotation_img" :style="{ backgroundImage: `url(${rotation_img_url})` }"></div>
           <search-input
             class="search_input"
             placeholder="快速查找文章/enter"
             @set_search_val="set_search_val"
           ></search-input>
         </div>
-        <nav-menu
-          :nav_data="nav_data"
-          @update_selected_erea="update_selected_erea"
-        ></nav-menu>
+        <nav-menu :nav_data="nav_data" @update_selected_erea="update_selected_erea"></nav-menu>
       </div>
     </div>
     <div class="container">
-      <open-new-tab
-        v-for="(cardData, key) in currntPageCard"
-        :key="key"
-        :url="new_tab_url(cardData.id)"
-      >
+      <open-new-tab v-for="(cardData, key) in currntPageCard" :key="key" :url="new_tab_url(cardData.id)">
         <article-card class="article_card" :cardData="cardData"></article-card>
       </open-new-tab>
 
@@ -35,8 +25,7 @@
         :page-size="pageCardSize"
         :total="selected_eara_cardList.length"
         :current-page.sync="currentPage"
-      >
-      </el-pagination>
+      ></el-pagination>
     </div>
   </main>
 </template>
@@ -76,9 +65,7 @@ export default class extends Vue {
     if (!this.allCardList[0]) return []
     let curr_cardList: CardData[] = []
     const selected_erea = this.selected_erea
-    curr_cardList = this.allCardList[selected_erea[0]][selected_erea[1]][
-      selected_erea[2]
-    ]
+    curr_cardList = this.allCardList[selected_erea[0]][selected_erea[1]][selected_erea[2]]
     if (this.to_search_val) {
       curr_cardList = this.filter_by_match_article_rule(curr_cardList)
     }
@@ -90,19 +77,13 @@ export default class extends Vue {
   //TODO: 还未应用search_val 如Competition多词搜索
   get currntPageCard(): CardData[] {
     const index = this.currentPage - 1
-    return this.selected_eara_cardList.slice(
-      index * this.pageCardSize,
-      (index + 1) * this.pageCardSize
-    )
+    return this.selected_eara_cardList.slice(index * this.pageCardSize, (index + 1) * this.pageCardSize)
   }
   // 随rotation_img_index自响应改变轮播图片
   get rotation_img_url(): string {
     const index = this.rotation_img_index
     const img_url: string[] = this.img_url
-    img_url[index] ||
-      (img_url[
-        index
-      ] = require(`@/assets/learn/rotation/rotation_0${index}.jpg`))
+    img_url[index] || (img_url[index] = require(`@/assets/learn/rotation/rotation_0${index}.jpg`))
     return img_url[index]
   }
   new_tab_url(id: number) {
@@ -122,9 +103,7 @@ export default class extends Vue {
   }
 
   filter_by_match_article_rule(cardList: CardData[]): CardData[] {
-    return cardList.filter((cardData: CardData) =>
-      this.match_article_rule(cardData)
-    )
+    return cardList.filter((cardData: CardData) => this.match_article_rule(cardData))
   }
 
   select_item(row_key: number, item_key: number): void {

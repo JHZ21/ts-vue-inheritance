@@ -1,5 +1,19 @@
 /* */
 
+export interface StepDataType {
+  // title: string
+  deadline: string
+  description: string
+}
+export type StepsDataType = StepDataType[]
+
+export interface StepsObjType {
+  plan_name: string
+  power: boolean
+  steps_data: StepsDataType
+  activeNum: number
+}
+
 export interface ProjectDataType {
   PName: string
   PSummary: string

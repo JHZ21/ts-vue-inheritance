@@ -52,38 +52,6 @@ $hover-color: #0088bb;
   }
 }
 
-@mixin webkit-scrollbar {
-  $bar-color: rgba(132, 208, 255, 0.6);
-  $btn-color: rgba(241, 241, 241, 0.6);
-
-  &::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-    background-color: transparent;
-    opacity: 0.5;
-  }
-
-  &::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $bar-color;
-  }
-
-  &::-webkit-scrollbar-button:start {
-    // background: url(./imgs/up.png) no-repeat;
-    background-color: $btn-color;
-    background-size: 12px 12px;
-  }
-
-  &::-webkit-scrollbar-button:end {
-    // background: url(./imgs/down.png) no-repeat;
-    background-color: $btn-color;
-    background-size: 12px 12px;
-  }
-}
-
 .competition-box {
   @include body-layout();
   padding-bottom: 40px;
@@ -168,6 +136,9 @@ $hover-color: #0088bb;
 
       .code-content {
         @include item-content();
+        justify-items: center;
+        .project-steps {
+        }
       }
     }
   }

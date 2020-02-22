@@ -75,14 +75,8 @@ function funcOfRepeatFunc(n: number, m: number, func: any): any {
 }
 
 const catalog = [6, 20, 4]
-const reapeatNToM: Function = (n: number, m?: number) =>
-  partial(funcOfRepeatFunc, n, m)
-const makeArrayRepeatFunc: Function | any[] = pipe(
-  reapeatNToM(6),
-  reapeatNToM(20),
-  reapeatNToM(4),
-  reapeatNToM(1, 70)
-)
+const reapeatNToM: Function = (n: number, m?: number) => partial(funcOfRepeatFunc, n, m)
+const makeArrayRepeatFunc: Function | any[] = pipe(reapeatNToM(6), reapeatNToM(20), reapeatNToM(4), reapeatNToM(1, 70))
 
 const allCardList: NestedCardList = (<Function>makeArrayRepeatFunc)(makeCard)()
 
@@ -113,9 +107,9 @@ function createProject() {
   })
 }
 
-const createProjectsFunc: Function = (<Function>(
-  pipe(reapeatNToM(10), reapeatNToM(20), reapeatNToM(1, 20))
-))(createProject)
+const createProjectsFunc: Function = (<Function>pipe(reapeatNToM(10), reapeatNToM(20), reapeatNToM(1, 20)))(
+  createProject
+)
 
 Mock.mock("/competition/getProjects", createProjectsFunc)
 // {

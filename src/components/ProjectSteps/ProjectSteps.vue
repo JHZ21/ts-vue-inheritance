@@ -1,70 +1,88 @@
 <template>
-  <div>
-    <el-steps
-      class="project-steps"
-      align-center
+  <div class="project-steps-box">
+    <div class="plan-name">{{plan_name}}</div>
+    <el-steps class="project-steps-wrapper"
       :active="activeNum"
-      space="200px"
-      :process-status="processStatus"
-      :finish-status="finishStatus"
-    >
-      <el-step
-        class="project-step"
+      space="185px"
+      process-status="process"
+      finish-status="finish">
+      <el-step class="project-step"
         v-for="(step, key) in steps_data"
-        :title="step.title"
-        :description="descriptionTemplate(step.deadline, step.description)"
-        :key="key"
-      ></el-step>
+        :title="step.deadline"
+        :description="description_template(step.description)"
+        :key="key"></el-step>
     </el-steps>
-    <el-button style="margin-top: 12px;" @click="next_step">下一阶段</el-button>
-    <el-button type="text" @click="dialogFormVisible = true"
-      >制定阶段规划</el-button
-    >
-
-    <el-dialog title="规划表" :visible.sync="dialogFormVisible">
-      <el-form :model="form">
-        <el-form-item label="规划阶段数目" :label-width="formLabelWidth">
-          <el-input
-            type="number"
-            min="1"
-            max="20"
-            step="1"
-            v-model="form.stepNum"
-            autocomplete="off"
-          ></el-input>
-          <el-button @click="make_from_step_tables">确认</el-button>
-        </el-form-item>
-
-        <div
-          class="step-table-item"
-          v-for="(step_table, key) in form.step_tables"
-          :key="key"
-        >
-          <el-form-item label="阶段目标" :label-width="formLabelWidth">
-            <el-input v-model="step_table.target" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="阶段截止日期" :label-width="formLabelWidth">
-            <div class="block">
-              <el-date-picker
-                v-model="step_table.deadline"
-                type="date"
-                placeholder="选择日期"
-              >
-              </el-date-picker>
-            </div>
-          </el-form-item>
-        </div>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="form_confirm">确 定</el-button>
+    <div class="set-project-steps"
+      v-if="steps_obj.power">
+      <div class="set-btns">
+        <el-button @click="prev_step">上一阶段</el-button>
+        <el-button @click="next_step">下一阶段</el-button>
+        <el-button type="text"
+          @click="open_dialog_form">制定阶段规划</el-button>
       </div>
-    </el-dialog>
+      <el-dialog title="规划表"
+        :visible.sync="dialogFormVisible">
+        <el-form :model="form">
+          <el-form-item class="form-plan-name"
+            label="规划名称"
+            :label-width="formLabelWidth">
+            <el-input type="text"
+              v-model="form.plan_name"
+              autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item class="form-step-num"
+            label="规划阶段数目"
+            :label-width="formLabelWidth">
+            <el-input type="number"
+              min="1"
+              max="20"
+              step="1"
+              v-model="form.step_num"
+              :autofocus="true"
+              autocomplete="off"></el-input>
+            <el-button @click="make_from_step_tables">确认</el-button>
+          </el-form-item>
+          <div class="step-tables-wrapper"
+            ref="step-tables">
+            <div class="step-table-item"
+              v-for="(step_table, key) in form.step_tables"
+              :key="key">
+              <el-form-item label="阶段目标"
+                :label-width="formLabelWidth">
+                <el-input v-model="step_table.target"
+                  autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="阶段截止日期"
+                :label-width="formLabelWidth">
+                <div class="block">
+                  <el-date-picker v-model="step_table.deadline"
+                    type="date"
+                    placeholder="选择日期"></el-date-picker>
+                </div>
+              </el-form-item>
+              <el-button class="delete-btn"
+                v-if="form.step_tables.length >= 2"
+                type="danger"
+                icon="el-icon-delete"
+                @click="delete_step_table(key)"
+                circle></el-button>
+            </div>
+          </div>
+        </el-form>
+        <div slot="footer"
+          class="dialog-footer">
+          <el-button @click="close_dialog_form">取 消</el-button>
+          <el-button type="primary"
+            @click="form_confirm">确 定</el-button>
+        </div>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator"
+import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { StepDataType, StepsDataType, StepsObjType } from "@/utils/interface"
 
 enum StepStatus {
   wait,
@@ -74,65 +92,100 @@ enum StepStatus {
   success
 }
 
-interface StepDataType {
-  title: string
+interface StepTableType {
+  target: string
   deadline: string
-  description: string
 }
+type StepTablesType = StepTableType[]
 
-type StepsDataType = StepDataType[]
+interface StepsFromType {
+  plan_name: string
+  step_num: number
+  step_tables: StepTablesType
+}
 
 @Component({
   name: "ProjectSteps"
 })
 // TODO: 还有很多逻辑需完善，晚安！
 export default class extends Vue {
-  @Prop({ required: false }) steps_data: StepsDataType = []
-  finishStatus: string = StepStatus[2] // finish
-  processStatus: string = StepStatus[1] // process
-  stepNum: number = 4
+  @Prop({ required: false, default: { power: false } }) steps_obj!: StepsObjType
+  plan_name: string = ""
+  steps_data: StepsDataType = []
   activeNum: number = 2
   dialogFormVisible: boolean = false
-  form = {
-    stepNum: 4,
-    target: "",
-    time_range: "",
+  form: StepsFromType = {
+    plan_name: "",
+    step_num: 4,
     step_tables: []
   }
   formLabelWidth: string = "120px"
-
+  format_date(deadline: string): string {
+    const dateObj = new Date(deadline)
+    return `${dateObj.getMonth() +
+      1}-${dateObj.getDate()}-${dateObj.getFullYear()}`
+  }
+  delete_step_table(key: number) {
+    this.form.step_tables.splice(key, key + 1)
+    this.form.step_num--
+  }
+  open_dialog_form() {
+    this.form.plan_name = this.plan_name
+    this.form.step_num = this.steps_data.length
+    this.dialogFormVisible = true
+    this.init_form_step_tables()
+  }
+  close_dialog_form() {
+    this.dialogFormVisible = false
+  }
+  prev_step() {
+    if (this.activeNum > 0) {
+      this.activeNum--
+    }
+  }
   next_step() {
     if (this.activeNum < this.steps_data.length) {
       this.activeNum++
-      if (this.activeNum === this.steps_data.length) {
-        confirm("恭喜完成规划！")
-        // TODO： 规划更新，还需还原
-        this.finishStatus = StepStatus[4] // success
-      }
     }
   }
-  adapter_steps_date(step_tables: any[]): StepsDataType {
+  init_form_step_tables() {
+    this.form.step_tables = this.adapter_form_step_tables(this.steps_data)
+  }
+  adapter_form_step_tables(steps_data: StepsDataType): StepTablesType {
+    return steps_data.map(step_data => ({
+      deadline: step_data.deadline,
+      target: step_data.description
+    }))
+  }
+  adapter_steps_date(step_tables: StepTablesType): StepsDataType {
+    const format_date: Function = this.format_date
     return step_tables.map(table => ({
-      title: "adaf",
-      deadline: table.deadline,
+      deadline: format_date(table.deadline),
       description: table.target
     }))
   }
   form_confirm() {
+    // TODO: 验证无空value
+    this.plan_name = this.form.plan_name
     this.steps_data = this.adapter_steps_date(this.form.step_tables)
-    this.dialogFormVisible = false
+    if (this.activeNum > this.steps_data.length) {
+      this.activeNum = this.steps_data.length
+    }
+    this.close_dialog_form()
   }
   make_from_step_tables() {
+    this.init_form_step_tables()
     const curr_num: number = this.form.step_tables.length
-    const target_num: number = this.form.stepNum
+    const target_num: number = this.form.step_num
     let n: number = target_num - curr_num
     const step_tables: any[] = this.form.step_tables
     if (n > 0) {
       // 添加
       while (n--) {
+        let time = Date()
         step_tables.push({
-          target: "",
-          deadline: ""
+          target: "目标",
+          deadline: time
         })
       }
     } else if (n < 0) {
@@ -142,19 +195,14 @@ export default class extends Vue {
       }
     }
   }
-  descriptionTemplate(deadline: string, description: string) {
-    return `${deadline}
-    ${description}`
+  description_template(description: string) {
+    return `${description}`
   }
 
   created() {
-    const step_date: StepDataType = {
-      title: "阶段一",
-      deadline: "2020/2/21",
-      description:
-        "这是一段很长很长很长的描述性文字。这是一段很长很长很长的描述性文字。"
-    }
-    this.steps_data = Array(this.stepNum).fill(step_date)
+    this.steps_data = this.steps_obj.steps_data
+    this.activeNum = this.steps_obj.activeNum
+    this.plan_name = this.steps_obj.plan_name
   }
 }
 </script>

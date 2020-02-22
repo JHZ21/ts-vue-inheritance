@@ -33,8 +33,7 @@ const routes = [
   {
     path: "/competition/content/:id",
     name: "competition-content",
-    component: () =>
-      import("@/views/Competition/CompetitionContent/CompetitionContent.vue")
+    component: () => import("@/views/Competition/CompetitionContent/CompetitionContent.vue")
   },
   {
     path: "/404",

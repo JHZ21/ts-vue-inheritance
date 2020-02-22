@@ -27,11 +27,7 @@
         ></textarea>
         <div class="send-button-wrapper" v-show="showSendBtn">
           <span class="send-shortcut-keys-text">Ctrl or ⌘ + Enter</span>
-          <button
-            class="send-btn"
-            @click="sendComment()"
-            :disabled="!myCommentText"
-          >
+          <button class="send-btn" @click="sendComment()" :disabled="!myCommentText">
             发送
           </button>
         </div>
