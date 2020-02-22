@@ -11,10 +11,19 @@
         :title="step.deadline"
         :description="description_template(step.description)"
         :key="key"></el-step>
+      <el-button class="code-download"
+        icon="el-icon-download"
+        @click="download_code"
+        circle></el-button>
     </el-steps>
+
     <div class="set-project-steps"
       v-if="steps_obj.power">
       <div class="set-btns">
+        <el-button class="code-upload"
+          @click="upload_code"
+          icon="el-icon-upload"
+          circle></el-button>
         <el-button @click="prev_step">上一阶段</el-button>
         <el-button @click="next_step">下一阶段</el-button>
         <el-button type="text"
@@ -120,6 +129,12 @@ export default class extends Vue {
     step_tables: []
   }
   formLabelWidth: string = "120px"
+  download_code() {
+    confirm("下载代码成功!")
+  }
+  upload_code() {
+    confirm("上传代码成功!")
+  }
   format_date(deadline: string): string {
     const dateObj = new Date(deadline)
     return `${dateObj.getMonth() +

@@ -1,3 +1,8 @@
+@mixin icon {
+  padding: 9px;
+  font-size: 20px;
+  height: 40px;
+}
 .project-steps-box {
   position: relative;
   padding: 20px 0;
@@ -38,12 +43,20 @@
       @include webkit-scrollbar;
     }
   }
+  .code-download {
+    @include icon;
+    position: absolute;
+    right: 0;
+  }
 }
 .set-project-steps {
   .set-btns {
     display: flex;
     justify-content: flex-end;
     margin: 10px 0;
+    .code-upload {
+      @include icon;
+    }
   }
   .form-step-num {
     padding-bottom: 15px;
