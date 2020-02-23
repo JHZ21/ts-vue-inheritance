@@ -139,6 +139,27 @@ import { Vue, Component } from "vue-property-decorator"
 import ProjectSteps from "@/components/ProjectSteps/ProjectSteps.vue"
 import { StepsObjType, StepDataType } from "@/utils/interface"
 
+interface ProjectContentItemType {
+  title: string
+  content: string[]
+}
+
+interface ProjectMemberType {
+  portrait: string
+  introduce: string[]
+  contribution: string[]
+}
+
+interface ProjectTeamType {
+  team_name: string
+  members: ProjectMemberType[]
+}
+
+interface ProjectContentType {
+  project_name: string
+  content_items: ProjectContentItemType[]
+}
+
 @Component({
   name: "CompetitionContent",
   components: {
@@ -146,6 +167,8 @@ import { StepsObjType, StepDataType } from "@/utils/interface"
   }
 })
 export default class extends Vue {
+  project_content!: ProjectContentType
+
   steps_objs: StepsObjType[] = [
     {
       plan_name: "前端",

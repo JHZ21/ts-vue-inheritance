@@ -7,16 +7,16 @@
       process-status="process"
       finish-status="finish">
       <el-step class="project-step"
+        :class="{'i-width': i_width(key)}"
         v-for="(step, key) in steps_data"
         :title="step.deadline"
         :description="description_template(step.description)"
         :key="key"></el-step>
-      <el-button class="code-download"
-        icon="el-icon-download"
-        @click="download_code"
-        circle></el-button>
     </el-steps>
-
+    <el-button class="code-download"
+      icon="el-icon-download"
+      @click="download_code"
+      circle></el-button>
     <div class="set-project-steps"
       v-if="steps_obj.power">
       <div class="set-btns">
@@ -129,6 +129,9 @@ export default class extends Vue {
     step_tables: []
   }
   formLabelWidth: string = "120px"
+  i_width(key: number): boolean {
+    return key < this.activeNum
+  }
   download_code() {
     confirm("下载代码成功!")
   }
