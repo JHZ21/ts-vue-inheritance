@@ -1,8 +1,10 @@
 <template>
   <div class="header">
-    <div class="header_container" v-if="showHeaderContent()">
+    <div class="header_container"
+      v-if="showHeaderContent()">
       <ul class="nav">
-        <li v-for="(link, key) in links" :key="key">
+        <li v-for="(link, key) in links"
+          :key="key">
           <router-link :to="link.to">{{ link.text }}</router-link>
         </li>
       </ul>
@@ -40,7 +42,9 @@ export default class Header extends Vue {
     }
   }
   showHeaderContent(): boolean {
-    return !new RegExp(/^\/learn\/content\//).test(this.$route.fullPath)
+    // 学习内容页面不显示header 内容
+    // return !new RegExp(/^\/learn\/content\//).test(this.$route.fullPath)
+    return true
   }
 }
 </script>

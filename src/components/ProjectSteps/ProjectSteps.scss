@@ -1,17 +1,13 @@
-@mixin icon {
-  padding: 9px;
-  font-size: 20px;
-  height: 40px;
-}
 .project-steps-box {
   position: relative;
-  padding: 20px 0;
+  padding: 20px 0 0;
+  margin-bottom: 20px;
 }
 .plan-name {
   position: absolute;
   left: 15px;
   height: 100%;
-  writing-mode: vertical-rl;
+  writing-mode: vertical-lr;
   text-align: center;
   font-size: 18px;
   letter-spacing: 5px;
@@ -27,17 +23,12 @@
   justify-content: center;
   max-height: 381px;
   overflow-y: auto;
+  margin-bottom: 20px;
   @include webkit-scrollbar;
   .project-step {
     &:last-child {
       max-width: none !important;
     }
-    &.i-width /deep/ i {
-      // transition-delay: 450ms !important;
-      // border-width: 1px !important;
-      // width: 100% !important;
-    }
-
     white-space: pre-wrap;
     margin-bottom: 10px;
     // max-width: max-content !important;
@@ -56,11 +47,15 @@
   right: 0;
   top: 20px;
 }
-.set-project-steps {
+.set-project-steps-wrapper {
+  margin: 10px 0;
+  margin-left: auto;
+  width: 1000px;
+  padding-bottom: 10px;
+  border-bottom: $thin-broder;
   .set-btns {
     display: flex;
     justify-content: flex-end;
-    margin: 10px 0;
     .code-upload {
       @include icon;
     }

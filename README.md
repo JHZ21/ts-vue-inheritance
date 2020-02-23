@@ -1,27 +1,27 @@
 # ts-vue-inheritance
 
+
+
 ## Technology stack
+> Typescript + SCSS + Vue + Vue-router
+>
+> Mockjs
+>
 > style-resources-loader 全局导入 global.scss
 
-## Project setup
-```
-npm install
-```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Page  Function
 
-### Lints and fixes files
-```
-npm run lint
-```
+### Lean Page
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+* 分类导航栏
+* 搜索
+* 翻页
+* 留言
+
+### Project Page
+
+* 多词搜索，高命中优先排序
+* 制定可视化规划时间轴
+* 项目与成员信息展示

@@ -12,6 +12,7 @@ export interface StepsObjType {
   power: boolean
   steps_data: StepsDataType
   activeNum: number
+  id: number
 }
 
 export interface ProjectDataType {

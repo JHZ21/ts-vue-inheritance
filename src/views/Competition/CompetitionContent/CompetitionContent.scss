@@ -9,8 +9,9 @@ $hover-color: #0088bb;
 }
 
 @mixin item-box {
-  min-width: 450px;
-  max-width: 600px;
+  // min-width: 450px;
+  // max-width: 600px;
+  width: 450px;
   text-align: left;
   color: #333;
   margin: 0 20px;
@@ -62,7 +63,9 @@ $hover-color: #0088bb;
     margin: 0 auto;
     background-color: #fff;
     padding: 20px 40px;
-
+    & > section {
+      margin-bottom: 20px;
+    }
     .project-name {
       font-size: 24px;
       font-weight: bolder;
@@ -115,13 +118,11 @@ $hover-color: #0088bb;
                 @include bg-img-centered();
               }
             }
-
             .introduce {
               flex: 1 1 150px;
               @include item-content(auto);
             }
           }
-
           .member-contribution {
             height: 160px;
             @include item-content(hidden, auto, no-wrap);
@@ -129,16 +130,28 @@ $hover-color: #0088bb;
         }
       }
     }
-
     .project-code {
       .code-title {
         @include item-title();
       }
-
       .code-content {
         @include item-content();
         justify-items: center;
-        .project-steps {
+        .icon-row {
+          text-align: right;
+          .btns-wrapper {
+            border: $thin-broder;
+            border-width: 0 0 1px 1px;
+            display: inline-block;
+            padding: 10px 0 10px 10px;
+            margin-top: -20px;
+            .danger-btn:focus,
+            .danger-btn:hover {
+              color: #f73c11;
+              border-color: #c6e2ff;
+              background-color: #ffc2b5;
+            }
+          }
         }
       }
     }

@@ -17,74 +17,75 @@
       icon="el-icon-download"
       @click="download_code"
       circle></el-button>
-    <div class="set-project-steps"
-      v-if="steps_obj.power">
-      <div class="set-btns">
-        <el-button class="code-upload"
-          @click="upload_code"
-          icon="el-icon-upload"
-          circle></el-button>
-        <el-button @click="prev_step">上一阶段</el-button>
-        <el-button @click="next_step">下一阶段</el-button>
-        <el-button type="text"
-          @click="open_dialog_form">制定阶段规划</el-button>
-      </div>
-      <el-dialog title="规划表"
-        :visible.sync="dialogFormVisible">
-        <el-form :model="form">
-          <el-form-item class="form-plan-name"
-            label="规划名称"
-            :label-width="formLabelWidth">
-            <el-input type="text"
-              v-model="form.plan_name"
-              autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item class="form-step-num"
-            label="规划阶段数目"
-            :label-width="formLabelWidth">
-            <el-input type="number"
-              min="1"
-              max="20"
-              step="1"
-              v-model="form.step_num"
-              :autofocus="true"
-              autocomplete="off"></el-input>
-            <el-button @click="make_from_step_tables">确认</el-button>
-          </el-form-item>
-          <div class="step-tables-wrapper"
-            ref="step-tables">
-            <div class="step-table-item"
-              v-for="(step_table, key) in form.step_tables"
-              :key="key">
-              <el-form-item label="阶段目标"
-                :label-width="formLabelWidth">
-                <el-input v-model="step_table.target"
-                  autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="阶段截止日期"
-                :label-width="formLabelWidth">
-                <div class="block">
-                  <el-date-picker v-model="step_table.deadline"
-                    type="date"
-                    placeholder="选择日期"></el-date-picker>
-                </div>
-              </el-form-item>
-              <el-button class="delete-btn"
-                v-if="form.step_tables.length >= 2"
-                type="danger"
-                icon="el-icon-delete"
-                @click="delete_step_table(key)"
-                circle></el-button>
-            </div>
-          </div>
-        </el-form>
-        <div slot="footer"
-          class="dialog-footer">
-          <el-button @click="close_dialog_form">取 消</el-button>
-          <el-button type="primary"
-            @click="form_confirm">确 定</el-button>
+    <div class="set-project-steps-wrapper">
+      <div v-if="steps_obj.power">
+        <div class="set-btns">
+          <el-button class="code-upload"
+            @click="upload_code"
+            icon="el-icon-upload"
+            circle></el-button>
+          <el-button @click="prev_step">上一阶段</el-button>
+          <el-button @click="next_step">下一阶段</el-button>
+          <el-button type="text"
+            @click="open_dialog_form">制定阶段规划</el-button>
         </div>
-      </el-dialog>
+        <el-dialog title="规划表"
+          :visible.sync="dialogFormVisible">
+          <el-form :model="form">
+            <el-form-item class="form-plan-name"
+              label="规划名称"
+              :label-width="formLabelWidth">
+              <el-input type="text"
+                v-model="form.plan_name"
+                autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item class="form-step-num"
+              label="规划阶段数目"
+              :label-width="formLabelWidth">
+              <el-input type="number"
+                min="1"
+                max="20"
+                step="1"
+                v-model="form.step_num"
+                :autofocus="true"
+                autocomplete="off"></el-input>
+              <el-button @click="make_from_step_tables">确认</el-button>
+            </el-form-item>
+            <div class="step-tables-wrapper"
+              ref="step-tables">
+              <div class="step-table-item"
+                v-for="(step_table, key) in form.step_tables"
+                :key="key">
+                <el-form-item label="阶段目标"
+                  :label-width="formLabelWidth">
+                  <el-input v-model="step_table.target"
+                    autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="阶段截止日期"
+                  :label-width="formLabelWidth">
+                  <div class="block">
+                    <el-date-picker v-model="step_table.deadline"
+                      type="date"
+                      placeholder="选择日期"></el-date-picker>
+                  </div>
+                </el-form-item>
+                <el-button class="delete-btn"
+                  v-if="form.step_tables.length >= 2"
+                  type="danger"
+                  icon="el-icon-delete"
+                  @click="delete_step_table(key)"
+                  circle></el-button>
+              </div>
+            </div>
+          </el-form>
+          <div slot="footer"
+            class="dialog-footer">
+            <el-button @click="close_dialog_form">取 消</el-button>
+            <el-button type="primary"
+              @click="form_confirm">确 定</el-button>
+          </div>
+        </el-dialog>
+      </div>
     </div>
   </div>
 </template>
