@@ -1,5 +1,26 @@
 import { LinkElement } from "./interface"
 
+// 返回一个function ，可以生成func函数结果组成的随机长度数组
+export function funcOfRepeatFunc(n: number, m: number, func: any): any {
+  if (m === undefined) {
+    m = n
+  }
+  return function() {
+    const return_val: any[] = []
+    let num = Math.floor(Math.random() * (m - n)) + n
+    for (; num--; ) {
+      return_val.push(func())
+    }
+    return return_val
+  }
+}
+
+// 封装指定长度范围的 funcOfRepeatFunc
+export function reapeatNToM(n: number, m?: number) {
+  return partial(funcOfRepeatFunc, n, m)
+}
+
+
 // set fontSize of html
 export function setHtmlFontSize() {
   document.addEventListener("DOMContentLoaded", () => {

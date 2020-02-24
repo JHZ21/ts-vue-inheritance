@@ -13,6 +13,7 @@ export interface StepsObjType {
   steps_data: StepsDataType
   activeNum: number
   id: number
+  master: string
 }
 
 export interface ProjectDataType {

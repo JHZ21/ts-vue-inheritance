@@ -1,7 +1,4 @@
 {
-  "editor.detectIndentation": false,
-  "editor.tabSize": 2,
-  "terminal.integrated.rendererType": "dom",
   /* 文件格式化配置 */
   /* 重点！ 文件格式化选择的工具，在多个工具时，记得配置为相应工具，否则将导致该工具配置失效。*/
   "[html]": {
@@ -24,7 +21,7 @@
   },
   /* 在保存时自动格式化：true */
   "editor.formatOnSave": true,
-  /* eslint, 在保存时自动修复错误：true */
+  // /* eslint, 在保存时自动修复错误：true */
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
@@ -32,6 +29,8 @@
   "prettier.semi": false,
   // // 单引号：false
   "prettier.singleQuote": false,
+  /* 让函数(名)和后面的括号之间加个空格 */
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": false,
   /* vetur */
   /* 格式化vue里面 html */
   "vetur.format.defaultFormatter.html": "js-beautify-html",
@@ -41,13 +40,12 @@
     "js-beautify-html": {
       /* 属性强制折行对齐 */
       // [auto|force|force-aligned|force-expand-multiline]
-      "wrap_attributes": "force",
+      "wrap_attributes": "force"
+      // #vue组件中html代码格式化样式
     },
     "prettier": {
       "semi": false,
       "singleQuote": false
     },
-  },
-  /* 让函数(名)和后面的括号之间加个空格 */
-  "javascript.format.insertSpaceBeforeFunctionParenthesis": false
+  }
 }

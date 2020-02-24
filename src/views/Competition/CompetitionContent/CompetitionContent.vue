@@ -44,7 +44,7 @@
         <div class="code-title">项目</div>
         <div class="code-content">
           <el-row class="icon-row"
-            v-if="power">
+            v-permission='["admin", ...id_members]'>
             <span class="btns-wrapper">
               <el-button icon="el-icon-circle-plus"
                 title="insert new"
@@ -59,14 +59,16 @@
               :steps_obj="steps_obj"
               :key="steps_obj.id"></project-steps>
             <el-row class="icon-row"
-              v-if="power">
+              v-permission='["admin", ...id_members]'>
               <span class="btns-wrapper">
-                <el-button icon="el-icon-remove"
+                <el-button v-permission='["admin", id_members[0], steps_obj.master]'
+                  icon="el-icon-remove"
                   class="danger-btn"
                   :title="`delete ${steps_obj.plan_name}`"
                   @click="remove_project_step(key, steps_obj.plan_name)"
                   circle></el-button>
-                <el-button icon="el-icon-circle-plus"
+                <el-button v-permission='["admin", ...id_members]'
+                  icon="el-icon-circle-plus"
                   title="insert new"
                   @click="plus_project_step(key)"
                   circle></el-button>
@@ -83,25 +85,16 @@
 import { Vue, Component } from "vue-property-decorator"
 import ProjectSteps from "@/components/ProjectSteps/ProjectSteps.vue"
 import { StepsObjType, StepDataType } from "@/utils/interface"
-
-interface ProjectContentItemType {
-  title: string
-  content: string[]
-}
-
-interface ProjectMemberType {
-  portrait: string
-  introduce: string[]
-  contribution: string[]
-}
-
-interface ProjectTeamType {
-  team_name: string
-  members: ProjectMemberType[]
-}
+import {
+  ProjectContentItemType,
+  ProjectMemberType,
+  ProjectTeamType
+} from "./type"
+import { UserModule } from "@/store/modules/user"
 
 // 可用于Mockjs
 // interface ProjectContentType {
+//   power: boolean
 //   project_name: string
 //   content_items: ProjectContentItemType[]
 //   team: ProjectTeamType
@@ -114,7 +107,8 @@ interface ProjectTeamType {
   }
 })
 export default class extends Vue {
-  power: boolean = false
+  user_id: string = ""
+  project_id: string = ""
   project_name: string = ""
   content_items!: ProjectContentItemType[]
   team!: ProjectTeamType
@@ -125,7 +119,13 @@ export default class extends Vue {
   }
   // TODO: 不赋值初值，属性就无法响应！！！
   steps_objs: StepsObjType[] = []
-
+  get id_members(): string[] {
+    let ids: string[] = []
+    if (this.team && this.team.members) {
+      ids = this.team.members.map(member => member.id)
+    }
+    return ids
+  }
   id_random(): number {
     return Math.floor(Math.random() * 10e4)
   }
@@ -136,7 +136,8 @@ export default class extends Vue {
       power: false,
       steps_data: Array(4).fill(this.default_step_data),
       activeNum: 2,
-      id
+      id,
+      master: this.user_id
     }
   }
   remove_project_step(plan_key: number, plan_name: string) {
@@ -150,7 +151,8 @@ export default class extends Vue {
     this.steps_objs.splice(plan_key + 1, 0, this.default_steps_obj())
   }
   created() {
-    this.power = true
+    this.user_id = UserModule.roles[0]
+    this.project_id = this.$route.params.id
     this.project_name = "大二房价将藕带"
     this.content_items = [
       {
@@ -169,6 +171,7 @@ export default class extends Vue {
       team_name: "的Jodi哦",
       members: [
         {
+          id: "a0",
           portrait: require("@/assets/images/header_avator.gif"),
           introduce: [
             "江小白",
@@ -183,6 +186,7 @@ export default class extends Vue {
           ]
         },
         {
+          id: "a1",
           portrait: require("@/assets/images/header_avator.gif"),
           introduce: [
             "江小白",
@@ -197,6 +201,7 @@ export default class extends Vue {
           ]
         },
         {
+          id: "a2",
           portrait: require("@/assets/images/header_avator.gif"),
           introduce: [
             "江小白",
@@ -218,14 +223,16 @@ export default class extends Vue {
         power: false,
         steps_data: Array(4).fill(this.default_step_data),
         activeNum: 2,
-        id: this.id_random()
+        id: this.id_random(),
+        master: "a0"
       },
       {
         plan_name: "后端",
-        power: true,
+        power: false,
         steps_data: Array(5).fill(this.default_step_data),
         activeNum: 3,
-        id: this.id_random()
+        id: this.id_random(),
+        master: "a1"
       }
     ]
   }
