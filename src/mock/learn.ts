@@ -1,5 +1,5 @@
 import Mock from "mockjs"
-import { NestedCardList } from "@/utils/interface"
+import { NestedCardList, CommentInfoType } from "@/utils/interface"
 import { pipe, reapeatNToM } from "@/utils/func"
 import { oContentUrlType } from "@/store/modules/learn.ts"
 
@@ -71,30 +71,64 @@ const allCardList: NestedCardList = (<Function>makeArrayRepeatFunc)(makeCard)()
 
 Mock.mock("learn/card", "get", function() {
   const ret_val = {
+    rotation_img_urls: [
+      require("@/assets/learn/rotation/rotation_01.jpg"),
+      require("@/assets/learn/rotation/rotation_02.jpg"),
+      require("@/assets/learn/rotation/rotation_03.jpg")
+    ],
     nav_data,
     allCardList
   }
   return ret_val
 })
 
+const OContentUrl: oContentUrlType = {
+  "3333": "https://www.baidu.com/",
+  "1111": "https://www.tslang.cn/docs/handbook/interfaces.html",
+  "2222": "http://www.typescriptlang.org/docs/handbook/basic-types.html"
+}
 Mock.mock("learn/getocententurl", "post", function() {
-  const OContentUrl: oContentUrlType = {
-    "3333": "https://www.baidu.com/",
-    "1111": "https://www.tslang.cn/docs/handbook/interfaces.html",
-    "2222": "http://www.typescriptlang.org/docs/handbook/basic-types.html"
-  }
   return OContentUrl
 })
 
-// axios({
-//   method: "GET",
-//   url: "/competition/getProjects"
-// }).then(res => {
-//   console.log(res.data);
-// });
-// fetch("learn/getocententurl", {
-//   method: "post"
-// }).then(res => {
-//   console.log(res);
-//   console.log(res.json());
-// })
+const comment_infos: CommentInfoType[] = [
+  {
+    portraitUrl: require("@/assets/images/header_avator.gif"),
+    username: "aadsf",
+    content: "新年快乐",
+    timeStamp: 1580479254959
+  },
+  {
+    portraitUrl: require("@/assets/images/header_avator.gif"),
+    username: "aadsf",
+    content: "新年快乐，遵在家里为社会做贡献，快发霉了~",
+    timeStamp: 1580313600000
+  },
+  {
+    portraitUrl: require("@/assets/images/header_avator.gif"),
+    username: "aadsf",
+    content:
+      "新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~",
+    timeStamp: 1577635200000
+  },
+  {
+    portraitUrl: require("@/assets/images/header_avator.gif"),
+    username: "aadsf",
+    content:
+      "新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~",
+    timeStamp: 1500479154959
+  }
+]
+Mock.mock("/learn/getContent", "post", function(options: any) {
+  if (options && options.body) {
+    let params = JSON.parse(options.body)
+    let content_url = OContentUrl[params.content_id]
+    if (content_url) {
+      return {
+        content_url,
+        comment_infos
+      }
+    }
+  }
+  return {}
+})

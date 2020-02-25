@@ -3,29 +3,30 @@
     <div class="learn_panel_wrapper">
       <div class="learn_panel">
         <div class="panel_top clearfix">
-          <div class="rotation_img" :style="{ backgroundImage: `url(${rotation_img_url})` }"></div>
-          <search-input
-            class="search_input"
+          <div class="rotation_img"
+            :style="{ backgroundImage: `url(${rotation_img_urls[rotation_img_index]})` }"></div>
+          <search-input class="search_input"
             placeholder="快速查找文章/enter"
-            @set_search_val="set_search_val"
-          ></search-input>
+            @set_search_val="set_search_val"></search-input>
         </div>
-        <nav-menu :nav_data="nav_data" @update_selected_erea="update_selected_erea"></nav-menu>
+        <nav-menu :nav_data="nav_data"
+          @update_selected_erea="update_selected_erea"></nav-menu>
       </div>
     </div>
     <div class="container">
-      <open-new-tab v-for="(cardData, key) in currntPageCard" :key="key" :url="new_tab_url(cardData.id)">
-        <article-card class="article_card" :cardData="cardData"></article-card>
+      <open-new-tab v-for="(cardData, key) in currntPageCard"
+        :key="key"
+        :url="new_tab_url(cardData.id)">
+        <article-card class="article_card"
+          :cardData="cardData"></article-card>
       </open-new-tab>
 
-      <el-pagination
-        class="pagination"
+      <el-pagination class="pagination"
         background
         layout="prev, pager, next"
         :page-size="pageCardSize"
         :total="selected_eara_cardList.length"
-        :current-page.sync="currentPage"
-      ></el-pagination>
+        :current-page.sync="currentPage"></el-pagination>
     </div>
   </main>
 </template>
@@ -50,8 +51,8 @@ import OpenNewTab from "../../components/OpenNewTab.vue"
   }
 })
 export default class extends Vue {
-  rotation_img_index: number = 1 // 轮播图当前图片
-  img_url: string[] = [] // 实际图片路径
+  rotation_img_urls: string[] = [] // 轮播图组路径
+  rotation_img_index: number = 0 // 轮播图当前图片下标
   nav_data: NavRow[] = [] // 导航选择栏数据
   selected_erea: number[] = [0, 0, 0] // 用户选择的方向、分类、级别 信息
   search_input_val: string = ""
@@ -65,7 +66,9 @@ export default class extends Vue {
     if (!this.allCardList[0]) return []
     let curr_cardList: CardData[] = []
     const selected_erea = this.selected_erea
-    curr_cardList = this.allCardList[selected_erea[0]][selected_erea[1]][selected_erea[2]]
+    curr_cardList = this.allCardList[selected_erea[0]][selected_erea[1]][
+      selected_erea[2]
+    ]
     if (this.to_search_val) {
       curr_cardList = this.filter_by_match_article_rule(curr_cardList)
     }
@@ -77,21 +80,24 @@ export default class extends Vue {
   //TODO: 还未应用search_val 如Competition多词搜索
   get currntPageCard(): CardData[] {
     const index = this.currentPage - 1
-    return this.selected_eara_cardList.slice(index * this.pageCardSize, (index + 1) * this.pageCardSize)
+    return this.selected_eara_cardList.slice(
+      index * this.pageCardSize,
+      (index + 1) * this.pageCardSize
+    )
   }
-  // 随rotation_img_index自响应改变轮播图片
-  get rotation_img_url(): string {
-    const index = this.rotation_img_index
-    const img_url: string[] = this.img_url
-    img_url[index] || (img_url[index] = require(`@/assets/learn/rotation/rotation_0${index}.jpg`))
-    return img_url[index]
+
+  start_rotation() {
+    setInterval(() => {
+      this.rotation_img_index++
+      if (this.rotation_img_index >= this.rotation_img_urls.length)
+        this.rotation_img_index = 0
+    }, 5000)
   }
   new_tab_url(id: number) {
     return `http://localhost:8080/#/learn/content/${id}`
   }
   set_search_val(search_val: string) {
     this.to_search_val = search_val
-    console.log("update", search_val, this.to_search_val)
   }
 
   update_selected_erea(selected_erea: number[]) {
@@ -103,7 +109,9 @@ export default class extends Vue {
   }
 
   filter_by_match_article_rule(cardList: CardData[]): CardData[] {
-    return cardList.filter((cardData: CardData) => this.match_article_rule(cardData))
+    return cardList.filter((cardData: CardData) =>
+      this.match_article_rule(cardData)
+    )
   }
 
   select_item(row_key: number, item_key: number): void {
@@ -112,52 +120,20 @@ export default class extends Vue {
 
   created() {
     // 数据赋值
-    const learnVueObj = this
     getLearnCard().then(res => {
-      learnVueObj.nav_data = res.data.nav_data
-      learnVueObj.allCardList = res.data.allCardList
+      let data = res.data
+      setTimeout(() => {
+        this.rotation_img_urls = data.rotation_img_urls
+        this.nav_data = data.nav_data
+        this.allCardList = data.allCardList
+      }, 1000)
     })
   }
 
   mounted() {
-    // 定时改变轮播图片
-    setInterval(() => {
-      this.rotation_img_index++
-      if (this.rotation_img_index > 3) this.rotation_img_index = 1
-    }, 5000)
+    // 启动轮播图
+    this.start_rotation()
   }
-  // traverseAllCardList(nestedCardList: NestedCardList, func: Function) {
-  //   // 方向 类别 级别 cardData[]
-  //   nestedCardList.forEach(direction => {
-  //     direction.forEach(category => {
-  //       category.forEach(aCardData => {
-  //         aCardData.forEach(cardData => {
-  //           func(cardData);
-  //         });
-  //       });
-  //     });
-  //   });
-  // }
-  // set_selected_eara_cardList(selected_erea: number[]) {
-  //   if (this.allCardList.length < 1) return "";
-  //   this.selected_eara_cardList = this.allCardList[selected_erea[0]][
-  //     selected_erea[1]
-  //   ][selected_erea[2]];
-  // }
-  // 随selected_erea自响应selected_eara_cardList数据内容
-  // @Watch("selected_erea", { immediate: true, deep: true })
-  // auto_set_selected_eara_cardList(selected_erea: number[]) {
-  //   this.set_selected_eara_cardList(selected_erea);
-  // }
-  // search_article() {
-  //   if (!this.search_input_val) return;
-  //   console.log(this.search_input_val);
-  //   const findCardDatas: CardData[] = [];
-  //   this.traverseAllCardList((cardData: CardData) => {
-  //     this.matchArticleRule(cardData) && findCardDatas.push(cardData);
-  //   });
-  //   this.selected_eara_cardList = findCardDatas;
-  // }
 }
 </script>
 

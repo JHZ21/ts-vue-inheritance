@@ -1,20 +1,18 @@
 <template>
   <div class="learn-content">
     <div class="learn-content-article">
-      <iframe class="content-page" :src="contentUrl"></iframe>
+      <iframe class="content-page"
+        :src="contentUrl"></iframe>
     </div>
     <div class="learn-content-comments">
       <div class="comments-wrapper">
-        <comment-box
-          class="comment-box"
-          v-for="(comment, key) in aCommentInfos"
+        <comment-box class="comment-box"
+          v-for="(comment, key) in comment_infos"
           :commentInfo="comment"
-          :key="key"
-        ></comment-box>
+          :key="key"></comment-box>
       </div>
       <div class="send-comment">
-        <textarea
-          ref="sendTextarea"
+        <textarea ref="sendTextarea"
           class="send-textarea"
           name=""
           id=""
@@ -23,11 +21,13 @@
           placeholder="畅所欲言..."
           @focus="sendTextareaFocus()"
           @blur="sendTextareaBlur()"
-          @keyup.ctrl.enter.exact="sendComment(true)"
-        ></textarea>
-        <div class="send-button-wrapper" v-show="showSendBtn">
+          @keyup.ctrl.enter.exact="sendComment(true)"></textarea>
+        <div class="send-button-wrapper"
+          v-show="showSendBtn">
           <span class="send-shortcut-keys-text">Ctrl or ⌘ + Enter</span>
-          <button class="send-btn" @click="sendComment()" :disabled="!myCommentText">
+          <button class="send-btn"
+            @click="sendComment()"
+            :disabled="!myCommentText">
             发送
           </button>
         </div>
@@ -41,7 +41,7 @@ import { Vue, Component, Prop } from "vue-property-decorator"
 import { LearnModule, oContentUrlType } from "@/store/modules/learn.ts"
 import { CommentInfoType } from "@/utils/interface"
 import CommentBox from "@/components/CommentBox.vue"
-import { getOCententUrl } from "@/api/learn"
+import { getContent } from "@/api/learn"
 
 @Component({
   name: "LearnContent",
@@ -50,39 +50,11 @@ import { getOCententUrl } from "@/api/learn"
   }
 })
 export default class extends Vue {
+  content_id: string = ""
   contentUrl: string = ""
   myCommentText: string = ""
   showSendBtn: boolean = false
-  aCommentInfos: CommentInfoType[] = [
-    {
-      portraitUrl: require("@/assets/images/header_avator.gif"),
-      username: "aadsf",
-      content:
-        "新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~",
-      timeStamp: 1580479254959
-    },
-    {
-      portraitUrl: require("@/assets/images/header_avator.gif"),
-      username: "aadsf",
-      content:
-        "新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~",
-      timeStamp: 1580313600000
-    },
-    {
-      portraitUrl: require("@/assets/images/header_avator.gif"),
-      username: "aadsf",
-      content:
-        "新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~",
-      timeStamp: 1577635200000
-    },
-    {
-      portraitUrl: require("@/assets/images/header_avator.gif"),
-      username: "aadsf",
-      content:
-        "新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~ 新年快乐，遵在家里为社会做贡献，快发霉了~",
-      timeStamp: 1500479154959
-    }
-  ]
+  comment_infos: CommentInfoType[] = []
   sendTextareaFocus() {
     this.showSendBtn = true
   }
@@ -99,16 +71,23 @@ export default class extends Vue {
       content: this.myCommentText,
       timeStamp: new Date().getTime()
     }
-    this.aCommentInfos.unshift(defaultCommentInfo)
+    this.comment_infos.unshift(defaultCommentInfo)
     this.myCommentText = ""
     keyup || (this.showSendBtn = false)
   }
 
   created() {
-    getOCententUrl().then(res => {
-      LearnModule.SetOContentUrl(res.data)
-      const oContentUrl: oContentUrlType = LearnModule.oContentUrl
-      this.contentUrl = oContentUrl[this.$route.params.id]
+    this.content_id = this.$route.params.id
+    let params: object = {
+      content_id: this.content_id
+    }
+    getContent(params).then(res => {
+      let data: any = res.data
+
+      if (data && data.content_url) {
+        this.contentUrl = data.content_url
+        this.comment_infos = data.comment_infos
+      }
     })
   }
 }

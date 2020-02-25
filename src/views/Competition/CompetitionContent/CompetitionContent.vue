@@ -94,14 +94,6 @@ import { UserModule } from "@/store/modules/user"
 import { id_random } from "@/utils/func"
 import { getProjectContent } from "@/api/competition"
 
-// 可用于Mockjs
-// interface ProjectContentType {
-//   power: boolean
-//   project_name: string
-//   content_items: ProjectContentItemType[]
-//   team: ProjectTeamType
-// }
-
 @Component({
   name: "CompetitionContent",
   components: {

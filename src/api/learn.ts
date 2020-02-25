@@ -6,8 +6,15 @@ export const getLearnCard = () =>
     url: "learn/card"
   })
 
-export const getOCententUrl = () =>
+export const getOContentUrl = () =>
   axios({
     method: "POST",
     url: "learn/getocententurl"
+  })
+
+export const getContent = (data: any) =>
+  axios({
+    method: "POST",
+    url: "/learn/getContent",
+    data
   })
