@@ -91,6 +91,8 @@ import {
   ProjectTeamType
 } from "./type"
 import { UserModule } from "@/store/modules/user"
+import { id_random } from "@/utils/func"
+import { getProjectContent } from "@/api/competition"
 
 // 可用于Mockjs
 // interface ProjectContentType {
@@ -110,8 +112,11 @@ export default class extends Vue {
   user_id: string = ""
   project_id: string = ""
   project_name: string = ""
-  content_items!: ProjectContentItemType[]
-  team!: ProjectTeamType
+  content_items: ProjectContentItemType[] = []
+  team: ProjectTeamType = {
+    team_name: "",
+    members: []
+  }
   default_step_data: StepDataType = {
     deadline: "2-21-2020",
     description:
@@ -126,11 +131,8 @@ export default class extends Vue {
     }
     return ids
   }
-  id_random(): number {
-    return Math.floor(Math.random() * 10e4)
-  }
   default_steps_obj(): StepsObjType {
-    let id = this.id_random()
+    let id = id_random()
     return {
       plan_name: `计划${id}`,
       power: false,
@@ -151,90 +153,20 @@ export default class extends Vue {
     this.steps_objs.splice(plan_key + 1, 0, this.default_steps_obj())
   }
   created() {
-    this.user_id = UserModule.roles[0]
     this.project_id = this.$route.params.id
-    this.project_name = "大二房价将藕带"
-    this.content_items = [
-      {
-        title: "项目简介",
-        content: [
-          "如题目所示，有一个数组 使用 v-for 循环遍历这个数组，进行渲染展示，当用户点击删除按钮的时候应对应的删除 相应的数组元素并且更新 dom",
-          "的Joe我都是摸底哦欸哦莫i恶魔"
-        ]
-      },
-      {
-        title: "技术栈",
-        content: ["Vue", "Vue-router"]
-      }
-    ]
-    this.team = {
-      team_name: "的Jodi哦",
-      members: [
-        {
-          id: "a0",
-          portrait: require("@/assets/images/header_avator.gif"),
-          introduce: [
-            "江小白",
-            "2017级",
-            "Web前端攻城狮",
-            "熟悉Vue全家桶",
-            "熟悉SCSS"
-          ],
-          contribution: [
-            "打法的非法，阿飞，啊额，嗯阿发发的，大非法",
-            "打法的非法，阿飞，啊额，嗯阿发发的，大非法"
-          ]
-        },
-        {
-          id: "a1",
-          portrait: require("@/assets/images/header_avator.gif"),
-          introduce: [
-            "江小白",
-            "2017级",
-            "Web前端攻城狮",
-            "熟悉Vue全家桶",
-            "熟悉SCSS"
-          ],
-          contribution: [
-            "打法的非法，阿飞，啊额，嗯阿发发的，大非法",
-            "打法的非法，阿飞，啊额，嗯阿发发的，大非法"
-          ]
-        },
-        {
-          id: "a2",
-          portrait: require("@/assets/images/header_avator.gif"),
-          introduce: [
-            "江小白",
-            "2017级",
-            "Web前端攻城狮",
-            "熟悉Vue全家桶",
-            "熟悉SCSS"
-          ],
-          contribution: [
-            "打法的非法，阿飞，啊额，嗯阿发发的，大非法",
-            "打法的非法，阿飞，啊额，嗯阿发发的，大非法"
-          ]
-        }
-      ]
+    let params: object = {
+      project_id: this.project_id
     }
-    this.steps_objs = [
-      {
-        plan_name: "前端",
-        power: false,
-        steps_data: Array(4).fill(this.default_step_data),
-        activeNum: 2,
-        id: this.id_random(),
-        master: "a0"
-      },
-      {
-        plan_name: "后端",
-        power: false,
-        steps_data: Array(5).fill(this.default_step_data),
-        activeNum: 3,
-        id: this.id_random(),
-        master: "a1"
-      }
-    ]
+    getProjectContent(params).then(res => {
+      let data = res.data
+      let { project_name, content_items, team, steps_objs } = data
+
+      this.project_name = project_name
+      this.content_items = content_items
+      this.team = team
+      this.steps_objs = steps_objs
+    })
+    this.user_id = UserModule.roles[0]
   }
 }
 </script>

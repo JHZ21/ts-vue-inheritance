@@ -1,5 +1,9 @@
 import { LinkElement } from "./interface"
 
+export function id_random(): number {
+  return Math.floor(Math.random() * 10e4)
+}
+
 // 返回一个function ，可以生成func函数结果组成的随机长度数组
 export function funcOfRepeatFunc(n: number, m: number, func: any): any {
   if (m === undefined) {
@@ -19,7 +23,6 @@ export function funcOfRepeatFunc(n: number, m: number, func: any): any {
 export function reapeatNToM(n: number, m?: number) {
   return partial(funcOfRepeatFunc, n, m)
 }
-
 
 // set fontSize of html
 export function setHtmlFontSize() {

@@ -5,3 +5,10 @@ export const getProjects = () =>
     method: "GET",
     url: "/competition/getProjects"
   })
+
+export const getProjectContent = (data: any) =>
+  axios({
+    method: "post",
+    url: "/competition/getProjectContent/",
+    data
+  })
