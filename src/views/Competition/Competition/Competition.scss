@@ -34,14 +34,19 @@
       @include layout-width();
       margin: 0 auto;
 
-      &>div {
-        margin-top: 10px;
+      // &>div {
+      //   margin-top: 10px;
+      // }
+      .transition-box {
+        & > div {
+          margin-top: 10px;
+        }
       }
-
       .card-header {
         height: 50px;
         color: #666;
         font-weight: bold;
+        margin-top: 10px;
         @include table-layout();
       }
     }

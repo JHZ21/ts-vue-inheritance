@@ -3,10 +3,14 @@
     <div class="top-panel">
       <div class="top-panel-content">
         <div class="search_box">
-          <search-input mode="big" placeholder="搜索词 空格隔开/enter" @set_search_val="set_search_val"></search-input>
+          <search-input mode="big"
+            placeholder="搜索词 空格隔开/enter"
+            @set_search_val="set_search_val"></search-input>
         </div>
         <div class="nav-box">
-          <nav-menu class="nav" :nav_data="nav_data" @update_selected_erea="update_selected_erea"></nav-menu>
+          <nav-menu class="nav"
+            :nav_data="nav_data"
+            @update_selected_erea="update_selected_erea"></nav-menu>
         </div>
       </div>
     </div>
@@ -27,18 +31,21 @@
             成员
           </div>
         </div>
-        <open-new-tab v-for="(project, index) in currPageProjects" :key="index" :url="new_tab_url(project.id)">
-          <project-card :project_data="project"></project-card>
-        </open-new-tab>
+        <transition-group class="transition-box"
+          name="slide-up">
+          <open-new-tab v-for="(project) in currPageProjects"
+            :key="project.id"
+            :url="new_tab_url(project.id)">
+            <project-card :project_data="project"></project-card>
+          </open-new-tab>
+        </transition-group>
       </div>
-      <el-pagination
-        class="pagination"
+      <el-pagination class="pagination"
         background
         layout="prev, pager, next"
         :page-size="pageCardSize"
         :total="currRangeProjects.length"
-        :current-page.sync="currentPage"
-      ></el-pagination>
+        :current-page.sync="currentPage"></el-pagination>
     </main>
   </div>
 </template>
@@ -83,12 +90,72 @@ export default class extends Vue {
     {
       label: "时间:",
       aData: [
-        ["2020上", "2019下", "2019上", "2018下", "2018上", "2017下", "2017上", "2016下", "2016上"],
-        ["2020上", "2019下", "2019上", "2018下", "2018上", "2017下", "2017上", "2016下", "2016上"],
-        ["2020上", "2019下", "2019上", "2018下", "2018上", "2017下", "2017上", "2016下", "2016上"],
-        ["2020上", "2019下", "2019上", "2018下", "2018上", "2017下", "2017上", "2016下", "2016上"],
-        ["2020上", "2019下", "2019上", "2018下", "2018上", "2017下", "2017上", "2016下", "2016上"],
-        ["2020上", "2019下", "2019上", "2018下", "2018上", "2017下", "2017上", "2016下", "2016上"]
+        [
+          "2020上",
+          "2019下",
+          "2019上",
+          "2018下",
+          "2018上",
+          "2017下",
+          "2017上",
+          "2016下",
+          "2016上"
+        ],
+        [
+          "2020上",
+          "2019下",
+          "2019上",
+          "2018下",
+          "2018上",
+          "2017下",
+          "2017上",
+          "2016下",
+          "2016上"
+        ],
+        [
+          "2020上",
+          "2019下",
+          "2019上",
+          "2018下",
+          "2018上",
+          "2017下",
+          "2017上",
+          "2016下",
+          "2016上"
+        ],
+        [
+          "2020上",
+          "2019下",
+          "2019上",
+          "2018下",
+          "2018上",
+          "2017下",
+          "2017上",
+          "2016下",
+          "2016上"
+        ],
+        [
+          "2020上",
+          "2019下",
+          "2019上",
+          "2018下",
+          "2018上",
+          "2017下",
+          "2017上",
+          "2016下",
+          "2016上"
+        ],
+        [
+          "2020上",
+          "2019下",
+          "2019上",
+          "2018下",
+          "2018上",
+          "2017下",
+          "2017上",
+          "2016下",
+          "2016上"
+        ]
       ]
     }
   ]
@@ -101,7 +168,10 @@ export default class extends Vue {
     const index: number = this.currentPage - 1
     const pageCardSize: number = this.pageCardSize
     const search_val = this.search_val
-    projects = this.currRangeProjects.slice(index * pageCardSize, (index + 1) * pageCardSize)
+    projects = this.currRangeProjects.slice(
+      index * pageCardSize,
+      (index + 1) * pageCardSize
+    )
     if (search_val) {
       projects = this.filter_sort_by_search_val(projects, search_val)
     }
@@ -116,9 +186,18 @@ export default class extends Vue {
   new_tab_url(id: number) {
     return `http://localhost:8080/#/competition/content/${id}`
   }
-  private _search_count(project: ProjectDataType, aStr: string[], count: symbol) {
+  private _search_count(
+    project: ProjectDataType,
+    aStr: string[],
+    count: symbol
+  ) {
     aStr.forEach(str => {
-      const aInfo: string[] = [project.PName, project.PSummary, project.TName, ...project.TMembers]
+      const aInfo: string[] = [
+        project.PName,
+        project.PSummary,
+        project.TName,
+        ...project.TMembers
+      ]
       if (aInfo.some(text => text.includes(str))) {
         let obj: any = project
         obj[count] || (obj[count] = 0)
@@ -127,7 +206,10 @@ export default class extends Vue {
     })
   }
 
-  filter_sort_by_search_val(projects: ProjectDataType[], search_val: string): ProjectDataType[] {
+  filter_sort_by_search_val(
+    projects: ProjectDataType[],
+    search_val: string
+  ): ProjectDataType[] {
     const count: symbol = Symbol("count")
     const aStr: string[] = search_val.split(" ")
     const self = this

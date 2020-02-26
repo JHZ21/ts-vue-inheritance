@@ -14,13 +14,15 @@
       </div>
     </div>
     <div class="container">
-      <open-new-tab v-for="(cardData, key) in currntPageCard"
-        :key="key"
-        :url="new_tab_url(cardData.id)">
-        <article-card class="article_card"
-          :cardData="cardData"></article-card>
-      </open-new-tab>
-
+      <transition-group class="transition-box"
+        name="slide-up">
+        <open-new-tab v-for="(cardData) in currntPageCard"
+          :key="cardData.timeStamp"
+          :url="new_tab_url(cardData.id)">
+          <article-card class="article_card"
+            :cardData="cardData"></article-card>
+        </open-new-tab>
+      </transition-group>
       <el-pagination class="pagination"
         background
         layout="prev, pager, next"
@@ -209,11 +211,15 @@ export default class extends Vue {
   }
   .container {
     margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: center;
-    align-content: flex-start;
+    .transition-box {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: flex-start;
+    }
+
     @include layout-width();
     padding: 10px 0 20px;
     .article_card {

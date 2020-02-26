@@ -1,0 +1,23 @@
+$transition_time: 0.5s;
+// slide-up
+.slide-up-enter-active {
+  transition: all 0.5s ease-in-out;
+}
+.slide-up-leave-active {
+  transition: all 0 linear;
+}
+
+.slide-up-enter {
+  opacity: 0;
+  transform: translate3d(0, 40%, 0);
+}
+
+.slide-up-enter-to,
+.slide-up-leave {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+}
