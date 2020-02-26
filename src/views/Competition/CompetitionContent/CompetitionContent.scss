@@ -14,7 +14,7 @@ $hover-color: #0088bb;
   width: 450px;
   text-align: left;
   color: #333;
-  margin: 0 20px;
+  margin: 20px;
 
   &:hover {
     color: $hover-color;
@@ -124,7 +124,7 @@ $hover-color: #0088bb;
             }
           }
           .member-contribution {
-            height: 160px;
+            height: 120px;
             @include item-content(hidden, auto, no-wrap);
           }
         }

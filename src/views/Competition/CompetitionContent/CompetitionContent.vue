@@ -31,11 +31,8 @@
               </div>
             </div>
             <div class="member-contribution">
-              <p>打法的非法，大风啊我发</p>
-              <p>打法的非法，大风啊我发，打法二分</p>
-              <p>打法的非法，阿飞，啊额，嗯阿发发的，大非法</p>
-              <p>打法的非法，大风啊我发，打法二分</p>
-              <p>打法的非法，阿飞，啊额，嗯阿发发的，大非法</p>
+              <p v-for="(str, index) in member.contribution"
+                :key="index">{{str}}</p>
             </div>
           </div>
         </div>

@@ -35,7 +35,7 @@ body {
   min-width: 1200px;
   background-color: $bg-color;
   // 竖轴滚动条一直存在，保证窗口宽度不会变化
-  overflow-y: scroll;
+  overflow-y: scroll !important;
   overflow-x: hidden;
 }
 .clearfix {

@@ -40,12 +40,19 @@
           </open-new-tab>
         </transition-group>
       </div>
-      <el-pagination class="pagination"
-        background
-        layout="prev, pager, next"
-        :page-size="pageCardSize"
-        :total="currRangeProjects.length"
-        :current-page.sync="currentPage"></el-pagination>
+      <div class="fixed-right-box">
+        <el-pagination class="pagination"
+          background
+          layout="prev, pager, next"
+          :page-size="pageCardSize"
+          :total="currRangeProjects.length"
+          :current-page.sync="currentPage"></el-pagination>
+        <add-card title="新建项目"
+          @open_dialog="open_dialog"
+          @cancel="cancel_dialog"
+          @confirm="confirm_dialog">
+        </add-card>
+      </div>
     </main>
   </div>
 </template>
@@ -58,7 +65,8 @@ import ProjectCard from "@/components/ProjectCard/ProjectCard.vue"
 import { ProjectDataType } from "@/utils/interface"
 import { getProjects } from "@/api/competition"
 import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue"
-import OpenNewTab from "../../../components/OpenNewTab.vue"
+import OpenNewTab from "@/components/OpenNewTab.vue"
+import AddCard from "@/components/AddCard.vue"
 
 @Component({
   name: "Competition",
@@ -66,7 +74,8 @@ import OpenNewTab from "../../../components/OpenNewTab.vue"
     NavMenu,
     SearchInput,
     ProjectCard,
-    OpenNewTab
+    OpenNewTab,
+    AddCard
   }
 })
 export default class extends Vue {
@@ -183,6 +192,17 @@ export default class extends Vue {
     if (!this.allProjects[0]) return
     this.currRangeProjects = this.allProjects[aSelected[0]][aSelected[1]]
   }
+
+  open_dialog() {
+    console.log("open_dialog")
+  }
+  cancel_dialog() {
+    console.log("cancel_dialog")
+  }
+  confirm_dialog() {
+    console.log("confirm_dialog")
+  }
+
   new_tab_url(id: number) {
     return `http://localhost:8080/#/competition/content/${id}`
   }

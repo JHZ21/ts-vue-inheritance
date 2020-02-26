@@ -34,9 +34,6 @@
       @include layout-width();
       margin: 0 auto;
 
-      // &>div {
-      //   margin-top: 10px;
-      // }
       .transition-box {
         & > div {
           margin-top: 10px;
@@ -50,9 +47,11 @@
         @include table-layout();
       }
     }
-
-    .pagination {
-      @include right-pagination();
+    .fixed-right-box {
+      @include fixed-right-box;
+      .pagination {
+        @include right-pagination();
+      }
     }
   }
 }

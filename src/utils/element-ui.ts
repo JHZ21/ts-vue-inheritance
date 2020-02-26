@@ -12,7 +12,8 @@ import {
   Select,
   Option,
   DatePicker,
-  Row
+  Row,
+  Upload
 } from "element-ui"
 
 const aComponets: any[] = [
@@ -27,7 +28,8 @@ const aComponets: any[] = [
   Select,
   Option,
   DatePicker,
-  Row
+  Row,
+  Upload
 ]
 
 aComponets.forEach(compent => {

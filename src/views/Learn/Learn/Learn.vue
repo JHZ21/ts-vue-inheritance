@@ -23,12 +23,49 @@
             :cardData="cardData"></article-card>
         </open-new-tab>
       </transition-group>
-      <el-pagination class="pagination"
-        background
-        layout="prev, pager, next"
-        :page-size="pageCardSize"
-        :total="selected_eara_cardList.length"
-        :current-page.sync="currentPage"></el-pagination>
+      <div class="fixed-right-box">
+        <el-pagination class="pagination"
+          background
+          layout="prev, pager, next"
+          :page-size="pageCardSize"
+          :total="selected_eara_cardList.length"
+          :current-page.sync="currentPage"></el-pagination>
+        <add-card title="分享链接"
+          @open_dialog="open_dialog"
+          @cancel="cancel_dialog"
+          @confirm="confirm_dialog">
+          <el-form :model="form">
+            <el-form-item>
+              <el-input v-model="form.article_url"
+                autocomplete="off">
+                <template slot="prepend">链接</template></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-input v-model="form.title"
+                autocomplete="off"><template slot="prepend">介绍</template></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-upload class="upload-demo"
+                drag
+                list-type="picture"
+                :on-preview="handlePreview"
+                :auto-upload="true"
+                name="img"
+                :file-list="file_list"
+                :before-upload="get_img"
+                :http-request="send_img"
+                action="xx">
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将图片拖到此处，或<em>点击上传</em></div>
+                <div class="el-upload__tip"
+                  slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+              </el-upload>
+            </el-form-item>
+
+          </el-form>
+        </add-card>
+      </div>
+
     </div>
   </main>
 </template>
@@ -41,7 +78,15 @@ import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
 import { getLearnCard } from "@/api/learn"
 import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
-import OpenNewTab from "../../components/OpenNewTab.vue"
+import OpenNewTab from "@/components/OpenNewTab.vue"
+import AddCard from "@/components/AddCard.vue"
+import axios from "axios"
+interface ArticleFormType {
+  label_width: string
+  article_url: string
+  img: string
+  title: string
+}
 
 @Component({
   name: "Learn",
@@ -49,7 +94,8 @@ import OpenNewTab from "../../components/OpenNewTab.vue"
     ArticleCard,
     NavMenu,
     SearchInput,
-    OpenNewTab
+    OpenNewTab,
+    AddCard
   }
 })
 export default class extends Vue {
@@ -62,7 +108,13 @@ export default class extends Vue {
   pageCardSize: number = 30 //一页展示card容量
   currentPage: number = 1 // 当前显示的页码 与分页组件同步 sync
   allCardList: NestedCardList = [] // 所有的card数据
-
+  form: ArticleFormType = {
+    label_width: "100px",
+    article_url: "",
+    img: "",
+    title: ""
+  }
+  file_list: any[] = []
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
     if (!this.allCardList[0]) return []
@@ -87,7 +139,40 @@ export default class extends Vue {
       (index + 1) * this.pageCardSize
     )
   }
-
+  send_img(data: any) {
+    let formdata = new FormData()
+    formdata.append("img", data.file)
+    let config = {
+      headers: { "Content-Type": "multipart/form-data" } //这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
+    }
+    axios({
+      method: "post",
+      url: "http://localhost:2127/image",
+      data: formdata
+    })
+      .then(res => {
+        console.log("res.data:", res.data)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    console.log("send_img", data)
+  }
+  handlePreview(file: any) {
+    console.log("handlePreview", file)
+  }
+  get_img(img: any) {
+    console.log("img:", img.text())
+  }
+  open_dialog() {
+    console.log("open_dialog")
+  }
+  cancel_dialog() {
+    console.log("cancel_dialog")
+  }
+  confirm_dialog() {
+    console.log("confirm_dialog")
+  }
   start_rotation() {
     setInterval(() => {
       this.rotation_img_index++
@@ -140,105 +225,5 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.main {
-  @include body-layout();
-  .learn_panel_wrapper {
-    @include top-panel();
-    .learn_panel {
-      @include layout-width();
-      margin: auto;
-      .panel_top {
-        padding: 10px 0;
-        border-bottom: $thin-broder;
-        .rotation_img {
-          float: left;
-          width: 200px;
-          height: 100px;
-          border: $thin-broder;
-          background-image: url("../../assets/learn/rotation/rotation_01.jpg");
-          background-size: cover;
-          background-position: center center;
-        }
-        .search_input {
-          float: right;
-          padding-right: 40px;
-        }
-      }
-      .panel_content {
-        .nav_row {
-          display: flex;
-          height: 100%;
-          font-size: 15px;
-          justify-content: flex-start;
-          .nav_label {
-            position: absolute;
-            width: 52px;
-            height: 32px;
-            margin-top: 10px;
-            line-height: 32px;
-            font-weight: 700;
-            color: #07111b;
-            text-align: left;
-          }
-          .nav_items_wrapper {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-left: 60px;
-            .nav_item {
-              margin: 5px 20px;
-              height: 32px;
-              padding: 6px 10px;
-              line-height: 32px;
-              &:hover {
-                background-color: rgba(48, 79, 104, 0.5);
-                padding: 6px 10px;
-                border-radius: 4px;
-                color: #fff;
-              }
-              &.selected {
-                background-color: #575a8a;
-                padding: 6px 10px;
-                border-radius: 4px;
-                color: #fff;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  .container {
-    margin: 0 auto;
-    .transition-box {
-      width: 100%;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      align-items: center;
-      align-content: flex-start;
-    }
-
-    @include layout-width();
-    padding: 10px 0 20px;
-    .article_card {
-      margin: 10px;
-    }
-    .pagination {
-      @include right-pagination();
-      // position: fixed;
-      // right: 0;
-      // bottom: 33.33%;
-      // display: flex;
-      // flex-direction: column;
-      // opacity: 0.8;
-      // // 对子组件样式修改ddep/
-      // & /deep/ .el-pager {
-      //   display: flex;
-      //   flex-direction: column;
-      // }
-    }
-  }
-}
+@import "./Learn.scss";
 </style>
