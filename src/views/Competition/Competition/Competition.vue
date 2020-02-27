@@ -233,15 +233,6 @@ export default class extends Vue {
     dialogFormVisible: false
   }
   default_form_data: any = {}
-  // default_form_data: ProjectFormType = {
-  //   PName: "",
-  //   PSummary: "",
-  //   TName: "",
-  //   TMembers: [],
-  //   searchMember: "",
-  //   img: null,
-  //   dialogFormVisible: false
-  // }
 
   upload_form_data() {
     let form = this.form

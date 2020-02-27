@@ -113,12 +113,6 @@ export default class extends Vue {
   allCardList: NestedCardList = [] // 所有的card数据
   //dialog form
   default_form_data: any = {}
-  // default_form_data: ArticleFormType = {
-  //   article_url: "",
-  //   img: null,
-  //   title: "",
-  //   dialogFormVisible: false
-  // }
   form: ArticleFormType = {
     article_url: "",
     img: null,
