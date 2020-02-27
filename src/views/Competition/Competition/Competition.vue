@@ -107,6 +107,7 @@ import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
 import { AddCardMixin } from "@/utils/mixins"
 import axios from "axios"
+import { deep_copy } from "../../../utils/func"
 
 interface ProjectFormType {
   PName: string
@@ -221,6 +222,7 @@ export default class extends Vue {
   ]
   allProjects: ProjectDataType[][][] = []
   currRangeProjects: ProjectDataType[] = []
+  //dialog form
   form: ProjectFormType = {
     PName: "",
     PSummary: "",
@@ -230,15 +232,16 @@ export default class extends Vue {
     img: null,
     dialogFormVisible: false
   }
-  default_form_data: ProjectFormType = {
-    PName: "",
-    PSummary: "",
-    TName: "",
-    TMembers: [],
-    searchMember: "",
-    img: null,
-    dialogFormVisible: false
-  }
+  default_form_data: any = {}
+  // default_form_data: ProjectFormType = {
+  //   PName: "",
+  //   PSummary: "",
+  //   TName: "",
+  //   TMembers: [],
+  //   searchMember: "",
+  //   img: null,
+  //   dialogFormVisible: false
+  // }
 
   upload_form_data() {
     let form = this.form
@@ -332,6 +335,7 @@ export default class extends Vue {
   }
   created() {
     const CompetitionVue = this
+    this.default_form_data = deep_copy(this.form)
     getProjects().then(res => {
       CompetitionVue.allProjects = res.data
       CompetitionVue.aSelected = [0, 0] // 刷新aSelected

@@ -111,6 +111,20 @@ export default class extends Vue {
   pageCardSize: number = 30 //一页展示card容量
   currentPage: number = 1 // 当前显示的页码 与分页组件同步 sync
   allCardList: NestedCardList = [] // 所有的card数据
+  //dialog form
+  default_form_data: any = {}
+  // default_form_data: ArticleFormType = {
+  //   article_url: "",
+  //   img: null,
+  //   title: "",
+  //   dialogFormVisible: false
+  // }
+  form: ArticleFormType = {
+    article_url: "",
+    img: null,
+    title: "",
+    dialogFormVisible: false
+  }
 
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
@@ -136,45 +150,7 @@ export default class extends Vue {
       (index + 1) * this.pageCardSize
     )
   }
-  //test
-  default_form_data: ArticleFormType = {
-    article_url: "",
-    img: null,
-    title: "",
-    dialogFormVisible: false
-  }
-  form: ArticleFormType = {
-    article_url: "",
-    img: null,
-    title: "",
-    dialogFormVisible: false
-  }
-  // @Watch("form.dialogFormVisible")
-  // onDialogFormVisible(visible: boolean) {
-  //   if (!visible) {
-  //     this.init_form_data()
-  //   }
-  // }
-  // save_img(file: any) {
-  //   // 将上传图片储存
-  //   let file_name = (file.name as string).split(".")
-  //   let file_type: string = file_name[file_name.length - 1]
-  //   let reg_img: RegExp = /^(jp|pn)g$/ // jpg , png
-  //   if (file_type && reg_img.test(file_type)) {
-  //     this.form.img = file
-  //   } else {
-  //     console.log("error upload img", file)
-  //     return false
-  //   }
-  // }
-  // init_form_data() {
-  //   // 保持与组件内的form 同源
-  //   Object.keys(this.default_form_data).forEach(key => {
-  //     ;(this.form as any)[key] = (this.default_form_data as any)[key]
-  //   })
-  //   let img: any = this.$refs.upload
-  //   img && img.clearFiles()
-  // }
+
   upload_form_data() {
     let form = this.form
     let formdata: FormData = new FormData()
@@ -232,6 +208,7 @@ export default class extends Vue {
 
   created() {
     // 数据赋值
+    this.default_form_data = deep_copy(this.form)
     getLearnCard().then(res => {
       let data = res.data
       setTimeout(() => {
