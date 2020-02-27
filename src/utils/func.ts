@@ -1,5 +1,16 @@
 import { LinkElement } from "./interface"
 
+export function props_not_empty(obj: any): boolean {
+  return Object.keys(obj).every(key => {
+    let val: any = obj[key]
+    return !!val || val === false
+  })
+}
+
+export function deep_copy<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 export function id_random(): number {
   return Math.floor(Math.random() * 10e4)
 }

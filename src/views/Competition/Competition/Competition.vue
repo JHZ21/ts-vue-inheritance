@@ -46,11 +46,49 @@
           layout="prev, pager, next"
           :page-size="pageCardSize"
           :total="currRangeProjects.length"
-          :current-page.sync="currentPage"></el-pagination>
-        <add-card title="新建项目"
-          @open_dialog="open_dialog"
-          @cancel="cancel_dialog"
-          @confirm="confirm_dialog">
+          :current-page.sync="currentPage">
+
+        </el-pagination>
+        <add-card title="新增项目"
+          :prop_form="form"
+          @init_form_data="init_form_data"
+          @upload_form_data="upload_form_data">
+          <el-form :model="form">
+            <el-form-item>
+              <el-input v-model="form.PName"
+                autocomplete="off">
+                <template slot="prepend">项目名</template></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-input v-model="form.PSummary"
+                autocomplete="off"><template slot="prepend">项目概述</template></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-input v-model="form.TName"
+                autocomplete="off"><template slot="prepend">队名</template></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-input v-model="form.searchMember"
+                autocomplete="off"><template slot="prepend">添加成员</template></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-upload class="upload-demo"
+                drag
+                list-type="picture"
+                :auto-upload="true"
+                name="img"
+                ref="upload"
+                :before-upload="save_img"
+                :http-request="()=>{}"
+                :limit="1"
+                action="xx">
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将图片拖到此处，或<em>点击上传</em></div>
+                <div class="el-upload__tip"
+                  slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+              </el-upload>
+            </el-form-item>
+          </el-form>
         </add-card>
       </div>
     </main>
@@ -67,6 +105,18 @@ import { getProjects } from "@/api/competition"
 import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
+import { AddCardMixin } from "@/utils/mixins"
+import axios from "axios"
+
+interface ProjectFormType {
+  PName: string
+  PSummary: string
+  TName: string
+  TMembers: string[]
+  searchMember: ""
+  img: any
+  dialogFormVisible: boolean
+}
 
 @Component({
   name: "Competition",
@@ -76,7 +126,8 @@ import AddCard from "@/components/AddCard.vue"
     ProjectCard,
     OpenNewTab,
     AddCard
-  }
+  },
+  mixins: [AddCardMixin]
 })
 export default class extends Vue {
   //TODO: 此页面与Learn页面结构相似，可是尝试是否可以抽象出, 可能用到solt
@@ -170,7 +221,46 @@ export default class extends Vue {
   ]
   allProjects: ProjectDataType[][][] = []
   currRangeProjects: ProjectDataType[] = []
+  form: ProjectFormType = {
+    PName: "",
+    PSummary: "",
+    TName: "",
+    TMembers: [],
+    searchMember: "",
+    img: null,
+    dialogFormVisible: false
+  }
+  default_form_data: ProjectFormType = {
+    PName: "",
+    PSummary: "",
+    TName: "",
+    TMembers: [],
+    searchMember: "",
+    img: null,
+    dialogFormVisible: false
+  }
 
+  upload_form_data() {
+    let form = this.form
+    let formdata: FormData = new FormData()
+    formdata.append("PName", form.PName)
+    formdata.append("PSummary", form.PSummary)
+    formdata.append("TName", form.TName)
+    formdata.append("TMembers", JSON.stringify(form.TMembers))
+    formdata.append("img", form.img)
+    axios({
+      method: "post",
+      url: "http://localhost:2127/image",
+      data: formdata
+    })
+      .then(res => {
+        console.log("res.data:", res.data)
+        this.form.dialogFormVisible = false
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
   // 根据aSelected、currentPage 与 search_val 生成 当前页数据
   get currPageProjects(): ProjectDataType[] {
     let projects!: ProjectDataType[]
@@ -191,16 +281,6 @@ export default class extends Vue {
   update_currRangeProjects(aSelected: number[]) {
     if (!this.allProjects[0]) return
     this.currRangeProjects = this.allProjects[aSelected[0]][aSelected[1]]
-  }
-
-  open_dialog() {
-    console.log("open_dialog")
-  }
-  cancel_dialog() {
-    console.log("cancel_dialog")
-  }
-  confirm_dialog() {
-    console.log("confirm_dialog")
   }
 
   new_tab_url(id: number) {

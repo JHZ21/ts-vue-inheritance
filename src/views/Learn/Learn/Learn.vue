@@ -31,9 +31,9 @@
           :total="selected_eara_cardList.length"
           :current-page.sync="currentPage"></el-pagination>
         <add-card title="分享链接"
-          @open_dialog="open_dialog"
-          @cancel="cancel_dialog"
-          @confirm="confirm_dialog">
+          :prop_form="form"
+          @init_form_data="init_form_data"
+          @upload_form_data="upload_form_data">
           <el-form :model="form">
             <el-form-item>
               <el-input v-model="form.article_url"
@@ -48,12 +48,12 @@
               <el-upload class="upload-demo"
                 drag
                 list-type="picture"
-                :on-preview="handlePreview"
                 :auto-upload="true"
                 name="img"
-                :file-list="file_list"
-                :before-upload="get_img"
-                :http-request="send_img"
+                ref="upload"
+                :before-upload="save_img"
+                :http-request="()=>{}"
+                :limit="1"
                 action="xx">
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将图片拖到此处，或<em>点击上传</em></div>
@@ -61,11 +61,9 @@
                   slot="tip">只能上传jpg/png文件，且不超过500kb</div>
               </el-upload>
             </el-form-item>
-
           </el-form>
         </add-card>
       </div>
-
     </div>
   </main>
 </template>
@@ -80,12 +78,16 @@ import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
+// import AddCard from "./components/AddCard.vue"
 import axios from "axios"
+import { deep_copy, props_not_empty } from "@/utils/func"
+import { AddCardMixin } from "@/utils/mixins"
+
 interface ArticleFormType {
-  label_width: string
   article_url: string
-  img: string
+  img: any
   title: string
+  dialogFormVisible: boolean
 }
 
 @Component({
@@ -96,7 +98,8 @@ interface ArticleFormType {
     SearchInput,
     OpenNewTab,
     AddCard
-  }
+  },
+  mixins: [AddCardMixin]
 })
 export default class extends Vue {
   rotation_img_urls: string[] = [] // 轮播图组路径
@@ -108,13 +111,7 @@ export default class extends Vue {
   pageCardSize: number = 30 //一页展示card容量
   currentPage: number = 1 // 当前显示的页码 与分页组件同步 sync
   allCardList: NestedCardList = [] // 所有的card数据
-  form: ArticleFormType = {
-    label_width: "100px",
-    article_url: "",
-    img: "",
-    title: ""
-  }
-  file_list: any[] = []
+
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
     if (!this.allCardList[0]) return []
@@ -139,12 +136,54 @@ export default class extends Vue {
       (index + 1) * this.pageCardSize
     )
   }
-  send_img(data: any) {
-    let formdata = new FormData()
-    formdata.append("img", data.file)
-    let config = {
-      headers: { "Content-Type": "multipart/form-data" } //这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
-    }
+  //test
+  default_form_data: ArticleFormType = {
+    article_url: "",
+    img: null,
+    title: "",
+    dialogFormVisible: false
+  }
+  form: ArticleFormType = {
+    article_url: "",
+    img: null,
+    title: "",
+    dialogFormVisible: false
+  }
+  // @Watch("form.dialogFormVisible")
+  // onDialogFormVisible(visible: boolean) {
+  //   if (!visible) {
+  //     this.init_form_data()
+  //   }
+  // }
+  // save_img(file: any) {
+  //   // 将上传图片储存
+  //   let file_name = (file.name as string).split(".")
+  //   let file_type: string = file_name[file_name.length - 1]
+  //   let reg_img: RegExp = /^(jp|pn)g$/ // jpg , png
+  //   if (file_type && reg_img.test(file_type)) {
+  //     this.form.img = file
+  //   } else {
+  //     console.log("error upload img", file)
+  //     return false
+  //   }
+  // }
+  // init_form_data() {
+  //   // 保持与组件内的form 同源
+  //   Object.keys(this.default_form_data).forEach(key => {
+  //     ;(this.form as any)[key] = (this.default_form_data as any)[key]
+  //   })
+  //   let img: any = this.$refs.upload
+  //   img && img.clearFiles()
+  // }
+  upload_form_data() {
+    let form = this.form
+    let formdata: FormData = new FormData()
+    formdata.append("article_url", form.article_url)
+    formdata.append("title", form.title)
+    formdata.append("img", form.img)
+    // let config = {
+    //   headers: { "Content-Type": "multipart/form-data" } //这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
+    // }
     axios({
       method: "post",
       url: "http://localhost:2127/image",
@@ -152,27 +191,13 @@ export default class extends Vue {
     })
       .then(res => {
         console.log("res.data:", res.data)
+        this.form.dialogFormVisible = false
       })
       .catch(err => {
         console.log(err)
       })
-    console.log("send_img", data)
   }
-  handlePreview(file: any) {
-    console.log("handlePreview", file)
-  }
-  get_img(img: any) {
-    console.log("img:", img.text())
-  }
-  open_dialog() {
-    console.log("open_dialog")
-  }
-  cancel_dialog() {
-    console.log("cancel_dialog")
-  }
-  confirm_dialog() {
-    console.log("confirm_dialog")
-  }
+
   start_rotation() {
     setInterval(() => {
       this.rotation_img_index++
