@@ -6,7 +6,7 @@
       type="primary"
       icon="el-icon-circle-plus-outline"
       @click="open_dialog()"></el-button>
-    <el-dialog title="分享链接"
+    <el-dialog :title="title"
       class="dialog"
       :modal-append-to-body="false"
       :visible.sync="form.dialogFormVisible">
@@ -29,6 +29,7 @@ import { deep_copy, props_not_empty } from "@/utils/func"
   name: "AddCard"
 })
 export default class extends Vue {
+  @Prop() title!: string
   @Prop() prop_form!: any
   // form: any = {
   //   img: null,
