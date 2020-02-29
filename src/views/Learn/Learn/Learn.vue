@@ -78,10 +78,14 @@ import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
-// import AddCard from "./components/AddCard.vue"
 import axios from "axios"
-import { deep_copy, props_not_empty } from "@/utils/func"
+import { deep_copy, props_not_empty, vaild_local } from "@/utils/func"
 import { AddCardMixin } from "@/utils/mixins"
+import {
+  getLocalForage,
+  setLocalForage,
+  getVailLocalForage
+} from "@/utils/localForage"
 
 interface ArticleFormType {
   article_url: string
@@ -104,6 +108,7 @@ interface ArticleFormType {
 export default class extends Vue {
   rotation_img_urls: string[] = [] // 轮播图组路径
   rotation_img_index: number = 0 // 轮播图当前图片下标
+  rotation_task: number = 0 // 轮播定时器
   nav_data: NavRow[] = [] // 导航选择栏数据
   selected_erea: number[] = [0, 0, 0] // 用户选择的方向、分类、级别 信息
   search_input_val: string = ""
@@ -169,7 +174,7 @@ export default class extends Vue {
   }
 
   start_rotation() {
-    setInterval(() => {
+    this.rotation_task = setInterval(() => {
       this.rotation_img_index++
       if (this.rotation_img_index >= this.rotation_img_urls.length)
         this.rotation_img_index = 0
@@ -199,23 +204,45 @@ export default class extends Vue {
   select_item(row_key: number, item_key: number): void {
     Vue.set(this.selected_erea, row_key, item_key)
   }
-
+  assign_learn_data(data: any) {
+    this.rotation_img_urls = data.rotation_img_urls
+    this.nav_data = data.nav_data
+    this.allCardList = data.allCardList
+  }
+  get_learn_data() {
+    getVailLocalForage("learn_data")
+      .then(learn_data => {
+        if (learn_data !== undefined) {
+          console.log("get localForage")
+          this.assign_learn_data(learn_data)
+        } else {
+          getLearnCard().then(res => {
+            let data: any = res.data
+            setTimeout(() => {
+              console.log("get network")
+              this.assign_learn_data(data)
+              setLocalForage("learn_data", data)
+            }, 1000)
+          })
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
   created() {
     // 数据赋值
     this.default_form_data = deep_copy(this.form)
-    getLearnCard().then(res => {
-      let data = res.data
-      setTimeout(() => {
-        this.rotation_img_urls = data.rotation_img_urls
-        this.nav_data = data.nav_data
-        this.allCardList = data.allCardList
-      }, 1000)
-    })
+    this.get_learn_data()
   }
 
   mounted() {
     // 启动轮播图
     this.start_rotation()
+  }
+  beforeDestroy() {
+    // 清除轮播定时器
+    this.rotation_task && clearTimeout(this.rotation_task)
   }
 }
 </script>

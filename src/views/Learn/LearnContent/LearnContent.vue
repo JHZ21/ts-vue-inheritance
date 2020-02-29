@@ -41,7 +41,12 @@ import { Vue, Component, Prop } from "vue-property-decorator"
 import { LearnModule, oContentUrlType } from "@/store/modules/learn.ts"
 import { CommentInfoType } from "@/utils/interface"
 import CommentBox from "@/components/CommentBox.vue"
-import { getContent } from "@/api/learn"
+import { getContent, getOContentUrl } from "@/api/learn"
+import {
+  getLocalForage,
+  getVailLocalForage,
+  setLocalForage
+} from "../../../utils/localForage"
 
 @Component({
   name: "LearnContent",
@@ -75,20 +80,63 @@ export default class extends Vue {
     this.myCommentText = ""
     keyup || (this.showSendBtn = false)
   }
+  get_obj_content_url(): Promise<unknown> {
+    // 先查看localForage 数据是否可用，不可用则发起请求
+    let obj_content_url_key: string = "obj_content_url"
+    return getVailLocalForage(obj_content_url_key, 24 * 60).then(data => {
+      // console.log("this.content_id: ", this.content_id)
+      if (data && (data as oContentUrlType)[this.content_id]) {
+        // data 存在 并且content_id对应 url存在
+        // Vuex oContentUrl 为 null, 则赋值
+        console.log("getVailLocalForage", obj_content_url_key)
+        if (!LearnModule.oContentUrl) {
+          LearnModule.SetOContentUrl(data as oContentUrlType)
+        }
+        return data
+      } else {
+        // 不存在或者无效, 则再次请求
+        // return promise, 将等待其状态变化
+        return getOContentUrl().then(res => {
+          setLocalForage(obj_content_url_key, res.data)
+          LearnModule.SetOContentUrl(res.data)
+          return res.data
+        })
+      }
+    })
+  }
+  get_content_url() {
+    this.get_obj_content_url().then(data => {
+      let contentUrl: string | undefined
+      if ((contentUrl = (data as oContentUrlType)[this.content_id])) {
+        this.contentUrl = contentUrl
+      }
+    })
+  }
+  get_content_data() {
+    let oContentUrl: oContentUrlType | null = LearnModule.oContentUrl
 
-  created() {
-    this.content_id = this.$route.params.id
+    if (oContentUrl && oContentUrl[this.content_id]) {
+      // Vuex 存在对应 contentUrl
+      this.contentUrl = oContentUrl[this.content_id]
+    } else {
+      // 发起请求
+      this.get_content_url()
+    }
     let params: object = {
       content_id: this.content_id
     }
     getContent(params).then(res => {
       let data: any = res.data
-
-      if (data && data.content_url) {
-        this.contentUrl = data.content_url
+      if (data && data.comment_infos) {
+        // this.contentUrl = data.content_url
         this.comment_infos = data.comment_infos
       }
     })
+  }
+
+  created() {
+    this.content_id = this.$route.params.id
+    this.get_content_data()
   }
 }
 </script>

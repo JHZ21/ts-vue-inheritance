@@ -1,5 +1,15 @@
 import { LinkElement } from "./interface"
 
+export function vaild_local(data: any, max_minute: number = 30): boolean {
+  let is_vail: boolean = false
+  let now_time = new Date().getTime()
+  let storage_time: number
+  if (data && (storage_time = (data as any)._time)) {
+    is_vail = storage_time + max_minute * 60e3 > now_time
+  }
+  return is_vail
+}
+
 export function props_not_empty(obj: any): boolean {
   return Object.keys(obj).every(key => {
     let val: any = obj[key]
