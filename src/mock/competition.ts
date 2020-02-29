@@ -3,6 +3,92 @@ import axios from "axios"
 import { pipe, reapeatNToM } from "@/utils/func"
 import { StepDataType } from "@/utils/interface"
 
+
+const nav_data = [
+  {
+    label: "比赛:",
+    aData: [
+      "浙江省大学生多媒体作品设计竞赛",
+      "中国大学生计算机设计大赛",
+      `中国"互联网+"大学生创新创业大赛`,
+      "国创",
+      "新苗",
+      "春萌"
+    ]
+  },
+  {
+    label: "时间:",
+    aData: [
+      [
+        "2020上",
+        "2019下",
+        "2019上",
+        "2018下",
+        "2018上",
+        "2017下",
+        "2017上",
+        "2016下",
+        "2016上"
+      ],
+      [
+        "2020上",
+        "2019下",
+        "2019上",
+        "2018下",
+        "2018上",
+        "2017下",
+        "2017上",
+        "2016下",
+        "2016上"
+      ],
+      [
+        "2020上",
+        "2019下",
+        "2019上",
+        "2018下",
+        "2018上",
+        "2017下",
+        "2017上",
+        "2016下",
+        "2016上"
+      ],
+      [
+        "2020上",
+        "2019下",
+        "2019上",
+        "2018下",
+        "2018上",
+        "2017下",
+        "2017上",
+        "2016下",
+        "2016上"
+      ],
+      [
+        "2020上",
+        "2019下",
+        "2019上",
+        "2018下",
+        "2018上",
+        "2017下",
+        "2017上",
+        "2016下",
+        "2016上"
+      ],
+      [
+        "2020上",
+        "2019下",
+        "2019上",
+        "2018下",
+        "2018上",
+        "2017下",
+        "2017上",
+        "2016下",
+        "2016上"
+      ]
+    ]
+  }
+]
+
 function createProject() {
   return Mock.mock({
     PName: "@csentence",
@@ -17,7 +103,12 @@ const createProjectsFunc: Function = (<Function>(
   pipe(reapeatNToM(10), reapeatNToM(20), reapeatNToM(1, 20))
 ))(createProject)
 
-Mock.mock("/competition/getProjects", createProjectsFunc)
+Mock.mock("/competition/getProjects", () => {
+  return {
+    allProjects: createProjectsFunc(),
+    nav_data
+  }
+})
 
 Mock.mock("/competition/getProjectContent/", function(options: any) {
   if (options) {
