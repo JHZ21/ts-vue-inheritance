@@ -107,7 +107,13 @@ import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
 import { AddCardMixin } from "@/utils/mixins"
 import axios from "axios"
-import { deep_copy } from "../../../utils/func"
+import { deep_copy } from "@/utils/func"
+import {
+  getLocalForage,
+  getVailLocalForage,
+  setLocalForage
+} from "@/utils/localForage"
+import { CompetitionModule } from "@/store/modules/competition"
 
 interface ProjectFormType {
   PName: string
@@ -158,6 +164,7 @@ export default class extends Vue {
     formdata.append("PSummary", form.PSummary)
     formdata.append("TName", form.TName)
     formdata.append("TMembers", JSON.stringify(form.TMembers))
+    formdata.append("aSelected", JSON.stringify(this.aSelected))
     formdata.append("img", form.img)
     axios({
       method: "post",
@@ -241,17 +248,56 @@ export default class extends Vue {
   set_search_val(search_val: string) {
     this.search_val = search_val
   }
+  get_competitions_data() {
+    let competitions_data_key: string = "competitions_data"
+    getVailLocalForage(competitions_data_key)
+      .then(local_data => {
+        if (local_data) {
+          console.log("getVailLocalForage", competitions_data_key)
+          CompetitionModule.SetNavData(
+            (local_data as { nav_data: any }).nav_data
+          )
+          CompetitionModule.SetAllProjects(
+            (local_data as { allProjects: any }).allProjects
+          )
+          return local_data
+        } else {
+          return getProjects().then(res => {
+            let data: {
+              nav_data: any
+              allProjects: any
+            } = res.data
+            if (data && data.allProjects) {
+              console.log("get newtork")
+              setLocalForage(competitions_data_key, data)
+              CompetitionModule.SetNavData(data.nav_data)
+              CompetitionModule.SetAllProjects(data.allProjects)
+              return data
+            }
+          })
+        }
+      })
+      .then(data => {
+        this.nav_data = CompetitionModule.navData
+        this.allProjects = CompetitionModule.allProjects
+        this.aSelected = [0, 0] // 刷新aSelected
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
   created() {
     const CompetitionVue = this
     this.default_form_data = deep_copy(this.form)
-    getProjects().then(res => {
-      const data = res.data
-      setTimeout(() => {
-        CompetitionVue.nav_data = data.nav_data
-        CompetitionVue.allProjects = data.allProjects
-        CompetitionVue.aSelected = [0, 0] // 刷新aSelected
-      }, 1000)
-    })
+    this.get_competitions_data()
+    // getProjects().then(res => {
+    //   const data = res.data
+    //   setTimeout(() => {
+    //     CompetitionVue.nav_data = data.nav_data
+    //     CompetitionVue.allProjects = data.allProjects
+    //     CompetitionVue.aSelected = [0, 0] // 刷新aSelected
+    //   }, 1000)
+    // })
   }
 }
 </script>

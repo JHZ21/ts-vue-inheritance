@@ -155,6 +155,7 @@ export default class extends Vue {
     let formdata: FormData = new FormData()
     formdata.append("article_url", form.article_url)
     formdata.append("title", form.title)
+    formdata.append("selected_erea", JSON.stringify(this.selected_erea))
     formdata.append("img", form.img)
     // let config = {
     //   headers: { "Content-Type": "multipart/form-data" } //这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
