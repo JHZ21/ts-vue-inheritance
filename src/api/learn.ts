@@ -1,5 +1,11 @@
 import axios from "axios"
 
+export const getLearnRotationUrl = () =>
+  axios({
+    method: "GET",
+    url: `${process.env.VUE_APP_BASE_API}/learn/rotationUrl`
+  })
+
 export const getLearnCard = () =>
   axios({
     method: "get",
