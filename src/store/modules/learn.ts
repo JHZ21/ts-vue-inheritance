@@ -24,7 +24,7 @@ class Learn extends VuexModule implements ILearnState {
   }
   @Action
   public SetOContentUrl(oContentUrl: oContentUrlType) {
-    return this.SET_OCONTETNURL(oContentUrl)
+    this.SET_OCONTETNURL(oContentUrl)
   }
 }
 
