@@ -3,6 +3,8 @@ import { NestedCardList, CommentInfoType } from "@/utils/interface"
 import { pipe, reapeatNToM } from "@/utils/func"
 import { oContentUrlType } from "@/store/modules/learn.ts"
 
+// import "./uploadLearn"
+
 const nav_data = [
   {
     label: "方向:",
@@ -52,6 +54,9 @@ function makeCard() {
       `url( ${require("@/assets/learn/rotation/rotation_02.jpg")} )`,
       `url( ${require("@/assets/learn/rotation/rotation_03.jpg")} )`
     ],
+    "label_0|0-10": 0,
+    "label_1|0-20": 0,
+    "label_2|0-10": 0,
     title: "@csentence",
     "readVolume|1-9999": 1,
     "id|1": [1111, 2222, 3333],

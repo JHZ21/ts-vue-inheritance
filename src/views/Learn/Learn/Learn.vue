@@ -10,7 +10,7 @@
             @set_search_val="set_search_val"></search-input>
         </div>
         <nav-menu :nav_data="nav_data"
-          @update_selected_erea="update_selected_erea"></nav-menu>
+          @update_selected_erea="updateASelected"></nav-menu>
       </div>
     </div>
     <div class="container">
@@ -73,7 +73,7 @@ import { Vue, Component, Watch } from "vue-property-decorator"
 import ArticleCard from "@/components/ArticleCard.vue"
 import { CardData, NavRow, NestedCardList } from "@/utils/interface.ts"
 import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
-import { getLearnCard } from "@/api/learn"
+import { getLearnCard, getLearnNavData, getLearnCards } from "@/api/learn"
 import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
@@ -110,7 +110,7 @@ export default class extends Vue {
   rotation_img_index: number = 0 // 轮播图当前图片下标
   rotation_task: number = 0 // 轮播定时器
   nav_data: NavRow[] = [] // 导航选择栏数据
-  selected_erea: number[] = [0, 0, 0] // 用户选择的方向、分类、级别 信息
+  aSelected: number[] = [0, 0, 0] // 用户选择的方向、分类、级别 信息
   search_input_val: string = ""
   to_search_val: string = ""
   pageCardSize: number = 30 //一页展示card容量
@@ -124,17 +124,16 @@ export default class extends Vue {
     title: "",
     dialogFormVisible: false
   }
+  currCards: CardData[] = [] // 当前类的卡片集
 
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
     if (!this.allCardList[0]) return []
-    let curr_cardList: CardData[] = []
-    const selected_erea = this.selected_erea
-    curr_cardList = this.allCardList[selected_erea[0]][selected_erea[1]][
-      selected_erea[2]
-    ]
+    let curr_cardList: CardData[] = this.currCards
+    // const aSelected = this.aSelected
+    // curr_cardList = this.allCardList[aSelected[0]][aSelected[1]][aSelected[2]]
     if (this.to_search_val) {
-      curr_cardList = this.filter_by_match_article_rule(curr_cardList)
+      curr_cardList = this.filter_by_match_article_rule(this.currCards)
     }
     return curr_cardList
   }
@@ -155,14 +154,14 @@ export default class extends Vue {
     let formdata: FormData = new FormData()
     formdata.append("article_url", form.article_url)
     formdata.append("title", form.title)
-    formdata.append("selected_erea", JSON.stringify(this.selected_erea))
-    formdata.append("img", form.img)
+    formdata.append("aSelected", JSON.stringify(this.aSelected))
+    formdata.append("file", form.img)
     // let config = {
     //   headers: { "Content-Type": "multipart/form-data" } //这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
     // }
     axios({
       method: "post",
-      url: "http://localhost:2127/image",
+      url: " http://localhost:3000/learn/image",
       data: formdata
     })
       .then(res => {
@@ -188,8 +187,8 @@ export default class extends Vue {
     this.to_search_val = search_val
   }
 
-  update_selected_erea(selected_erea: number[]) {
-    this.selected_erea = selected_erea
+  updateASelected(aSelected: number[]) {
+    this.aSelected = aSelected
   }
 
   match_article_rule(cardData: CardData): boolean {
@@ -203,17 +202,81 @@ export default class extends Vue {
   }
 
   select_item(row_key: number, item_key: number): void {
-    Vue.set(this.selected_erea, row_key, item_key)
+    Vue.set(this.aSelected, row_key, item_key)
   }
   assign_learn_data(data: any) {
     this.rotation_img_urls = data.rotation_img_urls
-    this.nav_data = data.nav_data
+    // this.nav_data = data.nav_data
     this.allCardList = data.allCardList
+    // axios({
+    //   method: "post",
+    //   url: "http://localhost:3000/learn/uploadCards",
+    //   data: {
+    //     // nav_data: data.nav_data,
+    //     allCardList: data.allCardList
+    //   }
+    // })
+    //   .then(res => {
+    //     console.log("res: ", res.data)
+    //   })
+    //   .catch(err => {
+    //     console.log("err: ", err)
+    //   })
+  }
+  @Watch("aSelected", { immediate: true, deep: true })
+  onSelectedErea(aSelected: number[]) {
+    this.getCards(aSelected)
+  }
+  getCards(aSelected: number[]) {
+    if (aSelected.length < 2) {
+      console.log("getNavData aSelected", aSelected)
+      return []
+    }
+    const strSelected: string = aSelected.join("-")
+    const learnCardsKey = `learnCardsKey-${strSelected}`
+    getVailLocalForage(learnCardsKey).then(data => {
+      if (data) {
+        console.log(learnCardsKey, "get localForage")
+        this.currCards = data as CardData[]
+      } else {
+        const params = {
+          aSelected
+        }
+        getLearnCards(params).then(res => {
+          if (res.data && res.data.cards) {
+            console.log(learnCardsKey, "get network")
+            this.currCards = res.data.cards
+            setLocalForage(learnCardsKey, res.data.cards)
+          }
+        })
+      }
+    })
+  }
+  getNavData() {
+    const learnNavDataKey = "learnNavDataKey"
+    getVailLocalForage(learnNavDataKey)
+      .then(navData => {
+        if (navData) {
+          console.log(learnNavDataKey, "get localForage")
+          this.nav_data = navData as NavRow[]
+        } else {
+          getLearnNavData().then(res => {
+            if (res.data && res.data.navData) {
+              console.log(learnNavDataKey, "get network")
+              setLocalForage(learnNavDataKey, res.data.navData)
+              this.nav_data = res.data.navData
+            }
+          })
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
   }
   get_learn_data() {
     getVailLocalForage("learn_data")
       .then(learn_data => {
-        if (learn_data !== undefined) {
+        if (learn_data) {
           console.log("get localForage")
           this.assign_learn_data(learn_data)
         } else {
@@ -234,7 +297,10 @@ export default class extends Vue {
   created() {
     // 数据赋值
     this.default_form_data = deep_copy(this.form)
+    this.getNavData()
+    this.getCards([0, 0, 0])
     this.get_learn_data()
+    console.log("process.env.VUE_APP_BASE_API: ", process.env.VUE_APP_BASE_API)
   }
 
   mounted() {
