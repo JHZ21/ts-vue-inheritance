@@ -58,7 +58,7 @@
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将图片拖到此处，或<em>点击上传</em></div>
                 <div class="el-upload__tip"
-                  slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+                  slot="tip">只能上传jpg/jpeg/png文件，且不超过500kb</div>
               </el-upload>
             </el-form-item>
           </el-form>
@@ -74,7 +74,6 @@ import ArticleCard from "@/components/ArticleCard.vue"
 import { CardData, NavRow, NestedCardList } from "@/utils/interface.ts"
 import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
 import {
-  getLearnCard,
   getLearnNavData,
   getLearnCards,
   getLearnRotationUrl
@@ -150,7 +149,8 @@ export default class extends Vue {
       (index + 1) * this.pageCardSize
     )
   }
-
+  //TODO: 收到返回数据后，currCards，
+  // 和该类的forage也应更新，使得用户有良好的反馈体验
   upload_form_data() {
     let form = this.form
     let formdata: FormData = new FormData()
@@ -160,7 +160,7 @@ export default class extends Vue {
     formdata.append("file", form.img)
     axios({
       method: "post",
-      url: `${process.env.VUE_APP_BASE_API}/learn/uploadCards`,
+      url: `${process.env.VUE_APP_BASE_API}/learn/uploadCard`,
       data: formdata
     })
       .then(res => {
@@ -171,7 +171,8 @@ export default class extends Vue {
             const articleKey = `article_${card.id}`
             console.log("setLocalForage", articleKey)
             setLocalForage(articleKey, {
-              url: card.articleUrl
+              articleUrl: card.articleUrl,
+              comments: card.comments || []
             })
           }
         }

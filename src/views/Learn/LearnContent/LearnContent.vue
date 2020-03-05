@@ -41,12 +41,12 @@ import { Vue, Component, Prop } from "vue-property-decorator"
 import { LearnModule, oContentUrlType } from "@/store/modules/learn.ts"
 import { CommentInfoType } from "@/utils/interface"
 import CommentBox from "@/components/CommentBox.vue"
-import { getContent, getOContentUrl } from "@/api/learn"
+import { getLearnContent } from "@/api/learn"
 import {
   getLocalForage,
   getVailLocalForage,
   setLocalForage
-} from "../../../utils/localForage"
+} from "@/utils/localForage"
 
 @Component({
   name: "LearnContent",
@@ -80,74 +80,40 @@ export default class extends Vue {
     this.myCommentText = ""
     keyup || (this.showSendBtn = false)
   }
-  get_obj_content_url(): Promise<unknown> {
-    // 先查看localForage 数据是否可用，不可用则发起请求
-    const articleKey: string = `articel_${this.content_id}`
-    return getVailLocalForage(articleKey, 24 * 60).then(data => {
-      if (data && (data as { url: string }).url) {
-        console.log("getVailLocalForage", articleKey)
-        this.contentUrl = articleKey
-        // if (!LearnModule.oContentUrl) {
-        //   LearnModule.SetOContentUrl(data as oContentUrlType)
-        // }
-        // return data
-      } else {
-        // 不存在或者无效, 则再次请求
-        // return promise, 将等待其状态变化
-        // return getOContentUrl().then(res => {
-        //   setLocalForage(articleKey, res.data)
-        //   LearnModule.SetOContentUrl(res.data)
-        //   return res.data
-        // })
-      }
-    })
-  }
-  get_content_url() {
-    this.get_obj_content_url().then(data => {
-      let contentUrl: string | undefined
-      if ((contentUrl = (data as oContentUrlType)[this.content_id])) {
-        this.contentUrl = contentUrl
-      }
-    })
-  }
-  get_content_data() {
-    let oContentUrl: oContentUrlType | null = LearnModule.oContentUrl
-
-    if (oContentUrl && oContentUrl[this.content_id]) {
-      // Vuex 存在对应 contentUrl
-      this.contentUrl = oContentUrl[this.content_id]
-    } else {
-      // 发起请求
-      this.get_content_url()
-    }
-    let params: object = {
-      content_id: this.content_id
-    }
-    getContent(params).then(res => {
-      let data: any = res.data
-      if (data && data.comment_infos) {
-        // this.contentUrl = data.content_url
-        this.comment_infos = data.comment_infos
-      }
-    })
-  }
   getArticelUrl() {
     const articleKey: string = `article_${this.content_id}`
     return getVailLocalForage(articleKey, 24 * 60).then(data => {
-      if (data && (data as { url: string }).url) {
+      if (data && (data as { articleUrl: string }).articleUrl) {
         console.log("getVailLocalForage", articleKey)
-        this.contentUrl = (data as { url: string }).url
+        this.contentUrl = (data as { articleUrl: string }).articleUrl
+        this.comment_infos = (data as { comments: any[] }).comments
       } else {
-        console.log("ocalForage is invalid", data)
-        // 不存在或者无效, 则再次请求
+        const params = {
+          id: this.content_id
+        }
+        getLearnContent(params).then(res => {
+          if (res && res.data && res.data.code === 200) {
+            const data: {
+              articleUrl: string
+              comments: CommentInfoType[]
+            } = res.data.content
+            this.contentUrl = data.articleUrl
+            this.comment_infos = data.comments
+            setLocalForage(articleKey, {
+              articleUrl: data.articleUrl,
+              comments: data.comments
+            })
+            console.log("content get newtwork")
+          } else {
+            console.log(res)
+          }
+        })
       }
     })
   }
   created() {
     this.content_id = this.$route.params.id
     this.getArticelUrl()
-
-    // this.get_content_data()
   }
 }
 </script>
