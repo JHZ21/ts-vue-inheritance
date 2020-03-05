@@ -82,25 +82,23 @@ export default class extends Vue {
   }
   get_obj_content_url(): Promise<unknown> {
     // 先查看localForage 数据是否可用，不可用则发起请求
-    let obj_content_url_key: string = "obj_content_url"
-    return getVailLocalForage(obj_content_url_key, 24 * 60).then(data => {
-      // console.log("this.content_id: ", this.content_id)
-      if (data && (data as oContentUrlType)[this.content_id]) {
-        // data 存在 并且content_id对应 url存在
-        // Vuex oContentUrl 为 null, 则赋值
-        console.log("getVailLocalForage", obj_content_url_key)
-        if (!LearnModule.oContentUrl) {
-          LearnModule.SetOContentUrl(data as oContentUrlType)
-        }
-        return data
+    const articleKey: string = `articel_${this.content_id}`
+    return getVailLocalForage(articleKey, 24 * 60).then(data => {
+      if (data && (data as { url: string }).url) {
+        console.log("getVailLocalForage", articleKey)
+        this.contentUrl = articleKey
+        // if (!LearnModule.oContentUrl) {
+        //   LearnModule.SetOContentUrl(data as oContentUrlType)
+        // }
+        // return data
       } else {
         // 不存在或者无效, 则再次请求
         // return promise, 将等待其状态变化
-        return getOContentUrl().then(res => {
-          setLocalForage(obj_content_url_key, res.data)
-          LearnModule.SetOContentUrl(res.data)
-          return res.data
-        })
+        // return getOContentUrl().then(res => {
+        //   setLocalForage(articleKey, res.data)
+        //   LearnModule.SetOContentUrl(res.data)
+        //   return res.data
+        // })
       }
     })
   }
@@ -133,10 +131,23 @@ export default class extends Vue {
       }
     })
   }
-
+  getArticelUrl() {
+    const articleKey: string = `article_${this.content_id}`
+    return getVailLocalForage(articleKey, 24 * 60).then(data => {
+      if (data && (data as { url: string }).url) {
+        console.log("getVailLocalForage", articleKey)
+        this.contentUrl = (data as { url: string }).url
+      } else {
+        console.log("ocalForage is invalid", data)
+        // 不存在或者无效, 则再次请求
+      }
+    })
+  }
   created() {
     this.content_id = this.$route.params.id
-    this.get_content_data()
+    this.getArticelUrl()
+
+    // this.get_content_data()
   }
 }
 </script>
