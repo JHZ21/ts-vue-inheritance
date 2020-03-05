@@ -18,7 +18,7 @@
         name="slide-up">
         <open-new-tab v-for="(cardData) in currntPageCard"
           :key="cardData.timeStamp"
-          :url="new_tab_url(cardData.id)">
+          :url="new_tab_url(cardData.id, cardData.isAllowedFrame, cardData.articleUrl)">
           <article-card class="article_card"
             :cardData="cardData"></article-card>
         </open-new-tab>
@@ -166,6 +166,14 @@ export default class extends Vue {
       .then(res => {
         if (res.data.code === 200) {
           this.form.dialogFormVisible = false
+          const card = res.data.card
+          if (card && card.id && card.articleUrl) {
+            const articleKey = `article_${card.id}`
+            console.log("setLocalForage", articleKey)
+            setLocalForage(articleKey, {
+              url: card.articleUrl
+            })
+          }
         }
         console.log("res.data:", res.data)
       })
@@ -184,8 +192,18 @@ export default class extends Vue {
     //     this.rotation_img_index = 0
     // }, 5000)
   }
-  new_tab_url(id: number) {
-    return `http://localhost:8080/#/learn/content/${id}`
+  // 根据articelUrl是否允许使用跨域iframe，来返回不同tabUrl
+  new_tab_url(
+    id: number,
+    isAllowedFrame: boolean = true,
+    articleUrl: string | undefined
+  ) {
+    let tabUrl = `http://localhost:8080/#/learn/content/${id}`
+    if (!isAllowedFrame && articleUrl) {
+      // 使用原始url
+      tabUrl = articleUrl
+    }
+    return tabUrl
   }
   set_search_val(search_val: string) {
     this.to_search_val = search_val
