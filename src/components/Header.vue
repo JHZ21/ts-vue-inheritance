@@ -1,7 +1,8 @@
 <template>
-  <div class="header">
+  <div class="header"
+    v-if="showHeader()">
     <div class="header_container"
-      v-if="showHeaderContent()">
+      v-show="showHeaderContent()">
       <ul class="nav">
         <li v-for="(link, key) in links"
           :key="key">
@@ -46,11 +47,16 @@ export default class Header extends Vue {
     // return !new RegExp(/^\/learn\/content\//).test(this.$route.fullPath)
     return true
   }
+  showHeader(): boolean {
+    const hidePath = ["/register", "/login"]
+    const path = this.$route.fullPath
+    return !hidePath.includes(path)
+  }
 }
 </script>
 <style lang="scss" scoped>
 .header {
-  background-color: #07111b;
+  background-color: $theme-color;
   height: $header-height;
   // height: 40px;
   // background-color: #575a8a;

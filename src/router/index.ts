@@ -10,6 +10,16 @@ const routes = [
     redirect: "/learn"
   },
   {
+    path: "/register",
+    name: "register",
+    component: () => import("@/views/RegisterLogin/Register.vue")
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: () => import("@/views/RegisterLogin/Login.vue")
+  },
+  {
     path: "/learn",
     name: "learn",
     // route level code-splitting
