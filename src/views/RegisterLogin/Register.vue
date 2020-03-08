@@ -42,6 +42,7 @@
 import { Vue, Component } from "vue-property-decorator"
 import Wrapper from "./componetns/Wrapper.vue"
 import SwitchPage from "./componetns/SwitchPage.vue"
+import { postUserRegister } from "@/api/user"
 
 @Component({
   name: "Register",
@@ -78,7 +79,7 @@ export default class extends Vue {
   }
   private validateAccount(rule: any, value: string, callback: Function) {
     const iphoneReg: RegExp = /^1\d{10}$/
-    let isValid = value.match(iphoneReg)
+    let isValid = iphoneReg.test(value)
     if (isValid) {
       callback()
     } else {
@@ -111,7 +112,18 @@ export default class extends Vue {
   private submitForm(formName: string) {
     ;(this.$refs[formName] as any).validate((valid: boolean) => {
       if (valid) {
-        alert("submit")
+        const params = {
+          account: this.registerForm.account,
+          pw: this.registerForm.pass
+        }
+        postUserRegister(params).then(res => {
+          if (res && res.data && res.data.code === 200) {
+            alert("账号注册成功")
+          } else {
+            alert(`注册失败：${res.data.msg}`)
+          }
+          console.log(res)
+        })
       } else {
         console.log("err submit !!!")
         return false

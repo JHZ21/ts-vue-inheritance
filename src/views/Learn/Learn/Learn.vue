@@ -76,7 +76,8 @@ import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
 import {
   getLearnNavData,
   getLearnCards,
-  getLearnRotationUrl
+  getLearnRotationUrl,
+  uploadLearnCard
 } from "@/api/learn"
 import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
@@ -158,11 +159,7 @@ export default class extends Vue {
     formdata.append("title", form.title)
     formdata.append("aSelected", JSON.stringify(this.aSelected))
     formdata.append("file", form.img)
-    axios({
-      method: "post",
-      url: `${process.env.VUE_APP_BASE_API}/learn/uploadCard`,
-      data: formdata
-    })
+    uploadLearnCard(formdata)
       .then(res => {
         if (res.data.code === 200) {
           this.form.dialogFormVisible = false
