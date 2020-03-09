@@ -1,5 +1,12 @@
 /* */
 
+export interface UserInfoType {
+  isLogin: boolean
+  name: string
+  headUrl: string
+  roles: string[]
+}
+
 export interface StepDataType {
   // title: string
   deadline: string

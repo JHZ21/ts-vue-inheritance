@@ -1,5 +1,13 @@
 import { LinkElement } from "./interface"
 
+export function resSuccess(res: any): boolean {
+  return res && res.data && res.data.code === 200
+}
+
+export function url(path: string): string {
+  return `url(${path})`
+}
+
 export function vaild_local(data: any, max_minute: number = 30): boolean {
   let is_vail: boolean = false
   let now_time = new Date().getTime()
