@@ -1,5 +1,8 @@
 <template>
-  <span class="switch-page"><a :href="aHref()">{{msg}}</a></span>
+  <span class="switch-page"
+    :class="{right: right}"><a :href="aHref()">
+      <slot></slot>
+    </a></span>
 </template>
 
 <script lang='ts'>
@@ -9,8 +12,8 @@ import { Vue, Component, Prop } from "vue-property-decorator"
   name: "SwitchPage"
 })
 export default class extends Vue {
-  @Prop({ required: true }) msg!: string
   @Prop({ required: true }) path!: string
+  @Prop() right!: boolean
   aHref() {
     if (this.path) {
       return `#${this.path}`
@@ -23,10 +26,14 @@ export default class extends Vue {
 
 <style lang='scss' scoped>
 .switch-page {
-  display: inline-block;
-  position: relative;
-  width: 100%;
-  text-align: right;
+  &.right {
+    text-align: right;
+    width: 100%;
+    display: inline-block;
+  }
+  // display: inline-block;
+  // position: relative;
+  // text-align: right;
   a {
     font-size: 14px;
     color: #409eff;

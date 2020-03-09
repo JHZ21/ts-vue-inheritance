@@ -26,8 +26,8 @@
           class="submit-btn"
           @click="submitForm('loginForm')">登录</el-button>
       </el-form-item>
-      <switch-page msg="转去注册"
-        path="/register"></switch-page>
+      <switch-page path="/register"
+        :right="true">转去注册</switch-page>
     </el-form>
   </wrapper>
 </template>
@@ -35,8 +35,11 @@
 <script lang='ts'>
 import { Vue, Component } from "vue-property-decorator"
 import Wrapper from "./componetns/Wrapper.vue"
-import SwitchPage from "./componetns/SwitchPage.vue"
-import { postUserLogin } from "@/api/user"
+import SwitchPage from "@/components/SwitchPage.vue"
+import { postUserLogin, getUserInfo } from "@/api/user"
+import { UserModule } from "@/store/modules/user"
+import { UserInfoType } from "@/utils/interface"
+import { setLocalForage } from "@/utils/localForage"
 
 @Component({
   name: "Login",
@@ -98,11 +101,9 @@ export default class extends Vue {
             setTimeout(() => {
               this.$router.push({ path: "learn" })
             }, 4)
-            console.log(res.headers)
           } else {
             alert("登陆失败")
           }
-          console.log(res)
         })
       } else {
         console.log("err submit !!!")

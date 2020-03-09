@@ -1,8 +1,20 @@
 import axios from "axios"
 
-export { getUserInfo, postUserRegister, postUserLogin }
+export { postUserRegister, postUserLogin, getUserInfo, userSignOut }
 
 const basePath = `${process.env.VUE_APP_BASE_API}`
+
+const userSignOut = () =>
+  axios({
+    method: "GET",
+    url: `${basePath}/user/signOut`
+  })
+
+const getUserInfo = () =>
+  axios({
+    method: "POST",
+    url: `${basePath}/user/getUserInfo`
+  })
 
 const postUserLogin = (data: any) =>
   axios({
@@ -18,9 +30,9 @@ const postUserRegister = (data: any) =>
     data
   })
 
-const getUserInfo = (data: any) =>
-  axios({
-    method: "post",
-    url: "/user/info",
-    data
-  })
+// const getUserInfo = (data: any) =>
+//   axios({
+//     method: "post",
+//     url: "/user/info",
+//     data
+//   })

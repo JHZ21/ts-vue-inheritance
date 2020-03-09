@@ -32,8 +32,8 @@
           class="submit-btn"
           @click="submitForm('registerForm')">注册</el-button>
       </el-form-item>
-      <switch-page msg="转去登录"
-        path="/login"></switch-page>
+      <switch-page path="/login"
+        :right="true">转去登录</switch-page>
     </el-form>
   </wrapper>
 </template>
@@ -41,7 +41,7 @@
 <script lang='ts'>
 import { Vue, Component } from "vue-property-decorator"
 import Wrapper from "./componetns/Wrapper.vue"
-import SwitchPage from "./componetns/SwitchPage.vue"
+import SwitchPage from "@/components/SwitchPage.vue"
 import { postUserRegister } from "@/api/user"
 
 @Component({
