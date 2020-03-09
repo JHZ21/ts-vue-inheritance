@@ -4,6 +4,7 @@
       status-icon
       :rules="loginRules"
       class="demo-ruleForm"
+      autocomplete="on"
       ref="loginForm">
       <el-form-item prop="account">
         <el-input type="number"
@@ -35,6 +36,7 @@
 import { Vue, Component } from "vue-property-decorator"
 import Wrapper from "./componetns/Wrapper.vue"
 import SwitchPage from "./componetns/SwitchPage.vue"
+import { postUserLogin } from "@/api/user"
 
 @Component({
   name: "Login",
@@ -45,8 +47,8 @@ import SwitchPage from "./componetns/SwitchPage.vue"
 })
 export default class extends Vue {
   private loginForm = {
-    account: "",
-    pass: ""
+    account: "17858881111",
+    pass: "1111"
   }
   private loginRules = {
     account: [
@@ -86,7 +88,22 @@ export default class extends Vue {
   private submitForm(formName: string) {
     ;(this.$refs[formName] as any).validate((valid: boolean) => {
       if (valid) {
-        alert("submit")
+        const params = {
+          account: this.loginForm.account,
+          pw: this.loginForm.pass
+        }
+        postUserLogin(params).then(res => {
+          if (res && res.data && res.data.code === 200) {
+            alert("登陆成功")
+            setTimeout(() => {
+              this.$router.push({ path: "learn" })
+            }, 4)
+            console.log(res.headers)
+          } else {
+            alert("登陆失败")
+          }
+          console.log(res)
+        })
       } else {
         console.log("err submit !!!")
         return false

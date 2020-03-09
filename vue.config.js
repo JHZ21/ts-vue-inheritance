@@ -4,7 +4,24 @@ module.exports = {
   publicPath: process.env.NODE_ENV === "production" ? "./" : "/",
   chainWebpack: config => {
     const types = ["vue-modules", "vue", "normal-modules", "normal"]
-    types.forEach(type => addStyleResource(config.module.rule("scss").oneOf(type)))
+    types.forEach(type =>
+      addStyleResource(config.module.rule("scss").oneOf(type))
+    )
+  },
+  devServer: {
+    host: "inherit.proudmodest.cn",
+    port: 80,
+    disableHostCheck: true,
+    proxy: {
+      "/apis": {
+        target: "http://localhost:3000",
+        secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          "^/apis": ""
+        }
+      }
+    }
   }
 }
 // 全局导入scss文件
