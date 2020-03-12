@@ -1,4 +1,6 @@
 const path = require("path")
+const https = require("https")
+const fs = require("fs")
 
 module.exports = {
   publicPath: process.env.NODE_ENV === "production" ? "./" : "/",
@@ -9,13 +11,18 @@ module.exports = {
     )
   },
   devServer: {
-    host: "inherit.proudmodest.cn",
-    port: 80,
+    host: `${process.env.VUE_APP_FRONT_HOST}`,
+    port: `${process.env.VUE_APP_FRONT_PORT}`,
     disableHostCheck: true,
+    https: {
+      key: fs.readFileSync(path.join(__dirname, "./cert/private.key")),
+      cert: fs.readFileSync(path.join(__dirname, "./cert/certificate.crt")),
+      ca: fs.readFileSync(path.join(__dirname, "./cert/ca_bundle.crt"))
+    },
     proxy: {
       "/apis": {
-        target: "http://localhost:3000",
-        secure: false,
+        target: `${process.env.VUE_APP_BACK_PATH}`,
+        secure: true, //https
         changeOrigin: true,
         pathRewrite: {
           "^/apis": ""

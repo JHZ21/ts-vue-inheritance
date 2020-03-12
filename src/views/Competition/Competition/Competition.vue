@@ -202,7 +202,7 @@ export default class extends Vue {
   }
 
   new_tab_url(id: number) {
-    return `http://localhost:8080/#/competition/content/${id}`
+    return `${process.env.VUE_APP_BASE_PATH}/#/competition/content/${id}`
   }
   private _search_count(
     project: ProjectDataType,

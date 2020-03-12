@@ -10,7 +10,7 @@ import "@/utils/func"
 import "@/permission"
 import * as directives from "@/directives"
 
-const ali_font_css = "http://at.alicdn.com/t/font_1610918_mtshjeltqck.css"
+const ali_font_css = "https://at.alicdn.com/t/font_1610918_mtshjeltqck.css"
 injectLink(ali_font_css)
 
 // Register global directives

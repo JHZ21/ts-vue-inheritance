@@ -196,7 +196,7 @@ export default class extends Vue {
     isAllowedFrame: boolean = true,
     articleUrl: string | undefined
   ) {
-    let tabUrl = `http://localhost:8080/#/learn/content/${id}`
+    let tabUrl = `${process.env.VUE_APP_BASE_PATH}/#/learn/content/${id}`
     if (!isAllowedFrame && articleUrl) {
       // 使用原始url
       tabUrl = articleUrl
