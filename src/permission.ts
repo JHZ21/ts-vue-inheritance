@@ -1,7 +1,12 @@
 import router from "./router"
 import { UserModule } from "@/store/modules/user"
+import { WebsiteMudule } from "@/store/modules/website"
+import { Form } from "element-ui"
 
 router.beforeEach(async (to, from, next) => {
+  WebsiteMudule.AddHistory({
+    path: to.path
+  })
   // 请求UserInfo, store Vuex
   // if (!UserModule.roles || UserModule.roles.length < 1) {
   //   await UserModule.GetUserInfo()

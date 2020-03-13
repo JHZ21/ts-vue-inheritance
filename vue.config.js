@@ -22,11 +22,17 @@ module.exports = {
     proxy: {
       "/apis": {
         target: `${process.env.VUE_APP_BACK_PATH}`,
-        secure: true, //https
+        secure: true, //https ，为true，不安全时则报错500
         changeOrigin: true,
         pathRewrite: {
           "^/apis": ""
         }
+      },
+      "/images": {
+        // iamges 为后端图片， img为前端图片
+        target: `${process.env.VUE_APP_BACK_PATH}`,
+        secure: true,
+        changeOrigin: true
       }
     }
   }
