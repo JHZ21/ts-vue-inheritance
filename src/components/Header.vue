@@ -12,7 +12,7 @@
       <div class="header_right">
         <div class="user_area">
           <div class="header_avator"
-            :style="{ backgroundImage: url(headUrl)}">
+            :style="{ backgroundImage: `url(${headUrl})`}">
           </div>
           <span class="user_nav">
             <template v-if="!isLogin">
@@ -34,7 +34,7 @@
 import { Vue, Prop, Component } from "vue-property-decorator"
 import SwitchPage from "@/components/SwitchPage.vue"
 import { UserModule } from "@/store/modules/user"
-import { userSignOut } from "../api/user"
+import { userSignOut } from "@/api/user"
 
 interface RouterLink {
   to: string
@@ -70,9 +70,6 @@ export default class Header extends Vue {
   signOut() {
     userSignOut()
     UserModule.UserSignOut()
-  }
-  url(path: string): string {
-    return `url(${path})`
   }
   showHeaderContent(): boolean {
     // 学习内容页面不显示header 内容

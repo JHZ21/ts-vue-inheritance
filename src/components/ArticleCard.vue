@@ -1,5 +1,4 @@
 <template>
-  <!-- <div class="article_card" @click="openContentTab(cardData.id)"> -->
   <div class="article_card">
     <div class="article_card_img"
       :style="{ backgroundImage: `url(${cardData.imgUrl})` }"></div>

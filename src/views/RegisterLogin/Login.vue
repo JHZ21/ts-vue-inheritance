@@ -40,6 +40,7 @@ import { postUserLogin, getUserInfo } from "@/api/user"
 import { UserModule } from "@/store/modules/user"
 import { UserInfoType } from "@/utils/interface"
 import { setLocalForage } from "@/utils/localForage"
+import { WebsiteMudule } from "@/store/modules/website"
 
 @Component({
   name: "Login",
@@ -95,12 +96,23 @@ export default class extends Vue {
           account: this.loginForm.account,
           pw: this.loginForm.pass
         }
-        postUserLogin(params).then(res => {
+        postUserLogin(params).then(async res => {
           if (res && res.data && res.data.code === 200) {
             alert("登陆成功")
-            setTimeout(() => {
-              this.$router.push({ path: "learn" })
-            }, 4)
+            const pathObj: any = await WebsiteMudule.GetHistory(-2)
+            const defaultPathObj: any = { path: "learn" }
+            if (!pathObj) return this.$router.push(defaultPathObj)
+            const path = pathObj.path
+            const excludePath: RegExp = /^\/?register/
+            if (path && !excludePath.test(path)) {
+              // 上个页面存在且合理，则返回
+              this.$router.push({
+                path
+              })
+            } else {
+              // 不存在上个页面，则返回 default page
+              this.$router.push(defaultPathObj)
+            }
           } else {
             alert("登陆失败")
           }
