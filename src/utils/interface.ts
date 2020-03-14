@@ -1,5 +1,12 @@
 /* */
-
+export interface ReadType {
+  dailyRead: {
+    oldRead: string[]
+    timeStamp: number
+  }
+  sign: string
+  newRead: string[]
+}
 export interface UserInfoType {
   isLogin: boolean
   name: string

@@ -2,6 +2,13 @@ import axios from "axios"
 
 const basePath = `${process.env.VUE_APP_BASE_API}`
 
+export const addReadVolume = (data: any) =>
+  axios({
+    method: "POST",
+    url: `${basePath}/learn/addReadVolume`,
+    data
+  })
+
 export const uploadLearnCard = (data: FormData) =>
   axios({
     method: "POST",
