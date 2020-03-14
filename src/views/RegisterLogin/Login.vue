@@ -41,6 +41,7 @@ import { UserModule } from "@/store/modules/user"
 import { UserInfoType } from "@/utils/interface"
 import { setLocalForage } from "@/utils/localForage"
 import { WebsiteMudule } from "@/store/modules/website"
+import { LearnModule } from "../../store/modules/learn"
 
 @Component({
   name: "Login",
@@ -88,7 +89,23 @@ export default class extends Vue {
       callback()
     }
   }
-
+  private async successfulLogin() {
+    const pathObj: any = await WebsiteMudule.GetHistory(-2)
+    const defaultPathObj: any = { path: "learn" }
+    LearnModule.GetRead()
+    if (!pathObj) return this.$router.push(defaultPathObj)
+    const path = pathObj.path
+    const excludePath: RegExp = /^\/?register/
+    if (path && !excludePath.test(path)) {
+      // 上个页面存在且合理，则返回
+      this.$router.push({
+        path
+      })
+    } else {
+      // 不存在上个页面，则返回 default page
+      this.$router.push(defaultPathObj)
+    }
+  }
   private submitForm(formName: string) {
     ;(this.$refs[formName] as any).validate((valid: boolean) => {
       if (valid) {
@@ -96,23 +113,10 @@ export default class extends Vue {
           account: this.loginForm.account,
           pw: this.loginForm.pass
         }
-        postUserLogin(params).then(async res => {
+        postUserLogin(params).then(res => {
           if (res && res.data && res.data.code === 200) {
             alert("登陆成功")
-            const pathObj: any = await WebsiteMudule.GetHistory(-2)
-            const defaultPathObj: any = { path: "learn" }
-            if (!pathObj) return this.$router.push(defaultPathObj)
-            const path = pathObj.path
-            const excludePath: RegExp = /^\/?register/
-            if (path && !excludePath.test(path)) {
-              // 上个页面存在且合理，则返回
-              this.$router.push({
-                path
-              })
-            } else {
-              // 不存在上个页面，则返回 default page
-              this.$router.push(defaultPathObj)
-            }
+            this.successfulLogin()
           } else {
             alert("登陆失败")
           }

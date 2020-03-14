@@ -18,7 +18,8 @@
         name="slide-up">
         <open-new-tab v-for="(cardData) in currntPageCard"
           :key="cardData.timeStamp"
-          :url="new_tab_url(cardData.id, cardData.isAllowedFrame, cardData.articleUrl)">
+          :url="new_tab_url(cardData.id, cardData.isAllowedFrame, cardData.articleUrl)"
+          @opened="readArticle(cardData.id)">
           <article-card class="article_card"
             :cardData="cardData"></article-card>
         </open-new-tab>
@@ -251,28 +252,34 @@ export default class extends Vue {
       }
     })
   }
-  getCards(aSelected: number[]) {
-    if (aSelected.length < 2) {
-      console.log("getNavData aSelected", aSelected)
-      return []
+  // 从后端更新cards
+  updateCards(aSelected: number[]) {
+    const params = {
+      aSelected
     }
+    const learnCardsKey = this.learnCardsKey(aSelected)
+    getLearnCards(params).then(res => {
+      if (res.data && res.data.cards) {
+        console.log(learnCardsKey, "get network")
+        this.currCards = res.data.cards
+        console.log("cards ", res.data.cards)
+        setLocalForage(learnCardsKey, res.data.cards)
+      }
+    })
+  }
+  learnCardsKey(aSelected: number[]): string {
     const strSelected: string = aSelected.join("-")
-    const learnCardsKey = `learnCardsKey-${strSelected}`
+    return `learnCardsKey-${strSelected}`
+  }
+  getCards(aSelected: number[]) {
+    const learnCardsKey = this.learnCardsKey(aSelected)
     getVailLocalForage(learnCardsKey).then(data => {
       if (data) {
         console.log(learnCardsKey, "get localForage")
         this.currCards = data as CardData[]
       } else {
-        const params = {
-          aSelected
-        }
-        getLearnCards(params).then(res => {
-          if (res.data && res.data.cards) {
-            console.log(learnCardsKey, "get network")
-            this.currCards = res.data.cards
-            setLocalForage(learnCardsKey, res.data.cards)
-          }
-        })
+        // 从后端更新cards
+        this.updateCards(aSelected)
       }
     })
   }
@@ -297,11 +304,21 @@ export default class extends Vue {
         console.log(err)
       })
   }
+  async readArticle(articleId: string) {
+    console.log("readArticle id:", articleId)
+    const isAdded: boolean = await LearnModule.AddNewRead(articleId)
+    if (isAdded) {
+      // 更新cards
+      console.log("udapte cards")
+      this.updateCards(this.aSelected)
+    }
+  }
   created() {
     // 数据赋值
     this.default_form_data = deep_copy(this.form)
     this.getNavData()
     this.getRotationUrl()
+    LearnModule.GetRead()
   }
 
   mounted() {

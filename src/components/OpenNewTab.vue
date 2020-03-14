@@ -26,6 +26,7 @@ export default class extends Vue {
   }
   private _openContentTab() {
     window.open(this.url, "_blank")
+    this.$emit("opened")
   }
 }
 </script>
