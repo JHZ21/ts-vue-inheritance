@@ -18,13 +18,13 @@
 
 ### Learn Page
 
-![demo0](.\demo\demo0.png)
+![demo0](demo/demo0.png)
 
 
 
 ### Project Page
 
-![demo1](demo\demo1.png)
+![demo1](demo/demo1.png)
 
 
 
