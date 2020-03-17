@@ -11,6 +11,9 @@
         </div>
         <nav-menu :nav_data="nav_data"
           @update_selected_erea="updateASelected"></nav-menu>
+        <sort-selection-bar class="sort-bar-wrapper"
+          :sortContent='["按时间", "按热度"]'
+          @switch-sort="switchSort"></sort-selection-bar>
       </div>
     </div>
     <div class="container">
@@ -84,7 +87,6 @@ import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
-import axios from "axios"
 import { deep_copy, props_not_empty, vaild_local } from "@/utils/func"
 import { AddCardMixin } from "@/utils/mixins"
 import {
@@ -92,6 +94,7 @@ import {
   setLocalForage,
   getVailLocalForage
 } from "@/utils/localForage"
+import SortSelectionBar from "./components/SortSelectionBar.vue"
 
 interface ArticleFormType {
   article_url: string
@@ -107,7 +110,8 @@ interface ArticleFormType {
     NavMenu,
     SearchInput,
     OpenNewTab,
-    AddCard
+    AddCard,
+    SortSelectionBar
   },
   mixins: [AddCardMixin]
 })
@@ -131,6 +135,8 @@ export default class extends Vue {
     dialogFormVisible: false
   }
   currCards: CardData[] = [] // 当前类的卡片集
+  sortKey: number = 0
+  sortProps: string[] = ["timeStamp", "readVolume"]
 
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
@@ -138,6 +144,10 @@ export default class extends Vue {
     if (this.to_search_val) {
       curr_cardList = this.filter_by_match_article_rule(this.currCards)
     }
+    const sortProp = this.sortProps[this.sortKey]
+    curr_cardList.sort((prev, curr) => {
+      return (curr as any)[sortProp] - (prev as any)[sortProp]
+    })
     return curr_cardList
   }
 
@@ -151,14 +161,21 @@ export default class extends Vue {
       (index + 1) * this.pageCardSize
     )
   }
+
+  switchSort(key: number) {
+    this.sortKey = key
+    console.log(`switchSort: ${key}`)
+  }
+
   //TODO: 收到返回数据后，currCards，
   // 和该类的forage也应更新，使得用户有良好的反馈体验
   upload_form_data() {
+    const aSelected: number[] = this.aSelected
     let form = this.form
     let formdata: FormData = new FormData()
     formdata.append("articleUrl", form.article_url)
     formdata.append("title", form.title)
-    formdata.append("aSelected", JSON.stringify(this.aSelected))
+    formdata.append("aSelected", JSON.stringify(aSelected))
     formdata.append("file", form.img)
     uploadLearnCard(formdata)
       .then(res => {
@@ -172,6 +189,8 @@ export default class extends Vue {
               articleUrl: card.articleUrl,
               comments: card.comments || []
             })
+            // 从后端获取更新的cards数据，刷新页面
+            this.updateCards(aSelected)
           }
         }
         console.log("res.data:", res.data)

@@ -1,7 +1,6 @@
 import router from "./router"
 import { UserModule } from "@/store/modules/user"
 import { WebsiteMudule } from "@/store/modules/website"
-import { Form } from "element-ui"
 
 router.beforeEach(async (to, from, next) => {
   WebsiteMudule.AddHistory({

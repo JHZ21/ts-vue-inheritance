@@ -57,11 +57,7 @@ class Learn extends VuexModule implements ILearnState {
   async SendReadThenStore() {
     const read: ReadType = this.read
     let isAdded: boolean = false
-    if (
-      !read ||
-      !read.dailyRead ||
-      read.dailyRead.timeStamp > new Date().getTime()
-    ) {
+    if (!read || !read.dailyRead || read.dailyRead.timeStamp > +new Date()) {
       //timeStamp时间不允许，则拒绝
       console.log(`时间不允许: ${new Date(read.dailyRead.timeStamp)}`)
       return isAdded

@@ -1,5 +1,5 @@
 <template>
-  <div class="panel_content">
+  <div class="nav_menu">
     <div class="nav_row"
       v-for="(nav_row, row_key) in nav_data"
       :key="row_key">
@@ -20,17 +20,17 @@
 </template>
 
 <script lang="ts">
-import {Vue, Component, Prop, Watch} from "vue-property-decorator"
-import {NavRow} from "@/utils/interface.ts"
+import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { NavRow } from "@/utils/interface.ts"
 
 @Component({
   name: "NavMenu"
 })
 export default class extends Vue {
-  @Prop({required: true}) nav_data!: NavRow[]
+  @Prop({ required: true }) nav_data!: NavRow[]
   selected_erea: number[] = [0, 0, 0]
 
-  @Watch("selected_erea", {deep: true})
+  @Watch("selected_erea", { deep: true })
   emit_selected_erea(selected_erea: number[]) {
     this.$emit("update_selected_erea", selected_erea)
   }
@@ -42,7 +42,7 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.panel_content {
+.nav_menu {
   .nav_row {
     display: flex;
     height: 100%;
@@ -76,7 +76,7 @@ export default class extends Vue {
           color: #fff;
         }
         &.selected {
-          background-color: #575a8a;
+          background-color: $selected-color;
           padding: 6px 10px;
           border-radius: 4px;
           color: #fff;
