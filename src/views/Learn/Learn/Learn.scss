@@ -3,6 +3,7 @@
   .learn_panel_wrapper {
     @include top-panel();
     .learn_panel {
+      position: relative;
       @include layout-width();
       margin: auto;
       .panel_top {
@@ -21,48 +22,10 @@
           padding-right: 40px;
         }
       }
-      .panel_content {
-        .nav_row {
-          display: flex;
-          height: 100%;
-          font-size: 15px;
-          justify-content: flex-start;
-          .nav_label {
-            position: absolute;
-            width: 52px;
-            height: 32px;
-            margin-top: 10px;
-            line-height: 32px;
-            font-weight: 700;
-            color: #07111b;
-            text-align: left;
-          }
-          .nav_items_wrapper {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-left: 60px;
-            .nav_item {
-              margin: 5px 20px;
-              height: 32px;
-              padding: 6px 10px;
-              line-height: 32px;
-              &:hover {
-                background-color: rgba(48, 79, 104, 0.5);
-                padding: 6px 10px;
-                border-radius: 4px;
-                color: #fff;
-              }
-              &.selected {
-                background-color: #575a8a;
-                padding: 6px 10px;
-                border-radius: 4px;
-                color: #fff;
-              }
-            }
-          }
-        }
+      .sort-bar-wrapper {
+        position: absolute;
+        bottom: 0;
+        right: 0;
       }
     }
   }

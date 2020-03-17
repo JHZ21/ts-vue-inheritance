@@ -1,5 +1,5 @@
 import jest from "jest"
-import { shallowMount, WrapperArray } from "@vue/test-utils"
+import { shallowMount } from "@vue/test-utils"
 import NavMenu from "@/components/NavMenu.vue"
 
 var nav_data = [

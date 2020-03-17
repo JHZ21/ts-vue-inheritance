@@ -19,6 +19,7 @@ export function getVailLocalForage(
   return getLocalForage(key).then(data => {
     // data 为 undef null  或者 不可挂载属性的， 返回原值
     if (!data || !(data as any)._time) return data
+    //TODE: 不清楚可能更好，可以离线，只有更新去覆盖就行
     // 如果过期了,就主动清除
     if (vaild_local(data, max_minute)) {
       return data
