@@ -18,6 +18,7 @@
     </div>
     <div class="container">
       <transition-group class="transition-box"
+        v-show="!isEmptycurrCards"
         name="slide-up">
         <open-new-tab v-for="(cardData) in currntPageCard"
           :key="cardData.timeStamp"
@@ -27,6 +28,8 @@
             :cardData="cardData"></article-card>
         </open-new-tab>
       </transition-group>
+      <div class="null-data"
+        v-show="isEmptycurrCards"> 此页面还没有内容, 快来分享吧 </div>
       <div class="fixed-right-box">
         <el-pagination class="pagination"
           background
@@ -138,15 +141,28 @@ export default class extends Vue {
   sortKey: number = 0
   sortProps: string[] = ["timeStamp", "readVolume"]
 
+  get isEmptycurrCards(): boolean {
+    return !this.currCards || this.currCards.length < 1
+  }
+
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
+    if (this.currCards && this.currCards.length < 1) return []
     let curr_cardList: CardData[] = this.currCards
     if (this.to_search_val) {
       curr_cardList = this.filter_by_match_article_rule(this.currCards)
     }
-    const sortProp = this.sortProps[this.sortKey]
-    curr_cardList.sort((prev, curr) => {
-      return (curr as any)[sortProp] - (prev as any)[sortProp]
+    // 反转
+    const firstProp = this.sortProps[this.sortKey]
+    const secondProp = this.sortProps.filter(p => p !== firstProp)[0]
+    console.log(firstProp, secondProp)
+    // 优先 firstProp 降序，相同时，再按 secondProp 降序
+    curr_cardList.sort((a, b) => {
+      const prev: any = a
+      const curr: any = b
+      const res: number =
+        curr[firstProp] - prev[firstProp] || curr[secondProp] - prev[secondProp]
+      return res
     })
     return curr_cardList
   }
@@ -164,7 +180,6 @@ export default class extends Vue {
 
   switchSort(key: number) {
     this.sortKey = key
-    console.log(`switchSort: ${key}`)
   }
 
   //TODO: 收到返回数据后，currCards，
@@ -302,6 +317,15 @@ export default class extends Vue {
       }
     })
   }
+  updateNavData(learnNavDataKey: string) {
+    getLearnNavData().then(res => {
+      if (res.data && res.data.navData) {
+        console.log(learnNavDataKey, "get network")
+        setLocalForage(learnNavDataKey, res.data.navData)
+        this.nav_data = res.data.navData
+      }
+    })
+  }
   getNavData() {
     const learnNavDataKey = "learnNavDataKey"
     getVailLocalForage(learnNavDataKey)
@@ -310,13 +334,7 @@ export default class extends Vue {
           console.log(learnNavDataKey, "get localForage")
           this.nav_data = navData as NavRow[]
         } else {
-          getLearnNavData().then(res => {
-            if (res.data && res.data.navData) {
-              console.log(learnNavDataKey, "get network")
-              setLocalForage(learnNavDataKey, res.data.navData)
-              this.nav_data = res.data.navData
-            }
-          })
+          this.updateNavData(learnNavDataKey)
         }
       })
       .catch(err => {

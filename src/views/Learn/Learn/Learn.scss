@@ -39,7 +39,12 @@
       align-items: center;
       align-content: flex-start;
     }
-
+    .null-data {
+      margin-top: 110px;
+      width: 100%;
+      font-weight: normal;
+      font-size: 20px;
+    }
     @include layout-width();
     padding: 10px 0 20px;
     .article_card {
