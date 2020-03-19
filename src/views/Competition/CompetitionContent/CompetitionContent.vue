@@ -41,7 +41,7 @@
         <div class="code-title">项目</div>
         <div class="code-content">
           <el-row class="icon-row"
-            v-permission='["admin", ...id_members]'>
+            v-if='hasPermission(["admin", ...id_members])'>
             <span class="btns-wrapper">
               <el-button icon="el-icon-circle-plus"
                 title="insert new"
@@ -54,17 +54,18 @@
             :key="steps_obj.id">
             <project-steps class="project-steps"
               :steps_obj="steps_obj"
+              :isPermission="hasPermission(['admin',id_members[0], steps_obj.master])"
               :key="steps_obj.id"></project-steps>
             <el-row class="icon-row"
-              v-permission='["admin", ...id_members]'>
+              v-if='hasPermission(["admin", ...id_members])'>
               <span class="btns-wrapper">
-                <el-button v-permission='["admin", id_members[0], steps_obj.master]'
+                <el-button v-if='hasPermission(["admin", id_members[0], steps_obj.master])'
                   icon="el-icon-remove"
                   class="danger-btn"
                   :title="`delete ${steps_obj.plan_name}`"
                   @click="remove_project_step(key, steps_obj.plan_name)"
                   circle></el-button>
-                <el-button v-permission='["admin", ...id_members]'
+                <el-button v-if='hasPermission(["admin", ...id_members])'
                   icon="el-icon-circle-plus"
                   title="insert new"
                   @click="plus_project_step(key)"
@@ -89,13 +90,15 @@ import {
 } from "./type"
 import { UserModule } from "@/store/modules/user"
 import { id_random } from "@/utils/func"
-import { getProjectContent } from "@/api/competition"
+import { getProjectContent } from "@/api/compet"
+import { CommonMixin } from "@/utils/mixins"
 
 @Component({
   name: "CompetitionContent",
   components: {
     ProjectSteps
-  }
+  },
+  mixins: [CommonMixin]
 })
 export default class extends Vue {
   user_id: string = ""

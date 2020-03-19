@@ -18,6 +18,7 @@
     </div>
     <div class="container">
       <transition-group class="transition-box"
+        v-show="!isEmptycurrCards"
         name="slide-up">
         <open-new-tab v-for="(cardData) in currntPageCard"
           :key="cardData.timeStamp"
@@ -27,6 +28,8 @@
             :cardData="cardData"></article-card>
         </open-new-tab>
       </transition-group>
+      <div class="null-data"
+        v-show="isEmptycurrCards"> 此页面还没有内容, 快来分享吧 </div>
       <div class="fixed-right-box">
         <el-pagination class="pagination"
           background
@@ -35,6 +38,7 @@
           :total="selected_eara_cardList.length"
           :current-page.sync="currentPage"></el-pagination>
         <add-card title="分享链接"
+          v-if="isLogin"
           :prop_form="form"
           @init_form_data="init_form_data"
           @upload_form_data="upload_form_data">
@@ -77,24 +81,20 @@ import { Vue, Component, Watch } from "vue-property-decorator"
 import ArticleCard from "@/components/ArticleCard.vue"
 import { CardData, NavRow, NestedCardList } from "@/utils/interface.ts"
 import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
-import {
-  getLearnNavData,
-  getLearnCards,
-  getLearnRotationUrl,
-  uploadLearnCard
-} from "@/api/learn"
+import * as Learn from "@/api/learn"
 import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
 import { deep_copy, props_not_empty, vaild_local } from "@/utils/func"
-import { AddCardMixin } from "@/utils/mixins"
+import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import {
   getLocalForage,
   setLocalForage,
   getVailLocalForage
 } from "@/utils/localForage"
 import SortSelectionBar from "./components/SortSelectionBar.vue"
+import { UserModule } from "@/store/modules/user"
 
 interface ArticleFormType {
   article_url: string
@@ -102,6 +102,8 @@ interface ArticleFormType {
   title: string
   dialogFormVisible: boolean
 }
+
+const localCardsKeyHead: string = "learnCards"
 
 @Component({
   name: "Learn",
@@ -113,7 +115,7 @@ interface ArticleFormType {
     AddCard,
     SortSelectionBar
   },
-  mixins: [AddCardMixin]
+  mixins: [AddCardMixin, CommonMixin, LearnCompetMixin]
 })
 export default class extends Vue {
   rotation_img_urls: string[] = [] // 轮播图组路径
@@ -138,15 +140,28 @@ export default class extends Vue {
   sortKey: number = 0
   sortProps: string[] = ["timeStamp", "readVolume"]
 
+  get isEmptycurrCards(): boolean {
+    return !this.currCards || this.currCards.length < 1
+  }
+
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
+    if (this.currCards && this.currCards.length < 1) return []
     let curr_cardList: CardData[] = this.currCards
     if (this.to_search_val) {
       curr_cardList = this.filter_by_match_article_rule(this.currCards)
     }
-    const sortProp = this.sortProps[this.sortKey]
-    curr_cardList.sort((prev, curr) => {
-      return (curr as any)[sortProp] - (prev as any)[sortProp]
+    // 反转
+    const firstProp = this.sortProps[this.sortKey]
+    const secondProp = this.sortProps.filter(p => p !== firstProp)[0]
+    console.log(firstProp, secondProp)
+    // 优先 firstProp 降序，相同时，再按 secondProp 降序
+    curr_cardList.sort((a, b) => {
+      const prev: any = a
+      const curr: any = b
+      const res: number =
+        curr[firstProp] - prev[firstProp] || curr[secondProp] - prev[secondProp]
+      return res
     })
     return curr_cardList
   }
@@ -164,7 +179,6 @@ export default class extends Vue {
 
   switchSort(key: number) {
     this.sortKey = key
-    console.log(`switchSort: ${key}`)
   }
 
   //TODO: 收到返回数据后，currCards，
@@ -177,7 +191,7 @@ export default class extends Vue {
     formdata.append("title", form.title)
     formdata.append("aSelected", JSON.stringify(aSelected))
     formdata.append("file", form.img)
-    uploadLearnCard(formdata)
+    Learn.uploadLearnCard(formdata)
       .then(res => {
         if (res.data.code === 200) {
           this.form.dialogFormVisible = false
@@ -190,7 +204,7 @@ export default class extends Vue {
               comments: card.comments || []
             })
             // 从后端获取更新的cards数据，刷新页面
-            this.updateCards(aSelected)
+            this.updateSetLearnCards(aSelected)
           }
         }
         console.log("res.data:", res.data)
@@ -246,7 +260,7 @@ export default class extends Vue {
   }
   @Watch("aSelected", { immediate: true, deep: true })
   onSelectedErea(aSelected: number[]) {
-    this.getCards(aSelected)
+    this.getLearnCards(aSelected)
   }
   getRotationUrl() {
     const rotationUrlKey = "rotationUrlKey"
@@ -255,7 +269,7 @@ export default class extends Vue {
         this.rotation_img_urls = data as string[]
         console.log(rotationUrlKey, "get localForage")
       } else {
-        getLearnRotationUrl()
+        Learn.getLearnRotationUrl()
           .then(res => {
             if (res && res.data && res.data.rotationUrl) {
               this.rotation_img_urls = res.data.rotationUrl
@@ -271,57 +285,25 @@ export default class extends Vue {
       }
     })
   }
-  // 从后端更新cards
-  updateCards(aSelected: number[]) {
-    const params = {
-      aSelected
-    }
-    const learnCardsKey = this.learnCardsKey(aSelected)
-    getLearnCards(params).then(res => {
-      if (res.data && res.data.cards) {
-        console.log(learnCardsKey, "get network")
-        this.currCards = res.data.cards
-        console.log("cards ", res.data.cards)
-        setLocalForage(learnCardsKey, res.data.cards)
-      }
-    })
+  // 关于 learnCards
+  updateCards!: Function
+  getCards!: Function
+  // 柯里化封装, 从后端更新learCards返回
+  updateLearnCards(aSelected: number[]) {
+    return this.updateCards(localCardsKeyHead, aSelected, Learn.getLearnCards)
   }
-  learnCardsKey(aSelected: number[]): string {
-    const strSelected: string = aSelected.join("-")
-    return `learnCardsKey-${strSelected}`
+  // 封装， 更新并设置learnCards
+  async updateSetLearnCards(aSelected: number[]) {
+    this.currCards = await this.updateLearnCards(aSelected)
   }
-  getCards(aSelected: number[]) {
-    const learnCardsKey = this.learnCardsKey(aSelected)
-    getVailLocalForage(learnCardsKey).then(data => {
-      if (data) {
-        console.log(learnCardsKey, "get localForage")
-        this.currCards = data as CardData[]
-      } else {
-        // 从后端更新cards
-        this.updateCards(aSelected)
-      }
-    })
+  // 柯里化封装， 获取learnCards
+  getLearnCards(aSelected: number[]) {
+    return this.getCards(localCardsKeyHead, aSelected, Learn.getLearnCards)
   }
-  getNavData() {
-    const learnNavDataKey = "learnNavDataKey"
-    getVailLocalForage(learnNavDataKey)
-      .then(navData => {
-        if (navData) {
-          console.log(learnNavDataKey, "get localForage")
-          this.nav_data = navData as NavRow[]
-        } else {
-          getLearnNavData().then(res => {
-            if (res.data && res.data.navData) {
-              console.log(learnNavDataKey, "get network")
-              setLocalForage(learnNavDataKey, res.data.navData)
-              this.nav_data = res.data.navData
-            }
-          })
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      })
+  // 关于 leanNavData
+  getNavData!: Function
+  getLearnNavData() {
+    return this.getNavData(Learn.getLearnNavData, "learnNavData")
   }
   async readArticle(articleId: string) {
     console.log("readArticle id:", articleId)
@@ -329,13 +311,14 @@ export default class extends Vue {
     if (isAdded) {
       // 更新cards
       console.log("udapte cards")
-      this.updateCards(this.aSelected)
+      this.updateSetLearnCards(this.aSelected)
     }
   }
-  created() {
+  async created() {
     // 数据赋值
     this.default_form_data = deep_copy(this.form)
-    this.getNavData()
+    this.nav_data = (await this.getLearnNavData()) || []
+    this.currCards = (await this.getLearnCards(this.aSelected)) || []
     this.getRotationUrl()
     LearnModule.GetRead()
   }

@@ -18,7 +18,7 @@
       @click="download_code"
       circle></el-button>
     <div class="set-project-steps-wrapper">
-      <div v-if="steps_obj.power">
+      <div v-if="isPermission">
         <div class="set-btns">
           <el-button class="code-upload"
             @click="upload_code"
@@ -120,6 +120,7 @@ interface StepsFromType {
 // TODO: 还有很多逻辑需完善，晚安！
 export default class extends Vue {
   @Prop({ required: false, default: { power: false } }) steps_obj!: StepsObjType
+  @Prop({ required: true, default: false }) isPermission!: boolean
   plan_name: string = ""
   steps_data: StepsDataType = []
   activeNum: number = 2

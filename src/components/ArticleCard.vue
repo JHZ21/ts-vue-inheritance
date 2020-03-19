@@ -11,7 +11,7 @@
         {{ cardData.readVolume }}
       </span>
       <div class="card_info_wrapper">
-        <span class="card_info_uploader">{{ cardData.uploader }}</span>
+        <span class="card_info_uploader">{{ cardData.uploader.name || cardData.uploader}}</span>
         <span class="class_info_date">{{ goodDate }}</span>
       </div>
     </div>

@@ -50,6 +50,7 @@
 
         </el-pagination>
         <add-card title="新增项目"
+          v-if="isLogin"
           :prop_form="form"
           @init_form_data="init_form_data"
           @upload_form_data="upload_form_data">
@@ -101,19 +102,20 @@ import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import ProjectCard from "@/components/ProjectCard/ProjectCard.vue"
 import { ProjectDataType } from "@/utils/interface"
-import { getProjects } from "@/api/competition"
+import * as Compet from "@/api/compet"
 import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
-import { AddCardMixin } from "@/utils/mixins"
+import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import axios from "axios"
-import { deep_copy } from "@/utils/func"
+import { deep_copy, resSuccess } from "@/utils/func"
 import {
   getLocalForage,
   getVailLocalForage,
   setLocalForage
 } from "@/utils/localForage"
 import { CompetitionModule } from "@/store/modules/competition"
+import { NavRow } from "@/utils/interface.ts"
 
 interface ProjectFormType {
   PName: string
@@ -125,6 +127,8 @@ interface ProjectFormType {
   dialogFormVisible: boolean
 }
 
+const localCardsKeyHead: string = "competProjects"
+
 @Component({
   name: "Competition",
   components: {
@@ -134,7 +138,7 @@ interface ProjectFormType {
     OpenNewTab,
     AddCard
   },
-  mixins: [AddCardMixin]
+  mixins: [AddCardMixin, CommonMixin, LearnCompetMixin]
 })
 export default class extends Vue {
   //TODO: 此页面与Learn页面结构相似，可是尝试是否可以抽象出, 可能用到solt
@@ -157,27 +161,34 @@ export default class extends Vue {
   }
   default_form_data: any = {}
 
-  upload_form_data() {
+  async upload_form_data() {
     let form = this.form
     let formdata: FormData = new FormData()
+    const aSelected: number[] = this.aSelected
     formdata.append("PName", form.PName)
     formdata.append("PSummary", form.PSummary)
     formdata.append("TName", form.TName)
     formdata.append("TMembers", JSON.stringify(form.TMembers))
-    formdata.append("aSelected", JSON.stringify(this.aSelected))
-    formdata.append("img", form.img)
-    axios({
-      method: "post",
-      url: "http://localhost:2127/image",
-      data: formdata
-    })
-      .then(res => {
-        console.log("res.data:", res.data)
-        this.form.dialogFormVisible = false
-      })
-      .catch(err => {
-        console.log(err)
-      })
+    formdata.append("aSelected", JSON.stringify(aSelected))
+    formdata.append("file", form.img)
+    const res = await Compet.uploadProject(formdata)
+    console.log("upload res: ", res)
+    this.form.dialogFormVisible = false
+    if (resSuccess(res)) {
+      this.updateSetProjects(aSelected)
+    }
+    // axios({
+    //   method: "post",
+    //   url: "http://localhost:2127/image",
+    //   data: formdata
+    // })
+    //   .then(res => {
+    //     console.log("res.data:", res.data)
+    //     this.form.dialogFormVisible = false
+    //   })
+    //   .catch(err => {
+    //     console.log(err)
+    //   })
   }
   // 根据aSelected、currentPage 与 search_val 生成 当前页数据
   get currPageProjects(): ProjectDataType[] {
@@ -197,8 +208,9 @@ export default class extends Vue {
   // 监听aSelected, 设置当前选择范围的数据
   @Watch("aSelected", { immediate: false, deep: true })
   update_currRangeProjects(aSelected: number[]) {
-    if (!this.allProjects[0]) return
-    this.currRangeProjects = this.allProjects[aSelected[0]][aSelected[1]]
+    // if (!this.allProjects[0]) return
+    // this.currRangeProjects = this.allProjects[aSelected[0]][aSelected[1]]
+    this.getSetProjects(aSelected)
   }
 
   new_tab_url(id: number) {
@@ -244,60 +256,42 @@ export default class extends Vue {
   update_selected_erea(aSelected: number[]) {
     this.aSelected = aSelected.slice(0, 2)
   }
-
   set_search_val(search_val: string) {
     this.search_val = search_val
   }
-  get_competitions_data() {
-    let competitions_data_key: string = "competitions_data"
-    getVailLocalForage(competitions_data_key)
-      .then(local_data => {
-        if (local_data) {
-          console.log("getVailLocalForage", competitions_data_key)
-          CompetitionModule.SetNavData(
-            (local_data as { nav_data: any }).nav_data
-          )
-          CompetitionModule.SetAllProjects(
-            (local_data as { allProjects: any }).allProjects
-          )
-          return local_data
-        } else {
-          return getProjects().then(res => {
-            let data: {
-              nav_data: any
-              allProjects: any
-            } = res.data
-            if (data && data.allProjects) {
-              console.log("get newtork")
-              setLocalForage(competitions_data_key, data)
-              CompetitionModule.SetNavData(data.nav_data)
-              CompetitionModule.SetAllProjects(data.allProjects)
-              return data
-            }
-          })
-        }
-      })
-      .then(data => {
-        this.nav_data = CompetitionModule.navData
-        this.allProjects = CompetitionModule.allProjects
-        this.aSelected = [0, 0] // 刷新aSelected
-      })
-      .catch(err => {
-        console.log(err)
-      })
+
+  // 关于CompetProjects
+  updateCards!: Function
+  getCards!: Function
+  // 柯里化封装, 从后端更新projects返回
+  updateProjects(aSelected: number[]) {
+    return this.updateCards(localCardsKeyHead, aSelected, Compet.getProjects)
   }
-  created() {
+  // 封装， 更新并设置learnCards
+  async updateSetProjects(aSelected: number[]) {
+    this.currRangeProjects = (await this.updateProjects(aSelected)) || []
+  }
+  // 柯里化封装， 获取Projects
+  getProjects(aSelected: number[]) {
+    return this.getCards(localCardsKeyHead, aSelected, Compet.getProjects)
+  }
+  // 封装， 获取并设置learnCards
+  async getSetProjects(aSelected: number[]) {
+    this.currRangeProjects = (await this.getProjects(aSelected)) || []
+  }
+
+  // 关于 CompetNavData
+  getNavData!: Function
+  getCompetNavData() {
+    return this.getNavData(Compet.getNavData, "competNavData")
+  }
+
+  async created() {
     const CompetitionVue = this
     this.default_form_data = deep_copy(this.form)
-    this.get_competitions_data()
-    // getProjects().then(res => {
-    //   const data = res.data
-    //   setTimeout(() => {
-    //     CompetitionVue.nav_data = data.nav_data
-    //     CompetitionVue.allProjects = data.allProjects
-    //     CompetitionVue.aSelected = [0, 0] // 刷新aSelected
-    //   }, 1000)
-    // })
+    // this.get_competitions_data()
+    this.nav_data = (await this.getCompetNavData()) || []
+    this.getSetProjects(this.aSelected)
   }
 }
 </script>

@@ -1,5 +1,17 @@
 import { LinkElement } from "./interface"
 
+// 纯函数
+export const hasPermission = (value: string[], roles: string[]): boolean => {
+  let permission: boolean = false
+  if (value && value instanceof Array && value.length > 0) {
+    const permissionRoles: string[] = value
+    permission = roles.some(role => {
+      return permissionRoles.includes(role)
+    })
+  }
+  return permission
+}
+
 export function resSuccess(res: any): boolean {
   return res && res.data && res.data.code === 200
 }
