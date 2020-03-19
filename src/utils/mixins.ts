@@ -1,4 +1,12 @@
 import { Vue, Component, Watch } from "vue-property-decorator"
+import { UserModule } from "@/store/modules/user"
+
+@Component
+export class CommonMixin extends Vue {
+  get isLogin(): boolean {
+    return UserModule.isLogin
+  }
+}
 
 @Component
 export class AddCardMixin extends Vue {

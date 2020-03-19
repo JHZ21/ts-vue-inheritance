@@ -50,6 +50,7 @@
 
         </el-pagination>
         <add-card title="新增项目"
+          v-if="isLogin"
           :prop_form="form"
           @init_form_data="init_form_data"
           @upload_form_data="upload_form_data">
@@ -105,7 +106,7 @@ import { getProjects } from "@/api/competition"
 import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
-import { AddCardMixin } from "@/utils/mixins"
+import { AddCardMixin, CommonMixin } from "@/utils/mixins"
 import axios from "axios"
 import { deep_copy } from "@/utils/func"
 import {
@@ -134,7 +135,7 @@ interface ProjectFormType {
     OpenNewTab,
     AddCard
   },
-  mixins: [AddCardMixin]
+  mixins: [AddCardMixin, CommonMixin]
 })
 export default class extends Vue {
   //TODO: 此页面与Learn页面结构相似，可是尝试是否可以抽象出, 可能用到solt

@@ -38,6 +38,7 @@
           :total="selected_eara_cardList.length"
           :current-page.sync="currentPage"></el-pagination>
         <add-card title="分享链接"
+          v-if="isLogin"
           :prop_form="form"
           @init_form_data="init_form_data"
           @upload_form_data="upload_form_data">
@@ -91,13 +92,14 @@ import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
 import { deep_copy, props_not_empty, vaild_local } from "@/utils/func"
-import { AddCardMixin } from "@/utils/mixins"
+import { AddCardMixin, CommonMixin } from "@/utils/mixins"
 import {
   getLocalForage,
   setLocalForage,
   getVailLocalForage
 } from "@/utils/localForage"
 import SortSelectionBar from "./components/SortSelectionBar.vue"
+import { UserModule } from "@/store/modules/user"
 
 interface ArticleFormType {
   article_url: string
@@ -116,7 +118,7 @@ interface ArticleFormType {
     AddCard,
     SortSelectionBar
   },
-  mixins: [AddCardMixin]
+  mixins: [AddCardMixin, CommonMixin]
 })
 export default class extends Vue {
   rotation_img_urls: string[] = [] // 轮播图组路径
