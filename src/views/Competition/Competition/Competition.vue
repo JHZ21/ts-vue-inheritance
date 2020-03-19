@@ -102,11 +102,11 @@ import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import ProjectCard from "@/components/ProjectCard/ProjectCard.vue"
 import { ProjectDataType } from "@/utils/interface"
-import { getProjects } from "@/api/competition"
+import * as compet from "@/api/compet"
 import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
-import { AddCardMixin, CommonMixin } from "@/utils/mixins"
+import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import axios from "axios"
 import { deep_copy } from "@/utils/func"
 import {
@@ -115,6 +115,7 @@ import {
   setLocalForage
 } from "@/utils/localForage"
 import { CompetitionModule } from "@/store/modules/competition"
+import { NavRow } from "@/utils/interface.ts"
 
 interface ProjectFormType {
   PName: string
@@ -135,7 +136,7 @@ interface ProjectFormType {
     OpenNewTab,
     AddCard
   },
-  mixins: [AddCardMixin, CommonMixin]
+  mixins: [AddCardMixin, CommonMixin, LearnCompetMixin]
 })
 export default class extends Vue {
   //TODO: 此页面与Learn页面结构相似，可是尝试是否可以抽象出, 可能用到solt
@@ -263,7 +264,7 @@ export default class extends Vue {
           )
           return local_data
         } else {
-          return getProjects().then(res => {
+          return compet.getProjects().then(res => {
             let data: {
               nav_data: any
               allProjects: any
@@ -279,7 +280,7 @@ export default class extends Vue {
         }
       })
       .then(data => {
-        this.nav_data = CompetitionModule.navData
+        // this.nav_data = CompetitionModule.navData
         this.allProjects = CompetitionModule.allProjects
         this.aSelected = [0, 0] // 刷新aSelected
       })
@@ -287,18 +288,42 @@ export default class extends Vue {
         console.log(err)
       })
   }
-  created() {
+  // async updateNavData(getNavData: Function, localKey: string) {
+  //   let resData: NavRow[] = []
+  //   const res: any = await getNavData()
+  //   if (res.data && res.data.navData) {
+  //     console.log(localKey, "get network")
+  //     setLocalForage(localKey, res.data.navData)
+  //     resData = res.data.navData
+  //   }
+  //   return resData
+  // }
+  // async getNavData(getNavData: Function, localKey: string) {
+  //   let resData: NavRow[] = []
+  //   await getVailLocalForage(localKey)
+  //     .then(async navData => {
+  //       if (navData) {
+  //         console.log(localKey, "get localForage")
+  //         resData = navData as NavRow[]
+  //       } else {
+  //         resData = await this.updateNavData(getNavData, localKey)
+  //       }
+  //     })
+  //     .catch(err => {
+  //       console.log(err)
+  //     })
+  //   return resData
+  // }
+  getNavData!: Function
+  getCompetNavData() {
+    return this.getNavData(compet.getNavData, "competNavData")
+  }
+  async getCards() {}
+  async created() {
     const CompetitionVue = this
     this.default_form_data = deep_copy(this.form)
     this.get_competitions_data()
-    // getProjects().then(res => {
-    //   const data = res.data
-    //   setTimeout(() => {
-    //     CompetitionVue.nav_data = data.nav_data
-    //     CompetitionVue.allProjects = data.allProjects
-    //     CompetitionVue.aSelected = [0, 0] // 刷新aSelected
-    //   }, 1000)
-    // })
+    this.nav_data = (await this.getCompetNavData()) || []
   }
 }
 </script>

@@ -92,7 +92,7 @@ import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import AddCard from "@/components/AddCard.vue"
 import { deep_copy, props_not_empty, vaild_local } from "@/utils/func"
-import { AddCardMixin, CommonMixin } from "@/utils/mixins"
+import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import {
   getLocalForage,
   setLocalForage,
@@ -118,7 +118,7 @@ interface ArticleFormType {
     AddCard,
     SortSelectionBar
   },
-  mixins: [AddCardMixin, CommonMixin]
+  mixins: [AddCardMixin, CommonMixin, LearnCompetMixin]
 })
 export default class extends Vue {
   rotation_img_urls: string[] = [] // 轮播图组路径
@@ -319,30 +319,30 @@ export default class extends Vue {
       }
     })
   }
-  updateNavData(learnNavDataKey: string) {
-    getLearnNavData().then(res => {
-      if (res.data && res.data.navData) {
-        console.log(learnNavDataKey, "get network")
-        setLocalForage(learnNavDataKey, res.data.navData)
-        this.nav_data = res.data.navData
-      }
-    })
-  }
-  getNavData() {
-    const learnNavDataKey = "learnNavDataKey"
-    getVailLocalForage(learnNavDataKey)
-      .then(navData => {
-        if (navData) {
-          console.log(learnNavDataKey, "get localForage")
-          this.nav_data = navData as NavRow[]
-        } else {
-          this.updateNavData(learnNavDataKey)
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      })
-  }
+  // updateNavData(learnNavDataKey: string) {
+  //   getLearnNavData().then(res => {
+  //     if (res.data && res.data.navData) {
+  //       console.log(learnNavDataKey, "get network")
+  //       setLocalForage(learnNavDataKey, res.data.navData)
+  //       this.nav_data = res.data.navData
+  //     }
+  //   })
+  // }
+  // getNavData() {
+  //   const learnNavDataKey = "learnNavDataKey"
+  //   getVailLocalForage(learnNavDataKey)
+  //     .then(navData => {
+  //       if (navData) {
+  //         console.log(learnNavDataKey, "get localForage")
+  //         this.nav_data = navData as NavRow[]
+  //       } else {
+  //         this.updateNavData(learnNavDataKey)
+  //       }
+  //     })
+  //     .catch(err => {
+  //       console.log(err)
+  //     })
+  // }
   async readArticle(articleId: string) {
     console.log("readArticle id:", articleId)
     const isAdded: boolean = await LearnModule.AddNewRead(articleId)
@@ -352,10 +352,14 @@ export default class extends Vue {
       this.updateCards(this.aSelected)
     }
   }
-  created() {
+  getNavData!: Function
+  getLearnNavData() {
+    return this.getNavData(getLearnNavData, "learnNavData")
+  }
+  async created() {
     // 数据赋值
     this.default_form_data = deep_copy(this.form)
-    this.getNavData()
+    this.nav_data = (await this.getLearnNavData()) || []
     this.getRotationUrl()
     LearnModule.GetRead()
   }
