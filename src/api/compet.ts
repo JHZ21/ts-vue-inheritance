@@ -2,10 +2,18 @@ import axios from "axios"
 
 const basePath = `${process.env.VUE_APP_BASE_API}`
 
-export const getProjects = () =>
+export const uploadProject = (data: any) =>
   axios({
     method: "POST",
-    url: `${basePath}/compet/getProjects`
+    url: `${basePath}/compet/uploadProject`,
+    data
+  })
+
+export const getProjects = (data: any) =>
+  axios({
+    method: "POST",
+    url: `${basePath}/compet/getProjects`,
+    data
   })
 
 export const getNavData = (data: any) =>
