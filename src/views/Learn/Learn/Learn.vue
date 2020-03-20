@@ -260,7 +260,9 @@ export default class extends Vue {
   }
   @Watch("aSelected", { immediate: true, deep: true })
   onSelectedErea(aSelected: number[]) {
-    this.getLearnCards(aSelected)
+    console.log("aSelected: ", aSelected)
+
+    this.getSetLearnCards(aSelected)
   }
   getRotationUrl() {
     const rotationUrlKey = "rotationUrlKey"
@@ -299,6 +301,10 @@ export default class extends Vue {
   // 柯里化封装， 获取learnCards
   getLearnCards(aSelected: number[]) {
     return this.getCards(localCardsKeyHead, aSelected, Learn.getLearnCards)
+  }
+  // 封装， 获取并设置learnCards
+  async getSetLearnCards(aSelected: number[]) {
+    this.currCards = await this.getLearnCards(aSelected)
   }
   // 关于 leanNavData
   getNavData!: Function
