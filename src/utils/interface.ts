@@ -1,4 +1,22 @@
 /* */
+
+export type UpdateStoreDataType = {
+  (
+    updateDataApi: Function,
+    params: any,
+    localKey: string,
+    localProp: string
+  ): any
+}
+
+export type GetDataType = {
+  (
+    updateData: Function,
+    params: any,
+    localKey: string,
+    max_minute?: number
+  ): any
+}
 export interface ReadType {
   dailyRead: {
     oldRead: string[]
@@ -22,12 +40,14 @@ export interface StepDataType {
 export type StepsDataType = StepDataType[]
 
 export interface StepsObjType {
-  plan_name: string
-  power: boolean
-  steps_data: StepsDataType
+  planName: string
+  stepsData: StepsDataType
+  index?: number
   activeNum: number
-  id: number
-  master: string
+  pleanId: number
+  master: {
+    userId: string
+  }
 }
 
 export interface ProjectDataType {
@@ -35,7 +55,7 @@ export interface ProjectDataType {
   PSummary: string
   TName: string
   TMembers: string[]
-  id: number
+  PId: number
   url?: string
 }
 

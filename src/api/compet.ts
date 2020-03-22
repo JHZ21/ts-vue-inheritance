@@ -2,6 +2,13 @@ import axios from "axios"
 
 const basePath = `${process.env.VUE_APP_BASE_API}`
 
+export const getProject = (data: any) =>
+  axios({
+    method: "POST",
+    url: `${basePath}/compet/getProject`,
+    data
+  })
+
 export const uploadProject = (data: any) =>
   axios({
     method: "POST",
@@ -9,10 +16,10 @@ export const uploadProject = (data: any) =>
     data
   })
 
-export const getProjects = (data: any) =>
+export const getProjectCards = (data: any) =>
   axios({
     method: "POST",
-    url: `${basePath}/compet/getProjects`,
+    url: `${basePath}/compet/getProjectCards`,
     data
   })
 
@@ -29,9 +36,9 @@ export const getNavData = (data: any) =>
 //     url: "/competition/getProjects"
 //   })
 
-export const getProjectContent = (data: any) =>
-  axios({
-    method: "post",
-    url: "/competition/getProjectContent/",
-    data
-  })
+// export const getProjectContent = (data: any) =>
+//   axios({
+//     method: "post",
+//     url: "/competition/getProjectContent/",
+//     data
+//   })

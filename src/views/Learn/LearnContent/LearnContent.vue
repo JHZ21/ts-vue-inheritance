@@ -81,7 +81,7 @@ export default class extends Vue {
     keyup || (this.showSendBtn = false)
   }
   getArticelUrl() {
-    const articleKey: string = `article_${this.content_id}`
+    const articleKey: string = `article-${this.content_id}`
     return getVailLocalForage(articleKey, 24 * 60).then(data => {
       if (data && (data as { articleUrl: string }).articleUrl) {
         console.log("getVailLocalForage", articleKey)

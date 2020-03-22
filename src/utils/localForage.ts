@@ -2,8 +2,13 @@ import localForage from "localforage"
 import { vaild_local } from "./func"
 
 export function setLocalForage(key: string, data: object) {
-  if (!data.hasOwnProperty("_time"))
-    (data as { _time: number })._time = new Date().getTime()
+  if (!key || !data) {
+    console.log(`setLocalForage key: ${key} data: ${data}`)
+    return
+  }
+  if (!data.hasOwnProperty("_time")) {
+    ;(data as { _time: number })._time = new Date().getTime()
+  }
   return localForage.setItem(key, data)
 }
 

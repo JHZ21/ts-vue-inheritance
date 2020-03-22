@@ -79,7 +79,13 @@
 <script lang="ts">
 import { Vue, Component, Watch } from "vue-property-decorator"
 import ArticleCard from "@/components/ArticleCard.vue"
-import { CardData, NavRow, NestedCardList } from "@/utils/interface.ts"
+import {
+  CardData,
+  NavRow,
+  NestedCardList,
+  UpdateStoreDataType,
+  GetDataType
+} from "@/utils/interface.ts"
 import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
 import * as Learn from "@/api/learn"
 import NavMenu from "@/components/NavMenu.vue"
@@ -102,8 +108,6 @@ interface ArticleFormType {
   title: string
   dialogFormVisible: boolean
 }
-
-const localCardsKeyHead: string = "learnCards"
 
 @Component({
   name: "Learn",
@@ -197,7 +201,7 @@ export default class extends Vue {
           this.form.dialogFormVisible = false
           const card = res.data.card
           if (card && card.id && card.articleUrl) {
-            const articleKey = `article_${card.id}`
+            const articleKey = `article-${card.id}`
             console.log("setLocalForage", articleKey)
             setLocalForage(articleKey, {
               articleUrl: card.articleUrl,
@@ -287,30 +291,6 @@ export default class extends Vue {
       }
     })
   }
-  // 关于 learnCards
-  updateCards!: Function
-  getCards!: Function
-  // 柯里化封装, 从后端更新learCards返回
-  updateLearnCards(aSelected: number[]) {
-    return this.updateCards(localCardsKeyHead, aSelected, Learn.getLearnCards)
-  }
-  // 封装， 更新并设置learnCards
-  async updateSetLearnCards(aSelected: number[]) {
-    this.currCards = await this.updateLearnCards(aSelected)
-  }
-  // 柯里化封装， 获取learnCards
-  getLearnCards(aSelected: number[]) {
-    return this.getCards(localCardsKeyHead, aSelected, Learn.getLearnCards)
-  }
-  // 封装， 获取并设置learnCards
-  async getSetLearnCards(aSelected: number[]) {
-    this.currCards = await this.getLearnCards(aSelected)
-  }
-  // 关于 leanNavData
-  getNavData!: Function
-  getLearnNavData() {
-    return this.getNavData(Learn.getLearnNavData, "learnNavData")
-  }
   async readArticle(articleId: string) {
     console.log("readArticle id:", articleId)
     const isAdded: boolean = await LearnModule.AddNewRead(articleId)
@@ -320,11 +300,64 @@ export default class extends Vue {
       this.updateSetLearnCards(this.aSelected)
     }
   }
+  localCardsKey(aSelected: number[]): string {
+    const strSelected: string = aSelected.join("-")
+    return `learnCards-${strSelected}`
+  }
+
+  updateStoreData!: UpdateStoreDataType
+  getData!: GetDataType
+
+  // 关于 learnCards
+  // 从后端更新learCards返回
+  async updateLearnCards(aSelected: number[]) {
+    const localLearnCardsKey = this.localCardsKey(aSelected)
+    return this.updateStoreData(
+      Learn.getLearnCards,
+      { aSelected },
+      localLearnCardsKey,
+      "cards"
+    )
+  }
+  // 更新并设置learnCards
+  async updateSetLearnCards(aSelected: number[]) {
+    this.setLearnCards(await this.updateLearnCards(aSelected))
+  }
+  //  获取learnCards
+  async getLearnCards(aSelected: number[]) {
+    const localLearnCardsKey = this.localCardsKey(aSelected)
+    return this.getData(this.updateLearnCards, aSelected, localLearnCardsKey)
+  }
+  // 获取并设置learnCards
+  async getSetLearnCards(aSelected: number[]) {
+    this.setLearnCards(await this.getLearnCards(aSelected))
+  }
+  setLearnCards(learnCards: CardData[]) {
+    if (!learnCards) return ""
+    this.currCards = learnCards
+  }
+
+  // 关于 leanNavData
+  getNavData!: Function
+  async getLearnNavData() {
+    return this.getNavData(Learn.getLearnNavData, "learnNavData")
+  }
+  async getSetLearnNavData() {
+    this.setLearnNavData(await this.getLearnNavData())
+  }
+  setLearnNavData(navData: NavRow[]) {
+    if (!navData) {
+      console.log(`setLearnNavData:${navData}`)
+      return ""
+    }
+    this.nav_data = navData
+  }
+
   async created() {
     // 数据赋值
     this.default_form_data = deep_copy(this.form)
-    this.nav_data = (await this.getLearnNavData()) || []
-    this.currCards = (await this.getLearnCards(this.aSelected)) || []
+    this.getSetLearnNavData()
+    this.getSetLearnCards(this.aSelected)
     this.getRotationUrl()
     LearnModule.GetRead()
   }

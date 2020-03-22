@@ -1,90 +1,84 @@
 import { Vue, Component, Watch } from "vue-property-decorator"
 import { UserModule } from "@/store/modules/user"
-import { hasPermission } from "@/utils/func"
+import { hasPermission, resSuccess } from "@/utils/func"
 import * as Forage from "@/utils/localForage"
-import { NavRow, CardData } from "@/utils/interface"
-
-@Component
-export class LearnCompetMixin extends Vue {
-  // 从后端更新cards，并存本地， 因要 query,需要 aSelected 参数
-  async updateCards(
-    localKey: string,
-    aSelected: number[],
-    getCardsApi: Function
-  ) {
-    let cardsData: any[] = []
-    const params = {
-      aSelected
-    }
-    const localCardsKey = this.localCardsKey(localKey, aSelected)
-    const res = await getCardsApi(params)
-    if (res.data && res.data.cards) {
-      console.log(localCardsKey, "get network")
-      cardsData = res.data.cards
-      console.log("cards ", res.data.cards)
-      Forage.setLocalForage(localCardsKey, res.data.cards)
-    }
-    return cardsData
-  }
-  // 生成localCardskey
-  localCardsKey(localKey: string, aSelected: number[]): string {
-    const strSelected: string = aSelected.join("-")
-    return `${localKey}-${strSelected}`
-  }
-  // 获取cardsData, 并存本地
-  async getCards(localKey: string, aSelected: number[], getCardsApi: Function) {
-    let cardsData: any[] = []
-    const localCardsKey = this.localCardsKey(localKey, aSelected)
-    await Forage.getVailLocalForage(localCardsKey).then(async data => {
-      if (data) {
-        console.log(localCardsKey, "get localForage")
-        cardsData = data as CardData[]
-      } else {
-        // 从后端更新cards
-        cardsData = await this.updateCards(localKey, aSelected, getCardsApi)
-      }
-    })
-    return cardsData
-  }
-  // 从后端更新NavData, b并存本地
-  async updateNavData(getNavData: Function, localKey: string) {
-    let resData: NavRow[] = []
-    const res: any = await getNavData()
-    if (res.data && res.data.navData) {
-      console.log(localKey, "get network")
-      Forage.setLocalForage(localKey, res.data.navData)
-      resData = res.data.navData
-    }
-    return resData
-  }
-  // 获取NavData, 并存本地
-  async getNavData(getNavData: Function, localKey: string) {
-    let resData: NavRow[] = []
-    // 有效期24h
-    await Forage.getVailLocalForage(localKey, 24 * 60)
-      .then(async navData => {
-        if (navData) {
-          console.log(localKey, "get localForage")
-          resData = navData as NavRow[]
-        } else {
-          resData = await this.updateNavData(getNavData, localKey)
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      })
-    return resData
-  }
-}
+import {
+  NavRow,
+  CardData,
+  UpdateStoreDataType,
+  GetDataType
+} from "@/utils/interface"
 
 @Component
 export class CommonMixin extends Vue {
+  // 从后端更新data返回, 并储存本地
+  async updateStoreData(
+    updateDataApi: Function,
+    params: any,
+    localKey: string,
+    localProp: string
+  ) {
+    let data: any = null
+    const res = await updateDataApi(params)
+    if (resSuccess(res)) {
+      data = res.data[localProp]
+      console.log(localKey, "get network")
+      Forage.setLocalForage(localKey, data)
+    }
+    return data
+  }
+  // 获取data, 先从本地，在从后端
+  async getData(
+    updateData: Function,
+    params: any,
+    localKey: string,
+    max_minute?: number
+  ) {
+    let resData: any = null
+    await Forage.getVailLocalForage(localKey, max_minute).then(async data => {
+      if (data) {
+        console.log(localKey, "get localForage")
+        resData = data
+      } else {
+        // 从后端更新data
+        // 分离出去, 不要都一个函数做!!!
+        // updateData 需要自己setLocal
+        // 参数个数 > 1 且params 为数组
+        if (updateData.length > 1 && Array.isArray(params)) {
+          resData = await updateData(...params)
+        } else {
+          resData = await updateData(params)
+        }
+      }
+    })
+    return resData
+  }
   get isLogin(): boolean {
     return UserModule.isLogin
   }
-
   hasPermission(value: string[]): boolean {
     return hasPermission(value, UserModule.roles)
+  }
+}
+
+@Component({
+  mixins: [CommonMixin]
+})
+export class LearnCompetMixin extends Vue {
+  updateStoreData!: UpdateStoreDataType
+  getData!: GetDataType
+  // 从后端更新NavData, 并存本地
+  async updateNavData(getNavData: Function, localKey: string) {
+    return this.updateStoreData(getNavData, undefined, localKey, "navData")
+  }
+  // 获取NavData, 并存本地
+  async getNavData(getNavData: Function, localKey: string) {
+    return this.getData(
+      this.updateNavData,
+      [getNavData, localKey],
+      localKey,
+      24 * 60
+    )
   }
 }
 

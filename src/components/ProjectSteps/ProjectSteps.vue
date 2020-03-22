@@ -119,7 +119,7 @@ interface StepsFromType {
 })
 // TODO: 还有很多逻辑需完善，晚安！
 export default class extends Vue {
-  @Prop({ required: false, default: { power: false } }) steps_obj!: StepsObjType
+  @Prop({ required: false }) steps_obj!: StepsObjType
   @Prop({ required: true, default: false }) isPermission!: boolean
   plan_name: string = ""
   steps_data: StepsDataType = []
@@ -220,9 +220,9 @@ export default class extends Vue {
   }
 
   created() {
-    this.steps_data = this.steps_obj.steps_data
+    this.steps_data = this.steps_obj.stepsData
     this.activeNum = this.steps_obj.activeNum
-    this.plan_name = this.steps_obj.plan_name
+    this.plan_name = this.steps_obj.planName
   }
 }
 </script>

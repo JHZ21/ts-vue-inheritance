@@ -1,11 +1,11 @@
 <template>
   <div class="competition-box">
     <div class="competition-content">
-      <div class="project-name"> {{project_name}}
+      <div class="project-name"> {{PName}}
       </div>
       <section class="project-content">
         <div class="project-content-item"
-          v-for="(content_item, item_k) in content_items"
+          v-for="(content_item, item_k) in content"
           :key="item_k">
           <div class="item-title">{{content_item.title}}</div>
           <div class="item-content">
@@ -15,15 +15,15 @@
         </div>
       </section>
       <section class="project-team">
-        <div class="team-name">{{team.team_name}}</div>
+        <div class="team-name">{{TName}}</div>
         <div class="members-box">
           <div class="team-member"
-            v-for="(member, index) in team.members"
-            :key="index">
+            v-for="member in team"
+            :key="member.userId">
             <div class="member-info">
               <div class="portrait-wrapper">
                 <div class="portrait"
-                  :style="{ backgroundImage: `url(${member.portrait})`}"></div>
+                  :style="{ backgroundImage: `url(${member.headUrl})`}"></div>
               </div>
               <div class="introduce">
                 <p v-for="(str, str_k) in member.introduce"
@@ -50,20 +50,20 @@
             </span>
           </el-row>
           <div class="project-steps-wrapper"
-            v-for="(steps_obj, key) in steps_objs"
-            :key="steps_obj.id">
+            v-for="(steps_obj, key) in stepsList"
+            :key="steps_obj.pleanId">
             <project-steps class="project-steps"
               :steps_obj="steps_obj"
-              :isPermission="hasPermission(['admin',id_members[0], steps_obj.master])"
-              :key="steps_obj.id"></project-steps>
+              :isPermission="hasPermission(['admin',id_members[0], steps_obj.master.userId])"
+              :key="steps_obj.pleanId"></project-steps>
             <el-row class="icon-row"
               v-if='hasPermission(["admin", ...id_members])'>
               <span class="btns-wrapper">
-                <el-button v-if='hasPermission(["admin", id_members[0], steps_obj.master])'
+                <el-button v-if='hasPermission(["admin", id_members[0], steps_obj.master.userId])'
                   icon="el-icon-remove"
                   class="danger-btn"
-                  :title="`delete ${steps_obj.plan_name}`"
-                  @click="remove_project_step(key, steps_obj.plan_name)"
+                  :title="`delete ${steps_obj.planName}`"
+                  @click="remove_project_step(key, steps_obj.planName)"
                   circle></el-button>
                 <el-button v-if='hasPermission(["admin", ...id_members])'
                   icon="el-icon-circle-plus"
@@ -89,9 +89,11 @@ import {
   ProjectTeamType
 } from "./type"
 import { UserModule } from "@/store/modules/user"
-import { id_random } from "@/utils/func"
-import { getProjectContent } from "@/api/compet"
+import { id_random, resSuccess } from "@/utils/func"
+import * as Compet from "@/api/compet"
+import * as Forage from "@/utils/localForage"
 import { CommonMixin } from "@/utils/mixins"
+import { UpdateStoreDataType, GetDataType } from "@/utils/interface"
 
 @Component({
   name: "CompetitionContent",
@@ -102,62 +104,78 @@ import { CommonMixin } from "@/utils/mixins"
 })
 export default class extends Vue {
   user_id: string = ""
-  project_id: string = ""
-  project_name: string = ""
-  content_items: ProjectContentItemType[] = []
-  team: ProjectTeamType = {
-    team_name: "",
-    members: []
-  }
+  PId: string = ""
+  PName: string = ""
+  TName: string = ""
+  content: ProjectContentItemType[] = []
+  team: ProjectTeamType = []
   default_step_data: StepDataType = {
     deadline: "2-21-2020",
     description:
       "这是一段很长很长很长的描述性文字。这是一段很长很长很长的描述性文字。"
   }
   // TODO: 不赋值初值，属性就无法响应！！！
-  steps_objs: StepsObjType[] = []
+  stepsList: StepsObjType[] = []
   get id_members(): string[] {
     let ids: string[] = []
-    if (this.team && this.team.members) {
-      ids = this.team.members.map(member => member.id)
+    if (this.team && this.team) {
+      ids = this.team.map(member => member.userId)
     }
     return ids
   }
   default_steps_obj(): StepsObjType {
-    let id = id_random()
+    let pleanId = id_random()
     return {
-      plan_name: `计划${id}`,
-      power: false,
-      steps_data: Array(4).fill(this.default_step_data),
+      planName: `计划${pleanId}`,
+      stepsData: Array(4).fill(this.default_step_data),
       activeNum: 2,
-      id,
-      master: this.user_id
+      pleanId,
+      master: { userId: this.user_id }
     }
   }
   remove_project_step(plan_key: number, plan_name: string) {
     let is_delete = confirm(`确定删除计划: ${plan_name}!`)
     if (is_delete) {
-      this.steps_objs.splice(plan_key, 1)
+      this.stepsList.splice(plan_key, 1)
     }
   }
   plus_project_step(plan_key: number) {
     // plan_key = -1, 则往头部添加
-    this.steps_objs.splice(plan_key + 1, 0, this.default_steps_obj())
+    this.stepsList.splice(plan_key + 1, 0, this.default_steps_obj())
+  }
+  // 从后端更新project
+  projectLocalKey(PId: string) {
+    return `project-${PId}`
+  }
+  updateStoreData!: UpdateStoreDataType
+  // update 且 setlocal
+  async updateStoreCompetProject(PId: string) {
+    const localKey = this.projectLocalKey(PId)
+    return this.updateStoreData(Compet.getProject, { PId }, localKey, "project")
+  }
+  async updateSetCompetProject(PId: string) {
+    this.setProject(await this.updateStoreCompetProject(PId))
+  }
+  getData!: GetDataType
+  async getCompetProject(PId: string) {
+    return this.getData(this.updateStoreCompetProject, PId, `project-${PId}`)
+  }
+  async getSetProject(PId: string) {
+    this.setProject(await this.getCompetProject(PId))
+  }
+  // 分离 set
+  // TODO: 项目块名，也应使用后端的数据
+  setProject(project: any) {
+    if (!project) return ""
+    this.PName = project.PName || "项目名"
+    this.TName = project.TName || "队名"
+    this.content = project.content || []
+    this.team = project.team || []
+    this.stepsList = project.stepsList || []
   }
   created() {
-    this.project_id = this.$route.params.id
-    let params: object = {
-      project_id: this.project_id
-    }
-    getProjectContent(params).then(res => {
-      let data = res.data
-      let { project_name, content_items, team, steps_objs } = data
-
-      this.project_name = project_name
-      this.content_items = content_items
-      this.team = team
-      this.steps_objs = steps_objs
-    })
+    this.PId = this.$route.params.id
+    this.getSetProject(this.PId)
     this.user_id = UserModule.roles[0]
   }
 }
