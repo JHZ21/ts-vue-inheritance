@@ -6,13 +6,15 @@ interface ProjectContentItemType {
 }
 
 interface ProjectMemberType {
-  id: string
-  portrait: string
+  PId: string
+  userId: string
+  index?: number
+  headUrl: string
   introduce: string[]
   contribution: string[]
 }
 
-interface ProjectTeamType {
-  team_name: string
-  members: ProjectMemberType[]
-}
+type ProjectTeamType = ProjectMemberType[]
+// interface ProjectTeamType {
+//   members: ProjectMemberType[]
+// }

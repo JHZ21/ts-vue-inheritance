@@ -63,7 +63,6 @@ class User extends VuexModule implements IUserState {
   @Action
   public async GetUserInfo() {
     const res: any = await getUserInfo()
-    console.log("GetUserInfo", res)
     if (resSuccess(res)) {
       const userInfo: any = res.data.userInfo
       userInfo.isLogin = true
