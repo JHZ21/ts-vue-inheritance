@@ -12,6 +12,7 @@ import { resSuccess } from "@/utils/func"
 
 export interface IUserState {
   isLogin: boolean
+  userId: string
   name: string
   headUrl: string
   roles: string[]
@@ -20,6 +21,7 @@ export interface IUserState {
 @Module({ dynamic: true, store, name: "user" })
 class User extends VuexModule implements IUserState {
   public isLogin = false
+  public userId = ""
   public name = ""
   public headUrl = ""
   public roles: string[] = [] // roles[0] 是 用户的id
@@ -27,6 +29,11 @@ class User extends VuexModule implements IUserState {
   @Mutation
   private SET_ISLOGIN(isLogin: boolean) {
     this.isLogin = isLogin
+  }
+
+  @Mutation
+  private SET_USERID(userId: string) {
+    this.userId = userId
   }
 
   @Mutation
@@ -47,6 +54,7 @@ class User extends VuexModule implements IUserState {
   @Action
   public SetUserInfo(userInfo: UserInfoType) {
     this.SET_ISLOGIN(userInfo.isLogin)
+    this.SET_USERID(userInfo.userId)
     this.SET_NAME(userInfo.name)
     this.SET_HEADURL(userInfo.headUrl)
     this.SET_ROLES(userInfo.roles)
@@ -55,6 +63,7 @@ class User extends VuexModule implements IUserState {
   public UserSignOut() {
     this.SetUserInfo({
       isLogin: false,
+      userId: "",
       name: this.name,
       headUrl: require("@/assets/images/gray.jpg"),
       roles: ["tourist"]

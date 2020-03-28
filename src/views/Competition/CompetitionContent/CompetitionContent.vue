@@ -15,7 +15,7 @@
         </div>
       </section>
       <section class="project-team">
-        <div class="team-name">{{TName}}</div>
+        <div class="team-name">团队: {{TName}}</div>
         <div class="members-box">
           <div class="team-member"
             v-for="member in team"
@@ -176,7 +176,7 @@ export default class extends Vue {
   created() {
     this.PId = this.$route.params.id
     this.getSetProject(this.PId)
-    this.user_id = UserModule.roles[0]
+    this.user_id = UserModule.userId
   }
 }
 </script>
