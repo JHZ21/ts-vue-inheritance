@@ -37,7 +37,7 @@
           :page-size="pageCardSize"
           :total="selected_eara_cardList.length"
           :current-page.sync="currentPage"></el-pagination>
-        <add-card title="分享链接"
+        <submit-form title="分享链接"
           v-if="isLogin"
           :prop_form="form"
           @init_form_data="init_form_data"
@@ -70,7 +70,7 @@
               </el-upload>
             </el-form-item>
           </el-form>
-        </add-card>
+        </submit-form>
       </div>
     </div>
   </main>
@@ -91,7 +91,7 @@ import * as Learn from "@/api/learn"
 import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
-import AddCard from "@/components/AddCard.vue"
+import SubmitForm from "@/components/SubmitForm.vue"
 import { deep_copy, props_not_empty, vaild_local } from "@/utils/func"
 import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import {
@@ -116,7 +116,7 @@ interface ArticleFormType {
     NavMenu,
     SearchInput,
     OpenNewTab,
-    AddCard,
+    SubmitForm,
     SortSelectionBar
   },
   mixins: [AddCardMixin, CommonMixin, LearnCompetMixin]

@@ -39,18 +39,12 @@
                 v-model="form.plan_name"
                 autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item class="form-step-num"
-              label="规划阶段数目"
-              :label-width="formLabelWidth">
-              <el-input type="number"
-                min="1"
-                max="20"
-                step="1"
-                v-model="form.step_num"
-                :autofocus="true"
-                autocomplete="off"></el-input>
-              <el-button @click="make_from_step_tables">确认</el-button>
-            </el-form-item>
+            <update-form-num label="规划阶段数目"
+              ref="updateFormNum"
+              label-width="formLabelWidth"
+              :num="form.step_num"
+              @update-form-num="updateFormStepTables">
+            </update-form-num>
             <div class="step-tables-wrapper"
               ref="step-tables">
               <div class="step-table-item"
@@ -93,6 +87,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator"
 import { StepDataType, StepsDataType, StepsObjType } from "@/utils/interface"
+import UpdateFormNum from "@/components/UpdateFormNum.vue"
 
 enum StepStatus {
   wait,
@@ -115,7 +110,10 @@ interface StepsFromType {
 }
 
 @Component({
-  name: "ProjectSteps"
+  name: "ProjectSteps",
+  components: {
+    UpdateFormNum
+  }
 })
 // TODO: 还有很多逻辑需完善，晚安！
 export default class extends Vue {
@@ -150,10 +148,13 @@ export default class extends Vue {
     this.form.step_num--
   }
   open_dialog_form() {
-    this.form.plan_name = this.plan_name
-    this.form.step_num = this.steps_data.length
+    this.initFormStepTables()
     this.dialogFormVisible = true
-    this.init_form_step_tables()
+  }
+  initUpdateFormNum() {
+    this.$nextTick(() => {
+      ;(this.$refs.updateFormNum as any).init()
+    })
   }
   close_dialog_form() {
     this.dialogFormVisible = false
@@ -168,8 +169,11 @@ export default class extends Vue {
       this.activeNum++
     }
   }
-  init_form_step_tables() {
+  initFormStepTables() {
+    this.form.plan_name = this.plan_name
+    this.form.step_num = this.steps_data.length
     this.form.step_tables = this.adapter_form_step_tables(this.steps_data)
+    this.initUpdateFormNum()
   }
   adapter_form_step_tables(steps_data: StepsDataType): StepTablesType {
     return steps_data.map(step_data => ({
@@ -188,15 +192,14 @@ export default class extends Vue {
     // TODO: 验证无空value
     this.plan_name = this.form.plan_name
     this.steps_data = this.adapter_steps_date(this.form.step_tables)
+
     if (this.activeNum > this.steps_data.length) {
       this.activeNum = this.steps_data.length
     }
     this.close_dialog_form()
   }
-  make_from_step_tables() {
-    this.init_form_step_tables()
+  updateFormStepTables(target_num: number) {
     const curr_num: number = this.form.step_tables.length
-    const target_num: number = this.form.step_num
     let n: number = target_num - curr_num
     const step_tables: any[] = this.form.step_tables
     if (n > 0) {

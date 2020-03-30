@@ -39,7 +39,11 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator"
 import { LearnModule, oContentUrlType } from "@/store/modules/learn.ts"
-import { CommentInfoType } from "@/utils/interface"
+import {
+  CommentInfoType,
+  UpdateStoreDataType,
+  GetDataType
+} from "@/utils/interface"
 import CommentBox from "@/components/CommentBox.vue"
 import { getLearnContent } from "@/api/learn"
 import {
@@ -47,12 +51,14 @@ import {
   getVailLocalForage,
   setLocalForage
 } from "@/utils/localForage"
+import { CommonMixin } from "@/utils/mixins"
 
 @Component({
   name: "LearnContent",
   components: {
     CommentBox
-  }
+  },
+  mixins: [CommonMixin]
 })
 export default class extends Vue {
   content_id: string = ""
@@ -80,6 +86,9 @@ export default class extends Vue {
     this.myCommentText = ""
     keyup || (this.showSendBtn = false)
   }
+
+  updateStoreData!: UpdateStoreDataType
+  getData!: GetDataType
   getArticelUrl() {
     const articleKey: string = `article-${this.content_id}`
     return getVailLocalForage(articleKey, 24 * 60).then(data => {

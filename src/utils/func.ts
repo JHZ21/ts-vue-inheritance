@@ -1,5 +1,26 @@
 import { LinkElement } from "./interface"
 
+// 寻找左数组与右数组不同的值
+export function leftArrayDiff<T>(
+  leftArr: T[],
+  rightArr: T[],
+  sameFnc?: (a: any, b: any) => boolean
+): T[] {
+  return leftArr.filter(leftItem => {
+    return !rightArr.some(rightItem =>
+      sameFnc ? sameFnc(leftItem, rightItem) : leftItem === rightItem
+    )
+  })
+}
+
+export function isDef(data: any): boolean {
+  return data !== undefined && data !== null
+}
+
+export function isUndef(data: any): boolean {
+  return !isDef(data)
+}
+
 // 纯函数
 export const hasPermission = (value: string[], roles: string[]): boolean => {
   let permission: boolean = false

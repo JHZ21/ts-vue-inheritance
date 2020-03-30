@@ -49,7 +49,7 @@
           :current-page.sync="currentPage">
 
         </el-pagination>
-        <add-card title="新增项目"
+        <submit-form title="新增项目"
           v-if="isLogin"
           :prop_form="form"
           @init_form_data="init_form_data"
@@ -90,7 +90,7 @@
               </el-upload>
             </el-form-item>
           </el-form>
-        </add-card>
+        </submit-form>
       </div>
     </main>
   </div>
@@ -109,7 +109,7 @@ import {
 import * as Compet from "@/api/compet"
 import ProjectCardVue from "@/components/ProjectCard/ProjectCard.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
-import AddCard from "@/components/AddCard.vue"
+import SubmitForm from "@/components/SubmitForm.vue"
 import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import axios from "axios"
 import { deep_copy, resSuccess } from "@/utils/func"
@@ -138,7 +138,7 @@ interface ProjectFormType {
     SearchInput,
     ProjectCard,
     OpenNewTab,
-    AddCard
+    SubmitForm
   },
   mixins: [AddCardMixin, CommonMixin, LearnCompetMixin]
 })

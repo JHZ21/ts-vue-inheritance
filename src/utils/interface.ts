@@ -27,6 +27,7 @@ export interface ReadType {
 }
 export interface UserInfoType {
   isLogin: boolean
+  userId: string
   name: string
   headUrl: string
   roles: string[]

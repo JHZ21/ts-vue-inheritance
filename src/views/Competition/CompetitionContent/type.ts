@@ -1,11 +1,15 @@
-export { ProjectContentItemType, ProjectMemberType, ProjectTeamType }
+// export { ProjectContentItemType, ProjectMemberType, ProjectTeamType }
 
-interface ProjectContentItemType {
+export interface PjContentItemType {
+  PId: string
+  index: number
   title: string
-  content: string[]
+  content: string | string[]
+  time: number
+  show?: boolean
 }
 
-interface ProjectMemberType {
+export interface ProjectMemberType {
   PId: string
   userId: string
   index?: number
@@ -14,7 +18,7 @@ interface ProjectMemberType {
   contribution: string[]
 }
 
-type ProjectTeamType = ProjectMemberType[]
+export type ProjectTeamType = ProjectMemberType[]
 // interface ProjectTeamType {
 //   members: ProjectMemberType[]
 // }
