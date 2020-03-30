@@ -1,5 +1,13 @@
 import { LinkElement } from "./interface"
 
+export function isDef(data: any): boolean {
+  return data !== undefined && data !== null
+}
+
+export function isUndef(data: any): boolean {
+  return !isDef(data)
+}
+
 // 纯函数
 export const hasPermission = (value: string[], roles: string[]): boolean => {
   let permission: boolean = false

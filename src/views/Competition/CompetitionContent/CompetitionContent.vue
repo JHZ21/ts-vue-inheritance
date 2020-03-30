@@ -13,6 +13,35 @@
               :key="i">{{str}}</p>
           </div>
         </div>
+        <submit-form class="section-submit-form"
+          title="项目内容更改"
+          openText="修改项目内容"
+          :prop_form="const_contentForms"
+          @init_form_data="initContentForms"
+          @upload_form_data="updatePjContent">
+          <el-form>
+            <update-form-num label="项目内容数目"
+              :label-width="formLabelWidth"
+              ref="contentForm"
+              :num="const_contentForms.num"
+              @update-form-num="changeContentFormNum">
+            </update-form-num>
+            <div v-for="(item, index) in const_contentForms.contents"
+              :key="item.title||index">
+              <el-form-item>
+                <el-input type="text"
+                  placeholder="小标题"
+                  v-model="item.title"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-input type="textarea"
+                  :autosize="{minRows: 2, maxRows: 4}"
+                  placeholder="快输入点什么东西吧"
+                  v-model="item.content"></el-input>
+              </el-form-item>
+            </div>
+          </el-form>
+        </submit-form>
       </section>
       <section class="project-team">
         <div class="team-name">团队: {{TName}}</div>
@@ -89,16 +118,27 @@ import {
   ProjectTeamType
 } from "./type"
 import { UserModule } from "@/store/modules/user"
-import { id_random, resSuccess } from "@/utils/func"
+import { id_random, resSuccess, deep_copy, isDef, isUndef } from "@/utils/func"
 import * as Compet from "@/api/compet"
 import * as Forage from "@/utils/localForage"
 import { CommonMixin } from "@/utils/mixins"
 import { UpdateStoreDataType, GetDataType } from "@/utils/interface"
+import SubmitForm from "@/components/SubmitForm.vue"
+import UpdateFormNum from "@/components/UpdateFormNum.vue"
+// import { Form } from "element-ui"
+
+interface PjContentFormsType {
+  dialogFormVisible: boolean
+  num: number
+  contents: ProjectContentItemType[]
+}
 
 @Component({
   name: "CompetitionContent",
   components: {
-    ProjectSteps
+    ProjectSteps,
+    SubmitForm,
+    UpdateFormNum
   },
   mixins: [CommonMixin]
 })
@@ -113,6 +153,76 @@ export default class extends Vue {
     deadline: "2-21-2020",
     description:
       "这是一段很长很长很长的描述性文字。这是一段很长很长很长的描述性文字。"
+  }
+  const_contentForms: PjContentFormsType = {
+    dialogFormVisible: false,
+    num: 1,
+    contents: []
+  }
+  formLabelWidth: string = "120px"
+  defaultContentForm: ProjectContentItemType = {
+    title: "",
+    content: ""
+  }
+  setContentForms(forms: any) {
+    if (isUndef(forms)) return
+    if (isDef(forms.dialogFormVisible)) {
+      this.const_contentForms.dialogFormVisible = forms.dialogFormVisible
+    }
+    if (typeof forms.num === "number") {
+      this.const_contentForms.num = forms.num
+    }
+    if (isDef(forms.contents)) {
+      this.const_contentForms.contents = forms.contents
+    }
+  }
+  updatePjContent() {
+    this.contentGetContentForms()
+    this.setContentForms({ dialogFormVisible: false })
+  }
+  contentGetContentForms() {
+    const contents: ProjectContentItemType[] = deep_copy(
+      this.const_contentForms.contents
+    )
+    this.content = contents.map(item => {
+      if (typeof item.content === "string") {
+        item.content = item.content.split("\n")
+      }
+      return item
+    })
+  }
+  initContentForms() {
+    let contents: ProjectContentItemType[] = deep_copy(this.content)
+    contents = contents.map(item => {
+      if (item.content instanceof Array) {
+        item.content = item.content.join("\n")
+      }
+      return item
+    })
+
+    this.setContentForms({ contents, num: contents.length })
+    this.initContentFormVue()
+  }
+  initContentFormVue() {
+    this.$nextTick(() => {
+      let contentFormVue: any
+      if ((contentFormVue = this.$refs.contentForm)) {
+        contentFormVue.init()
+      }
+    })
+  }
+  changeContentFormNum(num: number) {
+    console.log("changeContentFormNum num:", num)
+    const contents: ProjectContentItemType[] = this.const_contentForms.contents
+    let len: number = contents.length
+    if (len > num) {
+      contents.splice(num, contents.length - num)
+    } else if (len < num) {
+      while (len++ < num) {
+        contents.push(deep_copy(this.defaultContentForm))
+        if (len > 20) break
+      }
+    }
   }
   // TODO: 不赋值初值，属性就无法响应！！！
   stepsList: StepsObjType[] = []

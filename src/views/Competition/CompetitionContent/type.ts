@@ -2,7 +2,7 @@ export { ProjectContentItemType, ProjectMemberType, ProjectTeamType }
 
 interface ProjectContentItemType {
   title: string
-  content: string[]
+  content: string | string[]
 }
 
 interface ProjectMemberType {

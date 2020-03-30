@@ -1,11 +1,16 @@
 <template>
   <div class="add-card-box">
-    <el-button circle
+    <el-button v-if="openText"
+      type="text"
+      @click="open_dialog()">{{openText}}</el-button>
+    <el-button v-else
+      circle
       size="small"
       class="add-btn"
       type="primary"
       icon="el-icon-circle-plus-outline"
       @click="open_dialog()"></el-button>
+
     <el-dialog :title="title"
       class="dialog"
       :modal-append-to-body="false"
@@ -26,11 +31,12 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator"
 import { deep_copy, props_not_empty } from "@/utils/func"
 
 @Component({
-  name: "AddCard"
+  name: "SubmitForm"
 })
 export default class extends Vue {
   @Prop() title!: string
   @Prop() prop_form!: any
+  @Prop({ required: false }) openText!: string
   // form: any = {
   //   img: null,
   //   dialogFormVisible: false
@@ -50,6 +56,7 @@ export default class extends Vue {
     }
   }
   open_dialog() {
+    this.$emit("init_form_data")
     this.form.dialogFormVisible = true
   }
   cancel() {
