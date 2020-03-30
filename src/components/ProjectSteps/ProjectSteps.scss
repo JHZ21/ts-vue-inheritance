@@ -68,10 +68,7 @@
     }
   }
   .step-tables-wrapper {
-    padding-right: 20px;
-    max-height: 360px;
-    overflow-y: auto;
-    @include webkit-scrollbar;
+    @include dynamic-form-wrapper();
     .step-table-item {
       position: relative;
       .delete-btn {

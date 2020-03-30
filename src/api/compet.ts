@@ -2,6 +2,14 @@ import axios from "axios"
 
 const basePath = `${process.env.VUE_APP_BASE_API}`
 
+export function updatePjContents(data: any) {
+  return axios({
+    method: "POST",
+    url: `${basePath}/compet/updatePjContents`,
+    data
+  })
+}
+
 export const getProject = (data: any) =>
   axios({
     method: "POST",
