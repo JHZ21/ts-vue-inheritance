@@ -46,11 +46,7 @@ import {
 } from "@/utils/interface"
 import CommentBox from "@/components/CommentBox.vue"
 import { getLearnContent } from "@/api/learn"
-import {
-  getLocalForage,
-  getVailLocalForage,
-  setLocalForage
-} from "@/utils/localForage"
+import * as Forage from "@/utils/localForage"
 import { CommonMixin } from "@/utils/mixins"
 
 @Component({
@@ -91,7 +87,7 @@ export default class extends Vue {
   getData!: GetDataType
   getArticelUrl() {
     const articleKey: string = `article-${this.content_id}`
-    return getVailLocalForage(articleKey, 24 * 60).then(data => {
+    return Forage.getVailLocalForage(articleKey, 30).then(data => {
       if (data && (data as { articleUrl: string }).articleUrl) {
         console.log("getVailLocalForage", articleKey)
         this.contentUrl = (data as { articleUrl: string }).articleUrl
@@ -108,7 +104,7 @@ export default class extends Vue {
             } = res.data.content
             this.contentUrl = data.articleUrl
             this.comment_infos = data.comments
-            setLocalForage(articleKey, {
+            Forage.setLocalForage(articleKey, {
               articleUrl: data.articleUrl,
               comments: data.comments
             })

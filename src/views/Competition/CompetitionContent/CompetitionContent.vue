@@ -1,8 +1,21 @@
 <template>
   <div class="competition-box">
     <div class="competition-content">
-      <div class="project-name"> {{PName}}
-      </div>
+      <section class="project-name"> {{PName}}
+        <submit-form class="section-submit-form"
+          v-if="hasPermission(['admin', id_members[0]])"
+          title="项目名"
+          openText="修改项目名"
+          :prop_form="PNameForm"
+          @init_form_data="initPNameForm"
+          @upload_form_data="updatePNameForm">
+          <el-form>
+            <el-input type="text"
+              v-model="PNameForm.PName">
+            </el-input>
+          </el-form>
+        </submit-form>
+      </section>
       <section class="project-content">
         <div class="project-content-item"
           v-for="(content_item, item_k) in contents"
@@ -110,6 +123,7 @@
               <span class="btns-wrapper">
                 <el-button v-if='hasPermission(["admin", id_members[0], steps_obj.master.userId])'
                   icon="el-icon-remove"
+                  type="danger"
                   class="danger-btn"
                   :title="`delete ${steps_obj.planName}`"
                   @click="remove_project_step(key, steps_obj.planName)"
@@ -175,6 +189,10 @@ export default class extends Vue {
     description:
       "这是一段很长很长很长的描述性文字。这是一段很长很长很长的描述性文字。"
   }
+  PNameForm = {
+    dialogFormVisible: false,
+    PName: ""
+  }
   contentForms: ContentFormsType = {
     dialogFormVisible: false,
     contents: [
@@ -188,6 +206,28 @@ export default class extends Vue {
     ]
   }
   formLabelWidth: string = "120px"
+
+  // PNameForm
+  initPNameForm() {
+    console.log("initPNameForm: ")
+    this.PNameForm.PName = this.PName
+  }
+  async updatePNameForm() {
+    let formPName: string = this.PNameForm.PName
+    if (!formPName || this.PName === formPName) return
+    // update 后端
+    // ...
+    const res = await Compet.updatePName({ PId: this.PId, PName: formPName })
+    if (resSuccess(res)) {
+      this.PName = formPName
+      this.PNameForm.dialogFormVisible = false
+      // 更新本地储存
+      this.updateLocalProject({ PName: formPName })
+    } else {
+      alert("提交失败")
+    }
+  }
+
   // contentForms 模块
   contentOpenDialog() {
     this.initContentForms()
@@ -280,14 +320,27 @@ export default class extends Vue {
     if (resSuccess(res)) {
       this.contents = contents
       // 更新本地存储
-      const localPjKey: string = this.projectLocalKey(this.PId)
-      const project: any = (await Forage.getLocalForage(localPjKey)) || {}
-      project.contents = contents
-      Forage.setLocalForage(localPjKey, project)
+      // const localPjKey: string = this.projectLocalKey(this.PId)
+      // const project: any = (await Forage.getLocalForage(localPjKey)) || {}
+      // project.contents = contents
+      // Forage.setLocalForage(localPjKey, project)
+      this.updateLocalProject({ contents })
       this.setContentForms({ dialogFormVisible: false })
     } else {
       alert("提交失败")
     }
+  }
+  async updateLocalProject(newProject: any) {
+    if (isUndef(newProject)) return
+    const { PName, PSummary, contents, team, stepsList } = newProject
+    const localPjKey: string = this.projectLocalKey(this.PId)
+    const project: any = (await Forage.getLocalForage(localPjKey)) || {}
+    PName && (project.PName = PName)
+    PSummary && (project.PSummary = PSummary)
+    contents && (project.contents = contents)
+    team && (project.team = team)
+    stepsList && (project.stepsList = stepsList)
+    Forage.setLocalForage(localPjKey, project)
   }
   // TODO: 不赋值初值，属性就无法响应！！！
   stepsList: StepsObjType[] = []
