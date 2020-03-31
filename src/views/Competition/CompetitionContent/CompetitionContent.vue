@@ -26,7 +26,7 @@
               :key="i">{{str}}</p>
           </div>
         </div>
-        <div class="section-submit-form"
+        <!-- <div class="section-submit-form"
           v-if="hasPermission(['admin', ...id_members])">
           <el-button type="text"
             @click="contentOpenDialog()">修改项目内容</el-button>
@@ -74,7 +74,49 @@
               </el-form-item>
             </el-form>
           </el-dialog>
-        </div>
+        </div> -->
+        <!-- :model="contentForms"
+          :label-width="formLabelWidth"
+          @submitForm="contentSubmitForm"
+          @addItem="contentAddItem" -->
+        <dialog-dynamic-form ref="contentForms"
+          :visible.sync="contentForms.dialogFormVisible"
+          :model="contentForms"
+          :label-width="formLabelWidth"
+          @open-dialog="contentOpenDialog"
+          @submit-form="contentSubmitForm"
+          @add-item="contentAddItem">
+          <div class="input-from-wrapper">
+            <div v-for="(item, index) in contentForms.contents"
+              :key="item.time|| index">
+              <el-form-item :label="'内容块' + (index+1)"
+                :prop="`contents[${index}].title`"
+                :rules="{
+                  required:true, message: '内容名不能为空', trigger: 'blur'
+                  }">
+                <el-input v-model="item.title"
+                  :readonly="index === 0"
+                  placeholder="小标题"></el-input>
+                <el-button type="danger"
+                  circle
+                  class="icon-btn"
+                  v-if="index !==0"
+                  icon="el-icon-delete"
+                  @click.prevent="contentRemoveItem(item)"></el-button>
+              </el-form-item>
+              <el-form-item :prop="`contents[${index}].content`"
+                :rules="{
+                  required: true, message: '内容不能为空', trigger: 'blur'
+                 }">
+                <el-input type="textarea"
+                  :rows="3"
+                  v-model="item.content"
+                  placeholder="快输入点什么东西吧">
+                </el-input>
+              </el-form-item>
+            </div>
+          </div>
+        </dialog-dynamic-form>
       </section>
       <section class="project-team">
         <div class="team-name">团队: {{TName}}</div>
@@ -162,6 +204,7 @@ import { CommonMixin } from "@/utils/mixins"
 import { UpdateStoreDataType, GetDataType } from "@/utils/interface"
 import SubmitForm from "@/components/SubmitForm.vue"
 import UpdateFormNum from "@/components/UpdateFormNum.vue"
+import DialogDynamicForm from "@/components/DialogDynamicForm.vue"
 
 interface ContentFormsType {
   dialogFormVisible: boolean
@@ -173,7 +216,8 @@ interface ContentFormsType {
   components: {
     ProjectSteps,
     SubmitForm,
-    UpdateFormNum
+    UpdateFormNum,
+    DialogDynamicForm
   },
   mixins: [CommonMixin]
 })
@@ -231,7 +275,7 @@ export default class extends Vue {
   // contentForms 模块
   contentOpenDialog() {
     this.initContentForms()
-    this.setContentForms({ dialogFormVisible: true })
+    // this.setContentForms({ dialogFormVisible: true })
   }
   contentRemoveItem(item: PjContentItemType) {
     const contents: PjContentItemType[] = this.contentForms.contents
@@ -240,8 +284,9 @@ export default class extends Vue {
       contents.splice(index, 1)
     }
   }
-  contentSubmitForm(formName: string) {
-    ;(this.$refs[formName] as any).validate((valid: boolean) => {
+  contentSubmitForm() {
+    const form: any = (this.$refs.contentForms as any).$refs.form
+    form.validate((valid: boolean) => {
       if (valid) {
         this.updatePjContent()
         alert("submit!")

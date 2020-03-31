@@ -8,11 +8,12 @@
   - slot
   - directives
   - mixins
-  - 
+  - Vue Property Decorator
 - Mockjs
 - style-resources-loader 全局导入 global.scss
 - https 加密传输
 - unit tests
+
 
 
 
