@@ -2,19 +2,23 @@
   <div class="competition-box">
     <div class="competition-content">
       <section class="project-name"> {{PName}}
-        <submit-form class="section-submit-form"
-          v-if="hasPermission(['admin', id_members[0]])"
+        <dialog-dynamic-form v-if="hasPermission(['admin', ...id_members[0]])"
+          :visible.sync="PNameForm.dialogFormVisible"
+          :model="PNameForm"
           title="项目名"
-          openText="修改项目名"
-          :prop_form="PNameForm"
-          @init_form_data="initPNameForm"
-          @upload_form_data="updatePNameForm">
-          <el-form>
+          open-text="修改项目名"
+          :is-add-btn="false"
+          @open-dialog="initPNameForm"
+          @submit-form="updatePNameForm">
+          <el-form-item prop="PName"
+            :rules="{
+              required:true, message: '项目名不能为空', trigger: 'blur'
+            }">
             <el-input type="text"
               v-model="PNameForm.PName">
             </el-input>
-          </el-form>
-        </submit-form>
+          </el-form-item>
+        </dialog-dynamic-form>
       </section>
       <section class="project-content">
         <div class="project-content-item"
@@ -26,68 +30,18 @@
               :key="i">{{str}}</p>
           </div>
         </div>
-        <!-- <div class="section-submit-form"
-          v-if="hasPermission(['admin', ...id_members])">
-          <el-button type="text"
-            @click="contentOpenDialog()">修改项目内容</el-button>
-          <el-dialog title="修改项目内容"
-            :modal-append-to-body="false"
-            :visible.sync="contentForms.dialogFormVisible">
-            <el-form :model="contentForms"
-              ref="contentForms"
-              :label-width="formLabelWidth"
-              class="dynamic-form">
-              <div class="input-from-wrapper">
-                <div v-for="(item, index) in contentForms.contents"
-                  :key="item.time|| index">
-                  <el-form-item :label="'内容块' + (index+1)"
-                    :prop="`contents[${index}].title`"
-                    :rules="{
-                  required:true, message: '内容名不能为空', trigger: 'blur'
-                  }">
-                    <el-input v-model="item.title"
-                      :readonly="index === 0"
-                      placeholder="小标题"></el-input>
-                    <el-button type="danger"
-                      circle
-                      class="icon-btn"
-                      v-if="index !==0"
-                      icon="el-icon-delete"
-                      @click.prevent="contentRemoveItem(item)"></el-button>
-                  </el-form-item>
-                  <el-form-item :prop="`contents[${index}].content`"
-                    :rules="{
-                  required: true, message: '内容不能为空', trigger: 'blur'
-                 }">
-                    <el-input type="textarea"
-                      :rows="3"
-                      v-model="item.content"
-                      placeholder="快输入点什么东西吧">
-                    </el-input>
-                  </el-form-item>
-                </div>
-              </div>
-              <el-form-item>
-                <el-button type="primary"
-                  @click="contentSubmitForm('contentForms')">提交</el-button>
-                <el-button @click="contentAddItem">新增内容块</el-button>
-              </el-form-item>
-            </el-form>
-          </el-dialog>
-        </div> -->
-        <!-- :model="contentForms"
+        <dialog-dynamic-form v-if="hasPermission(['admin', ...id_members])"
+          :visible.sync="contentsForm.dialogFormVisible"
+          :model="contentsForm"
           :label-width="formLabelWidth"
-          @submitForm="contentSubmitForm"
-          @addItem="contentAddItem" -->
-        <dialog-dynamic-form ref="contentForms"
-          :visible.sync="contentForms.dialogFormVisible"
-          :model="contentForms"
-          :label-width="formLabelWidth"
+          title="项目内容"
+          open-text="修改项目内容"
+          add-item-text="新增内容块"
           @open-dialog="contentOpenDialog"
-          @submit-form="contentSubmitForm"
+          @submit-form="submitContentsForm"
           @add-item="contentAddItem">
           <div class="input-from-wrapper">
-            <div v-for="(item, index) in contentForms.contents"
+            <div v-for="(item, index) in contentsForm.contents"
               :key="item.time|| index">
               <el-form-item :label="'内容块' + (index+1)"
                 :prop="`contents[${index}].title`"
@@ -140,6 +94,41 @@
             </div>
           </div>
         </div>
+        <dialog-dynamic-form v-if="hasPermission(['admin', ...id_members])"
+          :visible.sync="teamForm.dialogFormVisible"
+          :model="teamForm"
+          :label-width="formLabelWidth"
+          title="我的信息"
+          open-text="修改我的信息"
+          :is-add-btn="userId === id_members[0]"
+          add-item-text="新增成员"
+          @open-dialog="initTeamForm"
+          @submit-form="submitTeamForm"
+          @add-item="addMember">
+          <div class="input-from-wrapper">
+            <el-form-item label="介绍"
+              prop="me.introduce"
+              :rules="{
+                  required:true, message: '介绍不能为空', trigger: 'blur'
+                  }">
+              <el-input type="textarea"
+                :rows="5"
+                v-model="teamForm.me.introduce"
+                placeholder="快来写点什么吧..."></el-input>
+            </el-form-item>
+            <el-form-item label="团队贡献"
+              prop="me.contribution"
+              :rules="{
+                  required: true, message: '团队贡献不能为空', trigger: 'blur'
+                 }">
+              <el-input type="textarea"
+                :rows="5"
+                v-model="teamForm.me.contribution"
+                placeholder="快写入点什么吧...">
+              </el-input>
+            </el-form-item>
+          </div>
+        </dialog-dynamic-form>
       </section>
       <section class="project-code">
         <div class="code-title">项目</div>
@@ -222,22 +211,27 @@ interface ContentFormsType {
   mixins: [CommonMixin]
 })
 export default class extends Vue {
-  user_id: string = ""
+  userId: string = ""
   PId: string = ""
   PName: string = ""
   TName: string = ""
   contents: PjContentItemType[] = []
   team: ProjectTeamType = []
+
   default_step_data: StepDataType = {
     deadline: "2-21-2020",
     description:
       "这是一段很长很长很长的描述性文字。这是一段很长很长很长的描述性文字。"
   }
+  stepsList: StepsObjType[] = []
+
+  formLabelWidth: string = "120px"
+
   PNameForm = {
     dialogFormVisible: false,
     PName: ""
   }
-  contentForms: ContentFormsType = {
+  contentsForm: ContentFormsType = {
     dialogFormVisible: false,
     contents: [
       {
@@ -249,18 +243,47 @@ export default class extends Vue {
       }
     ]
   }
-  formLabelWidth: string = "120px"
 
+  teamForm = {
+    dialogFormVisible: false,
+    me: {
+      introduce: "",
+      contribution: ""
+    },
+    addMembers: [],
+    deleteDMembers: []
+  }
+  // TODO: 不赋值初值，属性就无法响应！！！
+
+  get id_members(): string[] {
+    let ids: string[] = []
+    if (this.team && this.team) {
+      ids = this.team.map(member => member.userId)
+    }
+    return ids
+  }
+
+  async updateLocalProject(newProject: any) {
+    if (isUndef(newProject)) return
+    const { PName, PSummary, contents, team, stepsList } = newProject
+    const localPjKey: string = this.projectLocalKey(this.PId)
+    const project: any = (await Forage.getLocalForage(localPjKey)) || {}
+    PName && (project.PName = PName)
+    PSummary && (project.PSummary = PSummary)
+    contents && (project.contents = contents)
+    team && (project.team = team)
+    stepsList && (project.stepsList = stepsList)
+    Forage.setLocalForage(localPjKey, project)
+  }
   // PNameForm
   initPNameForm() {
-    console.log("initPNameForm: ")
     this.PNameForm.PName = this.PName
   }
-  async updatePNameForm() {
+  async updatePNameForm(valid: boolean) {
+    if (!valid) return
     let formPName: string = this.PNameForm.PName
-    if (!formPName || this.PName === formPName) return
+    if (this.PName === formPName) return
     // update 后端
-    // ...
     const res = await Compet.updatePName({ PId: this.PId, PName: formPName })
     if (resSuccess(res)) {
       this.PName = formPName
@@ -272,34 +295,21 @@ export default class extends Vue {
     }
   }
 
-  // contentForms 模块
+  // contentsForm 模块
   contentOpenDialog() {
     this.initContentForms()
-    // this.setContentForms({ dialogFormVisible: true })
   }
   contentRemoveItem(item: PjContentItemType) {
-    const contents: PjContentItemType[] = this.contentForms.contents
+    const contents: PjContentItemType[] = this.contentsForm.contents
     let index = contents.indexOf(item)
     if (index !== -1) {
       contents.splice(index, 1)
     }
   }
-  contentSubmitForm() {
-    const form: any = (this.$refs.contentForms as any).$refs.form
-    form.validate((valid: boolean) => {
-      if (valid) {
-        this.updatePjContent()
-        alert("submit!")
-      } else {
-        console.log("error submit!!")
-        return false
-      }
-    })
-  }
   contentAddItem() {
-    this.contentForms.contents.push({
+    this.contentsForm.contents.push({
       PId: this.PId,
-      index: this.contentForms.contents.length,
+      index: this.contentsForm.contents.length,
       title: "",
       content: "",
       time: Date.now()
@@ -308,10 +318,10 @@ export default class extends Vue {
   setContentForms(forms: any) {
     if (isUndef(forms)) return
     if (isDef(forms.dialogFormVisible)) {
-      this.contentForms.dialogFormVisible = forms.dialogFormVisible
+      this.contentsForm.dialogFormVisible = forms.dialogFormVisible
     }
     if (isDef(forms.contents)) {
-      this.contentForms.contents = forms.contents
+      this.contentsForm.contents = forms.contents
     }
   }
   initContentForms() {
@@ -325,7 +335,7 @@ export default class extends Vue {
     this.setContentForms({ contents, num: contents.length })
   }
   contentFormsToContents(): PjContentItemType[] {
-    const contents: PjContentItemType[] = deep_copy(this.contentForms.contents)
+    const contents: PjContentItemType[] = deep_copy(this.contentsForm.contents)
     return contents.map((item, index) => {
       if (typeof item.content === "string") {
         item.content = item.content.split("\n")
@@ -354,7 +364,8 @@ export default class extends Vue {
     })
     return deletedContents
   }
-  async updatePjContent() {
+  async submitContentsForm(valid: boolean) {
+    if (!valid) return
     // update 后端
     const contents: PjContentItemType[] = this.contentFormsToContents()
     const deletedContents: PjContentItemType[] = this.deletedContents(contents)
@@ -365,37 +376,56 @@ export default class extends Vue {
     if (resSuccess(res)) {
       this.contents = contents
       // 更新本地存储
-      // const localPjKey: string = this.projectLocalKey(this.PId)
-      // const project: any = (await Forage.getLocalForage(localPjKey)) || {}
-      // project.contents = contents
-      // Forage.setLocalForage(localPjKey, project)
       this.updateLocalProject({ contents })
+      alert("提交成功")
       this.setContentForms({ dialogFormVisible: false })
     } else {
       alert("提交失败")
     }
   }
-  async updateLocalProject(newProject: any) {
-    if (isUndef(newProject)) return
-    const { PName, PSummary, contents, team, stepsList } = newProject
-    const localPjKey: string = this.projectLocalKey(this.PId)
-    const project: any = (await Forage.getLocalForage(localPjKey)) || {}
-    PName && (project.PName = PName)
-    PSummary && (project.PSummary = PSummary)
-    contents && (project.contents = contents)
-    team && (project.team = team)
-    stepsList && (project.stepsList = stepsList)
-    Forage.setLocalForage(localPjKey, project)
+
+  get teamMyIndex(): number {
+    return this.id_members.indexOf(this.userId)
   }
-  // TODO: 不赋值初值，属性就无法响应！！！
-  stepsList: StepsObjType[] = []
-  get id_members(): string[] {
-    let ids: string[] = []
-    if (this.team && this.team) {
-      ids = this.team.map(member => member.userId)
+  // teamForm 模块
+  initTeamForm() {
+    console.log("initTeamForm")
+    const { introduce, contribution } = this.team[this.teamMyIndex]
+    const { me } = this.teamForm
+    me.introduce = introduce.join("\n")
+    me.contribution = contribution.join("\n")
+  }
+  teamFormToMember(): ProjectMemberType {
+    const { me } = this.teamForm
+    const myInfo: ProjectMemberType = deep_copy(this.team[this.teamMyIndex])
+    myInfo.introduce = me.introduce.split("\n")
+    myInfo.contribution = me.contribution.split("\n")
+    return myInfo
+    // this.updateLocalProject({ team: this.team })
+  }
+  async submitTeamForm(valid: boolean) {
+    if (!valid) return
+    // udpate 后端
+    const res = await Compet.updateTeam({
+      PId: this.PId,
+      me: this.teamFormToMember(),
+      addMembers: null,
+      deletedMembers: null
+    })
+    if (resSuccess(res)) {
+      const { team } = res.data
+      if (team) {
+        this.team = team
+        this.updateLocalProject({ team })
+      }
+      alert("提交成功")
+      this.teamForm.dialogFormVisible = false
+    } else {
+      alert("提交失败")
     }
-    return ids
   }
+  addMember() {}
+
   default_steps_obj(): StepsObjType {
     let pleanId = id_random()
     return {
@@ -403,7 +433,7 @@ export default class extends Vue {
       stepsData: Array(4).fill(this.default_step_data),
       activeNum: 2,
       pleanId,
-      master: { userId: this.user_id }
+      master: { userId: this.userId }
     }
   }
   remove_project_step(plan_key: number, plan_name: string) {
@@ -449,7 +479,7 @@ export default class extends Vue {
   created() {
     this.PId = this.$route.params.id
     this.getSetProject(this.PId)
-    this.user_id = UserModule.userId
+    this.userId = UserModule.userId
   }
 }
 </script>

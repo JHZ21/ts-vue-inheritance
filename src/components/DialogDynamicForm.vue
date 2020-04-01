@@ -1,9 +1,8 @@
 <template>
   <aside class="section-submit-form">
     <el-button type="text"
-      @click="openDialog()">修改项目内容</el-button>
-    <el-dialog title="修改项目内容"
-      v-bind="$attrs"
+      @click="openDialog()">{{openText}}</el-button>
+    <el-dialog v-bind="$attrs"
       v-on="$listeners"
       :modal-append-to-body="false">
       <el-form class="dynamic-form"
@@ -15,7 +14,8 @@
         <el-form-item>
           <el-button type="primary"
             @click="submitForm()">提交</el-button>
-          <el-button @click="addItem()">新增内容块</el-button>
+          <el-button v-if="isAddBtn"
+            @click="addItem()">{{addItemText}}</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -29,8 +29,10 @@ import { Vue, Component, Emit, Watch, Prop } from "vue-property-decorator"
   name: "DialogDynamicForm"
 })
 export default class extends Vue {
-  // 使用 $attrs 实现外组件与孙组件通信 visible，model，label-width
-  // TODO: 文本还可以 prop 导入，优化
+  // 使用 $attrs 实现外组件与孙组件通信 visible，model，label-width, title
+  @Prop({ required: true }) openText!: string
+  @Prop({ required: false, default: "新增" }) addItemText!: string
+  @Prop({ required: false, default: true }) isAddBtn!: boolean
 
   @Emit("update:visible")
   emitVisible(val: boolean) {}
@@ -44,7 +46,14 @@ export default class extends Vue {
   addItem() {}
 
   @Emit()
-  submitForm() {}
+  submitForm() {
+    // 表单有效性验证
+    let formValid!: boolean
+    ;(this.$refs.form as any).validate((valid: boolean) => {
+      formValid = valid
+    })
+    return formValid
+  }
 }
 </script>
 
