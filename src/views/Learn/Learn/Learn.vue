@@ -120,7 +120,7 @@ interface ArticleFormType {
 export default class extends Vue {
   rotation_img_urls: string[] = [] // 轮播图组路径
   rotation_img_index: number = 0 // 轮播图当前图片下标
-  rotation_task: number = 0 // 轮播定时器
+  rotation_task: any = null // 轮播定时器
   nav_data: NavRow[] = [] // 导航选择栏数据
   aSelected: number[] = [0, 0, 0] // 用户选择的方向、分类、级别 信息
   search_input_val: string = ""
@@ -215,14 +215,15 @@ export default class extends Vue {
   }
 
   start_rotation() {
-    this.rotation_img_index = Math.floor(
-      Math.random() * this.rotation_img_urls.length
-    )
-    // this.rotation_task = setInterval(() => {
-    //   this.rotation_img_index++
-    //   if (this.rotation_img_index >= this.rotation_img_urls.length)
-    //     this.rotation_img_index = 0
-    // }, 5000)
+    // this.rotation_img_index = Math.floor(
+    //   Math.random() * this.rotation_img_urls.length
+    // )
+    // 5秒轮播
+    this.rotation_task = setInterval(() => {
+      this.rotation_img_index++
+      if (this.rotation_img_index >= this.rotation_img_urls.length)
+        this.rotation_img_index = 0
+    }, 5000)
   }
   // 根据articelUrl是否允许使用跨域iframe，来返回不同tabUrl
   new_tab_url(

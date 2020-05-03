@@ -133,22 +133,9 @@
       <section class="project-code">
         <div class="code-title">项目</div>
         <div class="code-content">
-          <el-row class="icon-row"
-            v-if='hasPermission(["admin", ...id_members])'>
-            <span class="btns-wrapper">
-              <el-button icon="el-icon-circle-plus"
-                title="insert new"
-                @click="plus_project_step(-1)"
-                circle></el-button>
-            </span>
-          </el-row>
           <div class="project-steps-wrapper"
             v-for="(steps_obj, key) in stepsList"
             :key="steps_obj.pleanId">
-            <project-steps class="project-steps"
-              :steps_obj="steps_obj"
-              :isPermission="hasPermission(['admin',id_members[0], steps_obj.master.userId])"
-              :key="steps_obj.pleanId"></project-steps>
             <el-row class="icon-row"
               v-if='hasPermission(["admin", ...id_members])'>
               <span class="btns-wrapper">
@@ -166,7 +153,21 @@
                   circle></el-button>
               </span>
             </el-row>
+            <project-steps class="project-steps"
+              :steps_obj.sync="steps_obj"
+              @update-steps="updateStepsData"
+              :isPermission="hasPermission(['admin',id_members[0], steps_obj.master.userId])"
+              :key="steps_obj.pleanId"></project-steps>
           </div>
+          <el-row class="icon-row"
+            v-if='hasPermission(["admin", ...id_members])'>
+            <span class="btns-wrapper">
+              <el-button icon="el-icon-circle-plus"
+                title="insert new"
+                @click="plus_project_step(stepsList.length)"
+                circle></el-button>
+            </span>
+          </el-row>
         </div>
       </section>
     </div>
@@ -174,7 +175,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator"
+import { Vue, Component, Watch } from "vue-property-decorator"
 import ProjectSteps from "@/components/ProjectSteps/ProjectSteps.vue"
 import { StepsObjType, StepDataType } from "@/utils/interface"
 import { PjContentItemType, ProjectMemberType, ProjectTeamType } from "./type"
@@ -200,6 +201,8 @@ interface ContentFormsType {
   contents: PjContentItemType[]
 }
 
+const placeholder: string = "\u200b"
+
 @Component({
   name: "CompetitionContent",
   components: {
@@ -213,15 +216,34 @@ interface ContentFormsType {
 export default class extends Vue {
   userId: string = ""
   PId: string = ""
-  PName: string = ""
+  PName: string = placeholder
   TName: string = ""
-  contents: PjContentItemType[] = []
-  team: ProjectTeamType = []
+  contents: PjContentItemType[] = [
+    {
+      content: [placeholder],
+      title: "项目简介",
+      PId: "128320832",
+      index: 0,
+      time: 13298923932342
+    }
+  ]
+
+  team: ProjectTeamType = [
+    {
+      introduce: [],
+      contribution: [],
+      PId: "128320832",
+      userId: "7354d9ca7a0b13cd",
+      index: 0,
+      headUrl: ""
+    }
+  ]
 
   default_step_data: StepDataType = {
     deadline: "2-21-2020",
     description:
-      "这是一段很长很长很长的描述性文字。这是一段很长很长很长的描述性文字。"
+      "这是一段很长很长很长的描述性文字。这是一段很长很长很长的描述性文字。",
+    time: 0
   }
   stepsList: StepsObjType[] = []
 
@@ -426,25 +448,62 @@ export default class extends Vue {
   }
   addMember() {}
 
-  default_steps_obj(): StepsObjType {
+  // steps 模块
+  async updateStepsData(newStepObj: StepsObjType) {
+    console.log("updateStepsData")
+    // update 后端
+    const res = await Compet.updateSteps(newStepObj)
+    console.log("updateSteps res: ", res)
+    if (resSuccess(res)) {
+      Vue.set(this.stepsList, newStepObj.index, newStepObj)
+      this.updateLocalProject({ stepsList: this.stepsList })
+      alert("提交成功")
+    } else {
+      alert("提交失败")
+    }
+  }
+
+  default_steps_obj(index: number): StepsObjType {
     let pleanId = id_random()
     return {
+      PId: this.PId,
+      index,
       planName: `计划${pleanId}`,
-      stepsData: Array(4).fill(this.default_step_data),
-      activeNum: 2,
+      stepsData: Array(1).fill(this.default_step_data),
+      activeNum: 0,
       pleanId,
       master: { userId: this.userId }
     }
   }
-  remove_project_step(plan_key: number, plan_name: string) {
+  @Watch("stepsList.length", { deep: true })
+  onStepsList() {
+    const stepsList: StepsObjType[] = this.stepsList
+    //index 重新赋值
+    if (stepsList && stepsList.length > 0) {
+      stepsList.forEach((steps, index) => {
+        steps.index = index
+      })
+    }
+  }
+  async remove_project_step(plan_key: number, plan_name: string) {
     let is_delete = confirm(`确定删除计划: ${plan_name}!`)
     if (is_delete) {
-      this.stepsList.splice(plan_key, 1)
+      const params: any = {
+        PId: this.PId,
+        pleanId: this.stepsList[plan_key].pleanId
+      }
+      const res = await Compet.deleteSteps(params)
+      if (resSuccess(res)) {
+        this.stepsList.splice(plan_key, 1)
+        this.updateLocalProject({ stepsList: this.stepsList })
+      } else {
+        alert("删除失败")
+      }
     }
   }
   plus_project_step(plan_key: number) {
     // plan_key = -1, 则往头部添加
-    this.stepsList.splice(plan_key + 1, 0, this.default_steps_obj())
+    this.stepsList.splice(plan_key, 0, this.default_steps_obj(plan_key))
   }
   // 从后端更新project
   projectLocalKey(PId: string) {

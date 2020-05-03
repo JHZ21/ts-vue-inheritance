@@ -13,7 +13,7 @@
         </slot>
         <el-form-item>
           <el-button type="primary"
-            @click="submitForm()">提交</el-button>
+            @click="submitForm()">{{confirmText}}</el-button>
           <el-button v-if="isAddBtn"
             @click="addItem()">{{addItemText}}</el-button>
         </el-form-item>
@@ -32,6 +32,7 @@ export default class extends Vue {
   // 使用 $attrs 实现外组件与孙组件通信 visible，model，label-width, title
   @Prop({ required: true }) openText!: string
   @Prop({ required: false, default: "新增" }) addItemText!: string
+  @Prop({ required: false, default: "提交" }) confirmText!: string
   @Prop({ required: false, default: true }) isAddBtn!: boolean
 
   @Emit("update:visible")
@@ -61,7 +62,7 @@ export default class extends Vue {
 .dynamic-form {
   /deep/ .el-form-item__content {
     display: flex;
-    justify-content: flex-end;
+    // justify-content: flex-end;
   }
   /deep/ textarea {
     @include webkit-scrollbar();
