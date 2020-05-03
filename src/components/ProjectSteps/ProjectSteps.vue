@@ -14,6 +14,7 @@
         :key="key"></el-step>
     </el-steps>
     <el-button class="code-download"
+      v-if="codeUrl && codeUrl !== ''"
       icon="el-icon-download"
       @click="download_code"
       circle></el-button>
