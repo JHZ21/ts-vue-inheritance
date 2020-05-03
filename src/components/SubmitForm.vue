@@ -1,6 +1,7 @@
 <template>
   <div class="add-card-box">
     <el-button v-if="openText"
+      class="open-text"
       type="text"
       @click="open_dialog()">{{openText}}</el-button>
     <el-button v-else
@@ -76,7 +77,11 @@ export default class extends Vue {
 
 <style lang='scss' scoped>
 .add-card-box {
-  margin: 10px 0;
+  .open-text {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  // margin: 10px 0;
   .dialog /deep/ .el-dialog {
     min-width: 400px;
   }

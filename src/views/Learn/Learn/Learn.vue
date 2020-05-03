@@ -94,11 +94,7 @@ import OpenNewTab from "@/components/OpenNewTab.vue"
 import SubmitForm from "@/components/SubmitForm.vue"
 import { deep_copy, props_not_empty, vaild_local } from "@/utils/func"
 import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
-import {
-  getLocalForage,
-  setLocalForage,
-  getVailLocalForage
-} from "@/utils/localForage"
+import * as Forage from "@/utils/localForage"
 import SortSelectionBar from "./components/SortSelectionBar.vue"
 import { UserModule } from "@/store/modules/user"
 
@@ -124,7 +120,7 @@ interface ArticleFormType {
 export default class extends Vue {
   rotation_img_urls: string[] = [] // 轮播图组路径
   rotation_img_index: number = 0 // 轮播图当前图片下标
-  rotation_task: number = 0 // 轮播定时器
+  rotation_task: any = null // 轮播定时器
   nav_data: NavRow[] = [] // 导航选择栏数据
   aSelected: number[] = [0, 0, 0] // 用户选择的方向、分类、级别 信息
   search_input_val: string = ""
@@ -203,7 +199,7 @@ export default class extends Vue {
           if (card && card.id && card.articleUrl) {
             const articleKey = `article-${card.id}`
             console.log("setLocalForage", articleKey)
-            setLocalForage(articleKey, {
+            Forage.setLocalForage(articleKey, {
               articleUrl: card.articleUrl,
               comments: card.comments || []
             })
@@ -219,14 +215,15 @@ export default class extends Vue {
   }
 
   start_rotation() {
-    this.rotation_img_index = Math.floor(
-      Math.random() * this.rotation_img_urls.length
-    )
-    // this.rotation_task = setInterval(() => {
-    //   this.rotation_img_index++
-    //   if (this.rotation_img_index >= this.rotation_img_urls.length)
-    //     this.rotation_img_index = 0
-    // }, 5000)
+    // this.rotation_img_index = Math.floor(
+    //   Math.random() * this.rotation_img_urls.length
+    // )
+    // 5秒轮播
+    this.rotation_task = setInterval(() => {
+      this.rotation_img_index++
+      if (this.rotation_img_index >= this.rotation_img_urls.length)
+        this.rotation_img_index = 0
+    }, 5000)
   }
   // 根据articelUrl是否允许使用跨域iframe，来返回不同tabUrl
   new_tab_url(
@@ -270,7 +267,7 @@ export default class extends Vue {
   }
   getRotationUrl() {
     const rotationUrlKey = "rotationUrlKey"
-    getVailLocalForage(rotationUrlKey).then(data => {
+    Forage.getVailLocalForage(rotationUrlKey, 30).then(data => {
       if (data) {
         this.rotation_img_urls = data as string[]
         console.log(rotationUrlKey, "get localForage")
@@ -279,7 +276,7 @@ export default class extends Vue {
           .then(res => {
             if (res && res.data && res.data.rotationUrl) {
               this.rotation_img_urls = res.data.rotationUrl
-              setLocalForage(rotationUrlKey, res.data.rotationUrl)
+              Forage.setLocalForage(rotationUrlKey, res.data.rotationUrl)
               console.log(rotationUrlKey, "get network")
             } else {
               console.log(res)
@@ -326,7 +323,12 @@ export default class extends Vue {
   //  获取learnCards
   async getLearnCards(aSelected: number[]) {
     const localLearnCardsKey = this.localCardsKey(aSelected)
-    return this.getData(this.updateLearnCards, aSelected, localLearnCardsKey)
+    return this.getData(
+      this.updateLearnCards,
+      aSelected,
+      localLearnCardsKey,
+      10
+    )
   }
   // 获取并设置learnCards
   async getSetLearnCards(aSelected: number[]) {

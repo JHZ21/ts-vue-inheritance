@@ -1,6 +1,6 @@
 import { Vue, Component, Watch } from "vue-property-decorator"
 import { UserModule } from "@/store/modules/user"
-import { hasPermission, resSuccess } from "@/utils/func"
+import { hasPermission, resSuccess, isDef } from "@/utils/func"
 import * as Forage from "@/utils/localForage"
 import {
   NavRow,
@@ -77,7 +77,7 @@ export class LearnCompetMixin extends Vue {
       this.updateNavData,
       [getNavData, localKey],
       localKey,
-      24 * 60
+      30
     )
   }
 }

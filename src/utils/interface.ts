@@ -37,13 +37,16 @@ export interface StepDataType {
   // title: string
   deadline: string
   description: string
+  time: number
 }
 export type StepsDataType = StepDataType[]
 
 export interface StepsObjType {
+  PId: string
   planName: string
+  codeUrl: string
   stepsData: StepsDataType
-  index?: number
+  index: number
   activeNum: number
   pleanId: number
   master: {

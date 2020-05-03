@@ -12,6 +12,12 @@
   position: fixed;
   right: 0;
   bottom: 33.33%;
+  & > div {
+    margin-top: 10px;
+  }
+  & > div:first-of-type {
+    margin-top: 0;
+  }
 }
 
 @mixin icon {

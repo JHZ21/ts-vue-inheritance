@@ -113,11 +113,7 @@ import SubmitForm from "@/components/SubmitForm.vue"
 import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import axios from "axios"
 import { deep_copy, resSuccess } from "@/utils/func"
-import {
-  getLocalForage,
-  getVailLocalForage,
-  setLocalForage
-} from "@/utils/localForage"
+import * as Forage from "@/utils/localForage"
 import { CompetitionModule } from "@/store/modules/competition"
 import { NavRow } from "@/utils/interface.ts"
 

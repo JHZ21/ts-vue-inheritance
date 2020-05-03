@@ -1,5 +1,5 @@
 import localForage from "localforage"
-import { vaild_local } from "./func"
+import { vaild_local, isUndef, isDef } from "./func"
 
 export function setLocalForage(key: string, data: object) {
   if (!key || !data) {
@@ -16,7 +16,7 @@ export function getLocalForage(key: string) {
   return localForage.getItem(key)
 }
 
-// max_minute 默认有30分种
+// max_minute 默认有1分种
 export function getVailLocalForage(
   key: string,
   max_minute?: number
@@ -26,7 +26,7 @@ export function getVailLocalForage(
     if (!data || !(data as any)._time) return data
     //TODE: 不清楚可能更好，可以离线，只有更新去覆盖就行
     // 如果过期了,就主动清除
-    if (vaild_local(data, max_minute)) {
+    if (vaild_local(data, isDef(max_minute) ? max_minute : 1)) {
       return data
     } else {
       removeLocalForage(key)

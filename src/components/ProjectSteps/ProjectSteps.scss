@@ -56,27 +56,41 @@
   .set-btns {
     display: flex;
     justify-content: flex-end;
+    & > button {
+      margin-left: 10px;
+    }
     .code-upload {
       @include icon;
     }
   }
-  .form-step-num {
-    padding-bottom: 15px;
-    border-bottom: $thin-broder;
-    & /deep/ .el-form-item__content {
-      display: flex;
+  .open-steps-text {
+    margin-left: 10px;
+    .input-from-wrapper {
+      padding-top: 15px;
+      border-top: $thin-broder;
+      @include dynamic-form-wrapper();
+    }
+    .icon-btn {
+      margin-left: 40px;
     }
   }
-  .step-tables-wrapper {
-    @include dynamic-form-wrapper();
-    .step-table-item {
-      position: relative;
-      .delete-btn {
-        position: absolute;
-        right: 0;
-        z-index: 1;
-        bottom: 0;
-      }
-    }
-  }
+  // .form-step-num {
+  //   padding-bottom: 15px;
+  //   border-bottom: $thin-broder;
+  //   & /deep/ .el-form-item__content {
+  //     display: flex;
+  //   }
+  // }
+  // .step-tables-wrapper {
+  //   @include dynamic-form-wrapper();
+  //   .step-table-item {
+  //     position: relative;
+  //     .delete-btn {
+  //       position: absolute;
+  //       right: 0;
+  //       z-index: 1;
+  //       bottom: 0;
+  //     }
+  //   }
+  // }
 }
