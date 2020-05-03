@@ -44,6 +44,7 @@ export type StepsDataType = StepDataType[]
 export interface StepsObjType {
   PId: string
   planName: string
+  codeUrl: string
   stepsData: StepsDataType
   index: number
   activeNum: number

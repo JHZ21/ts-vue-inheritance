@@ -470,6 +470,7 @@ export default class extends Vue {
       index,
       planName: `计划${pleanId}`,
       stepsData: Array(1).fill(this.default_step_data),
+      codeUrl: "",
       activeNum: 0,
       pleanId,
       master: { userId: this.userId }

@@ -24,7 +24,7 @@
       <div v-if="isPermission">
         <div class="set-btns">
           <el-button class="code-upload"
-            @click="upload_code"
+            @click="initCodeUrlForm"
             icon="el-icon-upload"
             circle></el-button>
           <el-dialog title="项目代码"
@@ -36,7 +36,7 @@
                 :rules="{
                   required: true, message: '下载地址不能为空', trigger: 'blur'
                 }">
-                <el-input v-model="codeDialog.urlForm.codeUrl"></el-input>
+                <el-input v-model.trim="codeDialog.urlForm.codeUrl"></el-input>
               </el-form-item>
               <el-form-item>
                 <el-button type="primary"
@@ -180,6 +180,7 @@ export default class extends Vue {
     this.steps_data = deep_copy(stepsObj.stepsData)
     this.activeNum = stepsObj.activeNum
     this.plan_name = stepsObj.planName
+    this.codeUrl = stepsObj.codeUrl || ""
   }
 
   i_width(key: number): boolean {
@@ -192,7 +193,7 @@ export default class extends Vue {
     // this.codeDialog.dialogVisible = true
   }
 
-  upload_code() {
+  initCodeUrlForm() {
     // confirm("上传代码成功!")
     this.codeDialog.dialogVisible = true
     const formCode: any = this.codeDialog.code
@@ -285,8 +286,12 @@ export default class extends Vue {
   }
   newStepsObj(): StepsObjType {
     const steps_obj: StepsObjType = deep_copy(this.steps_obj)
+    let codeUrl: string
     steps_obj.planName = this.form.plan_name
     steps_obj.stepsData = this.adapter_steps_date(this.form.step_tables)
+    if ((codeUrl = this.codeDialog.code) && codeUrl !== "") {
+      steps_obj.codeUrl = codeUrl
+    }
     steps_obj.activeNum =
       this.activeNum > this.steps_data.length
         ? this.steps_data.length
