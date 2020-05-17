@@ -80,7 +80,7 @@ export interface NavRow {
 export interface CardData {
   img_url: string
   title: string
-  id: number
+  id: string
   readVolume: number
   uploader: string
   timeStamp: number

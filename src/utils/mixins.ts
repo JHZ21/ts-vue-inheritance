@@ -96,7 +96,7 @@ export class AddCardMixin extends Vue {
     // 将上传图片储存
     let file_name = (file.name as string).split(".")
     let file_type: string = file_name[file_name.length - 1]
-    let reg_img: RegExp = /^(jp|jpe|pn)g$/ // jpg, jpeg , png
+    let reg_img: RegExp = /^(jpg|jpeg|png|webp)$/
     if (file_type && reg_img.test(file_type)) {
       this.form.img = file
     } else {

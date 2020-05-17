@@ -43,3 +43,10 @@ export const getLearnCards = (data: any) => {
     data
   })
 }
+export const deleteCard = (data: any) => {
+  return axios({
+    method: "POST",
+    url: `${basePath}/learn/deleteCard`,
+    data
+  })
+}

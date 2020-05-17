@@ -20,13 +20,21 @@
       <transition-group class="transition-box"
         v-show="!isEmptycurrCards"
         name="slide-up">
-        <open-new-tab v-for="(cardData) in currntPageCard"
-          :key="cardData.timeStamp"
-          :url="new_tab_url(cardData.id, cardData.isAllowedFrame, cardData.articleUrl)"
-          @opened="readArticle(cardData.id)">
-          <article-card class="article_card"
-            :cardData="cardData"></article-card>
-        </open-new-tab>
+        <div class="article-wrapper"
+          v-for="(cardData) in currntPageCard"
+          :key="cardData.timeStamp">
+          <open-new-tab :url="new_tab_url(cardData.id, cardData.isAllowedFrame, cardData.articleUrl)"
+            @opened="readArticle(cardData.id)">
+            <article-card class="article_card"
+              :cardData="cardData"></article-card>
+          </open-new-tab>
+          <transition name="slide-down">
+            <i v-if="userId && cardData.uploader.userId === userId"
+              class="iconfont icon-shibai delete-card"
+              @click.stop="deleteArticle(cardData.id)"></i>
+          </transition>
+        </div>
+
       </transition-group>
       <div class="null-data"
         v-show="isEmptycurrCards"> 此页面还没有内容, 快来分享吧 </div>
@@ -66,7 +74,7 @@
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将图片拖到此处，或<em>点击上传</em></div>
                 <div class="el-upload__tip"
-                  slot="tip">只能上传jpg/jpeg/png文件，且不超过500kb</div>
+                  slot="tip">只能上传jpg/jpeg/png/webp文件，且不超过500kb</div>
               </el-upload>
             </el-form-item>
           </el-form>
@@ -92,7 +100,12 @@ import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
 import OpenNewTab from "@/components/OpenNewTab.vue"
 import SubmitForm from "@/components/SubmitForm.vue"
-import { deep_copy, props_not_empty, vaild_local } from "@/utils/func"
+import {
+  deep_copy,
+  props_not_empty,
+  vaild_local,
+  resSuccess
+} from "@/utils/func"
 import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import * as Forage from "@/utils/localForage"
 import SortSelectionBar from "./components/SortSelectionBar.vue"
@@ -143,6 +156,9 @@ export default class extends Vue {
   get isEmptycurrCards(): boolean {
     return !this.currCards || this.currCards.length < 1
   }
+  get userId(): string {
+    return UserModule.userId
+  }
 
   // 计算当前类cardList
   get selected_eara_cardList(): CardData[] {
@@ -179,6 +195,36 @@ export default class extends Vue {
 
   switchSort(key: number) {
     this.sortKey = key
+  }
+
+  async deleteArticle(articleId: string) {
+    const isDelete = confirm("删除该文章?")
+    if (isDelete) {
+      const res: any = await Learn.deleteCard({
+        articleId
+      })
+      console.log("res: ", res)
+      if (resSuccess(res)) {
+        console.log("success")
+        this.deleteArticleCard(articleId)
+      }
+    }
+  }
+  async deleteArticleCard(articleId: string) {
+    this.currCards = this.currCards.filter(card => {
+      return card.id !== articleId
+    })
+    this.deleteStorageArticle(articleId)
+  }
+  async deleteStorageArticle(articleId: string) {
+    let localCardsKey: string = this.localCardsKey(this.aSelected)
+    let learnCards: any = await Forage.getVailLocalForage(localCardsKey)
+    if (!learnCards) return
+    learnCards = learnCards.filter((article: any) => {
+      console.log(article.id, articleId, article.id !== articleId)
+      return article.id !== articleId
+    })
+    Forage.setLocalForage(localCardsKey, learnCards)
   }
 
   //TODO: 收到返回数据后，currCards，
