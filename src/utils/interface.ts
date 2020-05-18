@@ -1,5 +1,7 @@
 /* */
 
+export type ASelectedType = string[]
+
 export type UpdateStoreDataType = {
   (
     updateDataApi: Function,
@@ -74,7 +76,7 @@ export interface CommentInfoType {
 
 export interface NavRow {
   label: string
-  aData: any[]
+  aData: any
 }
 
 export interface CardData {

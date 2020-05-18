@@ -9,8 +9,8 @@
         </div>
         <div class="nav-box">
           <nav-menu class="nav"
-            :nav_data="nav_data"
-            @update_selected_erea="update_selected_erea"></nav-menu>
+            :nav-data="nav_data"
+            @update-selected-erea="update_selected_erea"></nav-menu>
         </div>
       </div>
     </div>
@@ -115,7 +115,7 @@ import axios from "axios"
 import { deep_copy, resSuccess } from "@/utils/func"
 import * as Forage from "@/utils/localForage"
 import { CompetitionModule } from "@/store/modules/competition"
-import { NavRow } from "@/utils/interface.ts"
+import { NavRow, ASelectedType } from "@/utils/interface.ts"
 
 interface ProjectFormType {
   PName: string
@@ -141,7 +141,7 @@ interface ProjectFormType {
 export default class extends Vue {
   //TODO: 此页面与Learn页面结构相似，可是尝试是否可以抽象出, 可能用到solt
   search_val: string = ""
-  aSelected: number[] = [0, 0]
+  aSelected: ASelectedType = []
   pageCardSize: number = 10
   currentPage: number = 1
   nav_data: any = []
@@ -161,7 +161,7 @@ export default class extends Vue {
   async upload_form_data() {
     let form = this.form
     let formdata: FormData = new FormData()
-    const aSelected: number[] = this.aSelected
+    const aSelected: ASelectedType = this.aSelected
     formdata.append("PName", form.PName)
     formdata.append("PSummary", form.PSummary)
     formdata.append("TName", form.TName)
@@ -193,7 +193,7 @@ export default class extends Vue {
   }
   // 监听aSelected, 设置当前选择范围的数据
   @Watch("aSelected", { immediate: false, deep: true })
-  update_currRangeProjects(aSelected: number[]) {
+  update_currRangeProjects(aSelected: ASelectedType) {
     this.getSetProjectCards(aSelected)
   }
 
@@ -237,7 +237,7 @@ export default class extends Vue {
     projects.forEach((project: any) => delete project[count])
     return projects
   }
-  update_selected_erea(aSelected: number[]) {
+  update_selected_erea(aSelected: ASelectedType) {
     this.aSelected = aSelected.slice(0, 2)
   }
   set_search_val(search_val: string) {
@@ -248,12 +248,12 @@ export default class extends Vue {
   getData!: GetDataType
 
   // 关于projectCards
-  localProjectCardsKey(aSelected: number[]): string {
+  localProjectCardsKey(aSelected: ASelectedType): string {
     const strSelected: string = aSelected.join("-")
     return `projectCards-${strSelected}`
   }
   // 从后端更新projects返回
-  async updateStoreProjectCards(aSelected: number[]) {
+  async updateStoreProjectCards(aSelected: ASelectedType) {
     const localProjectCardsKey = this.localProjectCardsKey(aSelected)
     return this.updateStoreData(
       Compet.getProjectCards,
@@ -263,11 +263,11 @@ export default class extends Vue {
     )
   }
   // 更新并设置learnCards
-  async updateSetProjects(aSelected: number[]) {
+  async updateSetProjects(aSelected: ASelectedType) {
     this.setProjectCards(await this.updateStoreProjectCards(aSelected))
   }
   // 获取ProjectCards
-  async getProjectCards(aSelected: number[]) {
+  async getProjectCards(aSelected: ASelectedType) {
     const localProjectCardsKey = this.localProjectCardsKey(aSelected)
     return this.getData(
       this.updateStoreProjectCards,
@@ -276,7 +276,7 @@ export default class extends Vue {
     )
   }
   // 获取并设置learnCards
-  async getSetProjectCards(aSelected: number[]) {
+  async getSetProjectCards(aSelected: ASelectedType) {
     this.setProjectCards(await this.getProjectCards(aSelected))
   }
   setProjectCards(projectCards: ProjectDataType[]) {

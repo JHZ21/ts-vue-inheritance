@@ -73,12 +73,7 @@ export class LearnCompetMixin extends Vue {
   }
   // 获取NavData, 并存本地
   async getNavData(getNavData: Function, localKey: string) {
-    return this.getData(
-      this.updateNavData,
-      [getNavData, localKey],
-      localKey,
-      30
-    )
+    return this.getData(this.updateNavData, [getNavData, localKey], localKey, 0) // 30
   }
 }
 

@@ -9,8 +9,8 @@
             placeholder="快速查找文章/enter 确认"
             @set_search_val="set_search_val"></search-input>
         </div>
-        <nav-menu :nav_data="nav_data"
-          @update_selected_erea="updateASelected"></nav-menu>
+        <nav-menu :nav-data="nav_data"
+          @update-selected-erea="updateASelected"></nav-menu>
         <sort-selection-bar class="sort-bar-wrapper"
           :sortContent='["按时间", "按热度"]'
           @switch-sort="switchSort"></sort-selection-bar>
@@ -20,21 +20,14 @@
       <transition-group class="transition-box"
         v-show="!isEmptycurrCards"
         name="slide-up">
-        <div class="article-wrapper"
-          v-for="(cardData) in currntPageCard"
-          :key="cardData.timeStamp">
-          <open-new-tab :url="new_tab_url(cardData.id, cardData.isAllowedFrame, cardData.articleUrl)"
-            @opened="readArticle(cardData.id)">
-            <article-card class="article_card"
-              :cardData="cardData"></article-card>
-          </open-new-tab>
-          <transition name="slide-down">
-            <i v-if="userId && cardData.uploader.userId === userId"
-              class="iconfont icon-shibai delete-card"
-              @click.stop="deleteArticle(cardData.id)"></i>
-          </transition>
-        </div>
-
+        <articel-card-wrapper v-for="(cardData) in currntPageCard"
+          :key="cardData.timeStamp"
+          :card-data="cardData"
+          :a-selected="aSelected"
+          :user-id="userId"
+          @is-added="updateSetLearnCards"
+          @delete-article-succeeded="deleteArticleCard">
+        </articel-card-wrapper>
       </transition-group>
       <div class="null-data"
         v-show="isEmptycurrCards"> 此页面还没有内容, 快来分享吧 </div>
@@ -86,20 +79,15 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from "vue-property-decorator"
-import ArticleCard from "@/components/ArticleCard.vue"
-import {
-  CardData,
-  NavRow,
-  NestedCardList,
-  UpdateStoreDataType,
-  GetDataType
-} from "@/utils/interface.ts"
-import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
-import * as Learn from "@/api/learn"
 import NavMenu from "@/components/NavMenu.vue"
 import SearchInput from "@/components/SearchInput.vue"
-import OpenNewTab from "@/components/OpenNewTab.vue"
+// import OpenNewTab from "@/components/OpenNewTab.vue"
 import SubmitForm from "@/components/SubmitForm.vue"
+// import ArticleCard from "@/components/ArticleCard.vue"
+import SortSelectionBar from "./components/SortSelectionBar.vue"
+import ArticelCardWrapper from "./components/ArticleCardWrapper.vue"
+import { oContentUrlType, LearnModule } from "@/store/modules/learn.ts"
+import { UserModule } from "@/store/modules/user"
 import {
   deep_copy,
   props_not_empty,
@@ -108,8 +96,15 @@ import {
 } from "@/utils/func"
 import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import * as Forage from "@/utils/localForage"
-import SortSelectionBar from "./components/SortSelectionBar.vue"
-import { UserModule } from "@/store/modules/user"
+import {
+  ASelectedType,
+  CardData,
+  NavRow,
+  NestedCardList,
+  UpdateStoreDataType,
+  GetDataType
+} from "@/utils/interface"
+import * as Learn from "@/api/learn"
 
 interface ArticleFormType {
   article_url: string
@@ -121,12 +116,13 @@ interface ArticleFormType {
 @Component({
   name: "Learn",
   components: {
-    ArticleCard,
+    // ArticleCard,
     NavMenu,
     SearchInput,
-    OpenNewTab,
+    // OpenNewTab,
     SubmitForm,
-    SortSelectionBar
+    SortSelectionBar,
+    ArticelCardWrapper
   },
   mixins: [AddCardMixin, CommonMixin, LearnCompetMixin]
 })
@@ -135,7 +131,7 @@ export default class extends Vue {
   rotation_img_index: number = 0 // 轮播图当前图片下标
   rotation_task: any = null // 轮播定时器
   nav_data: NavRow[] = [] // 导航选择栏数据
-  aSelected: number[] = [0, 0, 0] // 用户选择的方向、分类、级别 信息
+  aSelected: ASelectedType = [] // 用户选择的方向、分类、级别 信息
   search_input_val: string = ""
   to_search_val: string = ""
   pageCardSize: number = 30 //一页展示card容量
@@ -170,7 +166,6 @@ export default class extends Vue {
     // 反转
     const firstProp = this.sortProps[this.sortKey]
     const secondProp = this.sortProps.filter(p => p !== firstProp)[0]
-    console.log(firstProp, secondProp)
     // 优先 firstProp 降序，相同时，再按 secondProp 降序
     curr_cardList.sort((a, b) => {
       const prev: any = a
@@ -230,7 +225,7 @@ export default class extends Vue {
   //TODO: 收到返回数据后，currCards，
   // 和该类的forage也应更新，使得用户有良好的反馈体验
   upload_form_data() {
-    const aSelected: number[] = this.aSelected
+    const aSelected: ASelectedType = this.aSelected
     let form = this.form
     let formdata: FormData = new FormData()
     formdata.append("articleUrl", form.article_url)
@@ -288,7 +283,7 @@ export default class extends Vue {
     this.to_search_val = search_val
   }
 
-  updateASelected(aSelected: number[]) {
+  updateASelected(aSelected: ASelectedType) {
     this.aSelected = aSelected
   }
 
@@ -302,13 +297,11 @@ export default class extends Vue {
     )
   }
 
-  select_item(row_key: number, item_key: number): void {
-    Vue.set(this.aSelected, row_key, item_key)
-  }
+  // select_item(row_key: number, item_key: number): void {
+  //   Vue.set(this.aSelected, row_key, item_key)
+  // }
   @Watch("aSelected", { immediate: true, deep: true })
-  onSelectedErea(aSelected: number[]) {
-    console.log("aSelected: ", aSelected)
-
+  onSelectedErea(aSelected: ASelectedType) {
     this.getSetLearnCards(aSelected)
   }
   getRotationUrl() {
@@ -343,7 +336,7 @@ export default class extends Vue {
       this.updateSetLearnCards(this.aSelected)
     }
   }
-  localCardsKey(aSelected: number[]): string {
+  localCardsKey(aSelected: ASelectedType): string {
     const strSelected: string = aSelected.join("-")
     return `learnCards-${strSelected}`
   }
@@ -353,7 +346,7 @@ export default class extends Vue {
 
   // 关于 learnCards
   // 从后端更新learCards返回
-  async updateLearnCards(aSelected: number[]) {
+  async updateLearnCards(aSelected: ASelectedType) {
     const localLearnCardsKey = this.localCardsKey(aSelected)
     return this.updateStoreData(
       Learn.getLearnCards,
@@ -363,11 +356,11 @@ export default class extends Vue {
     )
   }
   // 更新并设置learnCards
-  async updateSetLearnCards(aSelected: number[]) {
+  async updateSetLearnCards(aSelected: ASelectedType) {
     this.setLearnCards(await this.updateLearnCards(aSelected))
   }
   //  获取learnCards
-  async getLearnCards(aSelected: number[]) {
+  async getLearnCards(aSelected: ASelectedType) {
     const localLearnCardsKey = this.localCardsKey(aSelected)
     return this.getData(
       this.updateLearnCards,
@@ -377,7 +370,7 @@ export default class extends Vue {
     )
   }
   // 获取并设置learnCards
-  async getSetLearnCards(aSelected: number[]) {
+  async getSetLearnCards(aSelected: ASelectedType) {
     this.setLearnCards(await this.getLearnCards(aSelected))
   }
   setLearnCards(learnCards: CardData[]) {
