@@ -1,5 +1,7 @@
 /* */
 
+export type ASelectedType = string[]
+
 export type UpdateStoreDataType = {
   (
     updateDataApi: Function,
@@ -74,13 +76,13 @@ export interface CommentInfoType {
 
 export interface NavRow {
   label: string
-  aData: any[]
+  aData: any
 }
 
 export interface CardData {
   img_url: string
   title: string
-  id: number
+  id: string
   readVolume: number
   uploader: string
   timeStamp: number

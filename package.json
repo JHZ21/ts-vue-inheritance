@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "start": "http-server  dist  -a inherit.proudmodest.cn -p 433 -S -C ./cert/certificate.crt -K ./cert/private.key -P https://inherit.proudmodest.cn:4433",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
@@ -40,6 +41,7 @@
     "eslint": "^5.16.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^5.0.0",
+    "http-server": "^0.12.3",
     "jest": "^24.9.0",
     "node-sass": "^4.12.0",
     "prettier": "^1.19.1",

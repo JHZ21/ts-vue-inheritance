@@ -47,9 +47,26 @@
     }
     @include layout-width();
     padding: 10px 0 20px;
-    .article_card {
-      margin: 10px;
-    }
+
+    // .article-wrapper {
+    //   position: relative;
+    //   margin: 10px;
+    //   overflow: hidden;
+    //   .delete-card {
+    //     color: red;
+    //     position: absolute;
+    //     right: 0;
+    //     top: -38px;
+    //     font-size: 33px;
+    //     background: #9e9e9eb8;
+    //     transition: all 0.3s;
+    //   }
+    //   &:hover .delete-card {
+    //     opacity: 1;
+    //     top: 0;
+    //   }
+    // }
+
     .fixed-right-box {
       @include fixed-right-box;
     }
