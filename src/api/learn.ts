@@ -50,3 +50,11 @@ export const deleteCard = (data: any) => {
     data
   })
 }
+
+export const transferCard = (data: any) => {
+  return axios({
+    method: "POST",
+    url: `${basePath}/learn/transferCard`,
+    data
+  })
+}

@@ -38,6 +38,7 @@ export function resSuccess(res: any): boolean {
 }
 
 export function vaild_local(data: any, max_minute: number = 30): boolean {
+  // max_minute = 0
   let is_vail: boolean = false
   let now_time = new Date().getTime()
   let storage_time: number

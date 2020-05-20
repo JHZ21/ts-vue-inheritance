@@ -84,7 +84,10 @@ export interface CardData {
   title: string
   id: string
   readVolume: number
-  uploader: string
+  uploader: {
+    name: string
+    userId: string
+  }
   timeStamp: number
 }
 
