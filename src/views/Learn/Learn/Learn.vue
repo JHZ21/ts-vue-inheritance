@@ -23,10 +23,12 @@
         <articel-card-wrapper v-for="(cardData) in currntPageCard"
           :key="cardData.timeStamp"
           :card-data="cardData"
+          :nav-data="nav_data"
           :a-selected="aSelected"
           :user-id="userId"
           @is-added="updateSetLearnCards"
-          @delete-article-succeeded="deleteArticleCard">
+          @delete-article-succeeded="deleteArticleCard"
+          @transfer-card-succeeded="transferCurrAndStorageCard">
         </articel-card-wrapper>
       </transition-group>
       <div class="null-data"
@@ -192,6 +194,7 @@ export default class extends Vue {
     this.sortKey = key
   }
 
+  // Articel Card block
   async deleteArticle(articleId: string) {
     const isDelete = confirm("删除该文章?")
     if (isDelete) {
@@ -211,17 +214,56 @@ export default class extends Vue {
     })
     this.deleteStorageArticle(articleId)
   }
-  async deleteStorageArticle(articleId: string) {
+  async deleteStorageArticle(articleId: string): Promise<any> {
     let localCardsKey: string = this.localCardsKey(this.aSelected)
     let learnCards: any = await Forage.getVailLocalForage(localCardsKey)
     if (!learnCards) return
+    let deletedArticles: any[] = []
     learnCards = learnCards.filter((article: any) => {
-      console.log(article.id, articleId, article.id !== articleId)
-      return article.id !== articleId
+      if (article.id !== articleId) {
+        return true
+      } else {
+        deletedArticles.push(article)
+        return false
+      }
     })
     Forage.setLocalForage(localCardsKey, learnCards)
+    return deletedArticles
   }
-
+  // 修改 virtualDom
+  async deleteVirtualCard(articleId: string) {
+    let i
+    for (i = 0; i < this.currCards.length; i++) {
+      if (this.currCards[i].id === articleId) {
+        break
+      }
+    }
+    if (i >= this.currCards.length) return
+    this.currCards.splice(i, 1)
+  }
+  async transferCurrAndStorageCard(params: any) {
+    if (!params) return
+    // 修改 virtualDom
+    this.deleteVirtualCard(params.articleId)
+    // 修改 stroage
+    let deletedArticles: any[] = await this.deleteStorageArticle(
+      params.articleId
+    )
+    if (!deletedArticles || !deletedArticles[0]) return
+    let deleteArticle = deletedArticles[0]
+    let newASelected: string[] = params.newASelected
+    newASelected.forEach((item, index) => {
+      deleteArticle[`label_${index}`] = item
+    })
+    this.addStorageCards(this.localCardsKey(newASelected), deleteArticle)
+  }
+  async addStorageCards(localCardsKey: string, cards: any[]): Promise<boolean> {
+    let localCards: any = await Forage.getVailLocalForage(localCardsKey)
+    if (!localCards) return false
+    localCards.push(cards)
+    await Forage.setLocalForage(localCardsKey, localCards)
+    return true
+  }
   //TODO: 收到返回数据后，currCards，
   // 和该类的forage也应更新，使得用户有良好的反馈体验
   upload_form_data() {
