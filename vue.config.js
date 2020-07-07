@@ -11,6 +11,7 @@ module.exports = {
     )
   },
   devServer: {
+    open: true,
     host: `${process.env.VUE_APP_FRONT_HOST}`,
     port: `${process.env.VUE_APP_FRONT_PORT}`,
     disableHostCheck: true,
@@ -22,7 +23,7 @@ module.exports = {
     proxy: {
       "/apis": {
         target: `${process.env.VUE_APP_BACK_PATH}`,
-        secure: true, //https ，为true，不安全时则报错500
+        secure: false, //https ，为true，不安全时则报错500
         changeOrigin: true,
         pathRewrite: {
           "^/apis": ""

@@ -3,7 +3,8 @@
     <div class="article_card_img"
       :style="{ backgroundImage: `url(${cardData.imgUrl})` }"></div>
     <div class="article_card_content">
-      <span class="article_card_title">{{ cardData.title }}</span>
+      <span class="article_card_title"
+        :title="cardData.title">{{ cardData.title }}</span>
     </div>
     <div class="article_card_info">
       <span class="reading_volume">

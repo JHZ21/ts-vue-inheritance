@@ -1,5 +1,9 @@
 import { LinkElement } from "./interface"
 
+export function isSameValArr(a: any[], b: any[]): boolean {
+  return a.every((item, index) => item === b[index])
+}
+
 // 寻找左数组与右数组不同的值
 export function leftArrayDiff<T>(
   leftArr: T[],

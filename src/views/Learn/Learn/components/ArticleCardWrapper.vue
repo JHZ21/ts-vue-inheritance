@@ -12,12 +12,21 @@
     </transition>
     <el-dialog title="文章修改"
       :visible.sync="dialogFormVisible">
-      <el-form>
+      <el-form label-position="left"
+        ref="ruleForm"
+        :model="form"
+        :rules="rules">
         <el-form-item label="目标分类:"
           :label-width="labelWidth"
           class="form-row">
           <el-cascader v-model="form.aSelected"
             :options="navOptions"></el-cascader>
+        </el-form-item>
+        <el-form-item class="form-row"
+          label="文章标题:"
+          :label-width="labelWidth"
+          prop="title">
+          <el-input v-model="form.title"></el-input>
         </el-form-item>
         <el-form-item label="删除文章:"
           :label-width="labelWidth"
@@ -41,9 +50,10 @@ import OpenNewTab from "@/components/OpenNewTab.vue"
 import ArticleCard from "@/components/ArticleCard.vue"
 import { LearnModule } from "@/store/modules/learn"
 import { CardData, ASelectedType, NavRow } from "@/utils/interface"
-import { resSuccess } from "@/utils/func"
+import { resSuccess, isSameValArr } from "@/utils/func"
 import { CommonMixin } from "@/utils/mixins"
 import * as Learn from "@/api/learn"
+import { valid } from "mockjs"
 
 interface optionType {
   label: string
@@ -53,6 +63,11 @@ interface optionType {
 type optionsType = optionType[]
 interface objOptionsType {
   [prop: string]: optionsType
+}
+function validateTittle(rule: any, value: string, callback: Function) {
+  if (!value || value === "") {
+    callback(new Error("标题不能为空"))
+  }
 }
 
 @Component({
@@ -109,7 +124,11 @@ export default class extends Vue {
   }
   form: any = {
     delete: false,
+    title: "",
     aSelected: []
+  }
+  rules: any = {
+    title: [{ validator: validateTittle, trigger: "blur" }]
   }
   newASelected: ASelectedType = []
 
@@ -159,22 +178,27 @@ export default class extends Vue {
   deleteArticleSucceeded(articleId: string) {}
   editCard() {
     this.dialogFormVisible = true
+    // 初始化 form
     this.form.aSelected = [].concat([], this.aSelected as any)
+    this.form.title = this.cardData.title
   }
   async confirmForm() {
-    let changed: boolean = !this.aSelected.every(
-      (item, index) => item === this.form.aSelected[index]
-    )
-    if (!changed) return
-    const params: any = {
-      articleId: this.cardData.id,
-      aSelected: this.aSelected,
-      newASelected: this.form.aSelected
-    }
-    const res: any = await Learn.transferCard(params)
-    if (resSuccess(res)) {
-      this.transferCardSucceeded(params)
-      this.dialogFormVisible = false
+    ;(this.$refs["ruleForm"] as any).validate((valid: boolean) => valid)
+    if (
+      !isSameValArr(this.aSelected, this.form.aSelected) ||
+      (this.form.title && this.cardData.title !== this.form.title)
+    ) {
+      const params: any = {
+        articleId: this.cardData.id,
+        aSelected: this.aSelected,
+        newASelected: this.form.aSelected,
+        title: this.form.title
+      }
+      const res: any = await Learn.transferCard(params)
+      if (resSuccess(res)) {
+        this.transferCardSucceeded(params)
+        this.dialogFormVisible = false
+      }
     }
   }
   @Emit()

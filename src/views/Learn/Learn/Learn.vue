@@ -28,7 +28,7 @@
           :user-id="userId"
           @is-added="updateSetLearnCards"
           @delete-article-succeeded="deleteArticleCard"
-          @transfer-card-succeeded="transferCurrAndStorageCard">
+          @transfer-card-succeeded="updateChangedCardList">
         </articel-card-wrapper>
       </transition-group>
       <div class="null-data"
@@ -94,7 +94,8 @@ import {
   deep_copy,
   props_not_empty,
   vaild_local,
-  resSuccess
+  resSuccess,
+  isSameValArr
 } from "@/utils/func"
 import { AddCardMixin, CommonMixin, LearnCompetMixin } from "@/utils/mixins"
 import * as Forage from "@/utils/localForage"
@@ -195,6 +196,15 @@ export default class extends Vue {
   }
 
   // Articel Card block
+  async updateChangedCardList(params: any) {
+    console.log("updateChangedCardList")
+    if (isSameValArr(params.aSelected, params.newASelected)) {
+      this.updateSetLearnCards(this.aSelected)
+    } else {
+      this.updateSetLearnCards(this.aSelected)
+      this.updateLearnCards(params.newASelected)
+    }
+  }
   async deleteArticle(articleId: string) {
     const isDelete = confirm("删除该文章?")
     if (isDelete) {
@@ -288,6 +298,11 @@ export default class extends Vue {
             })
             // 从后端获取更新的cards数据，刷新页面
             this.updateSetLearnCards(aSelected)
+          }
+        } else {
+          let msg: String
+          if (res.data && (msg = res.data.msg)) {
+            alert(msg)
           }
         }
         console.log("res.data:", res.data)
