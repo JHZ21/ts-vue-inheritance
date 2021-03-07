@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "serve hz": "vue-cli-service serve",
     "start": "http-server  dist  -a inherit.proudmodest.cn -p 433 -S -C ./cert/certificate.crt -K ./cert/private.key -P https://inherit.proudmodest.cn:4433",
-    "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:unit": "jest"

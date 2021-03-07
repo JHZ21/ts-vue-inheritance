@@ -2,6 +2,18 @@
 
 
 
+## 启动
+
+```
+npm run server  
+```
+
+
+
+
+
+
+
 ## Technology stack
 
 - Typescript + SCSS + Vue + Vuex + Vue-router
